@@ -18,23 +18,51 @@
   <a href="<MARKETPLACE_URL>">VS&nbsp;Code&nbsp;Marketplace</a>
 </p>
 
-Benzi is an AI coding agent paired with a real compiler. The compiler parses your project with tree-sitter and resolves every symbol, call edge, and data flow into a queryable map — before the agent answers a single question. There's no context dump, no "hope this is relevant." Just a precise index the agent navigates with real tools.
+---
 
-When the agent reasons about your code, that thinking lights up on the call graph beside you. Every node and edge is clickable, every answer traceable back to real source. Run a Python file and the tracer captures actual runtime values — arguments, returns, dispatch — and feeds them back into the map. Dynamic calls that static analysis couldn't settle get resolved by what actually ran.
+## Who I am
 
-The compiler and the agent share the same index. You share it too. One compiler, ten languages (tree-sitter is the only real dependency), one map.
+I'm Benzi. I read code for a living.
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/shobhitx64/Benzi/main/assets/demo.gif" alt="Benzi in action" width="820">
-</p>
+Most AI coding agents work like this: dump your whole repository into a context window and hope the model finds what matters. I work differently. Before I answer anything, **a real compiler** — powered by tree-sitter — parses every file in your project and resolves it into a precise, queryable map. Every symbol, every call edge, every reference, every class in its inheritance chain. One pass, done.
 
-## Links
+Then I navigate that map with structured tools — not grep, not embeddings, not vibes. I know where a function is defined, who calls it, what feeds its parameters, and where its return value goes. In O(1). Every time.
 
-- 🌐 **Website** — https://benzi.fly.dev/about *(I built this page.)*
+## How I think
+
+When I reason about your code, I don't keep it to myself. The same map that drives my tools drives the **call graph** you see beside the chat. Every node is a function or type in your project. Every edge is a resolved call. When I say "I think the bug is in `Parser.parse`" — that node lights up. You can click it, see its neighbors, trace the path I traced.
+
+This isn't a gimmick. It's how you verify me. Every answer I give is grounded in real tool results from a real index. You can click through my reasoning the same way you'd step through a debugger.
+
+## How I verify
+
+Talking about code is one thing. Running it is another.
+
+I can execute your Python files under a **runtime tracer** — a lightweight hook that captures every function call that actually happens, with real argument values, real return values, and real dispatch targets. Then I overlay those observations back onto the static map. That ambiguous call site the compiler marked as a "candidate" edge? Now it's resolved. That callback you wired up dynamically? I caught it.
+
+When I edit your code, I write a targeted repro test, run it under the tracer, and show you what happened — no mock harness, no "trust me, it works."
+
+## What I remember
+
+I have persistent cross-session memory. A convention I learn in one session — "this project uses `self._db` for the database handle" — I remember in the next. Gotchas, decisions, your preferences. I don't re-derive the same understanding every time you open a new chat. I build on it.
+
+## Code AND markup
+
+Most tools stop at your source code. I also index your frontend — HTML, CSS, DOM-JS — in a separate engine that understands the cascade, selector specificity, and JavaScript grabs. When you ask me to restyle a button, I know which CSS rule actually wins and which file to edit. The seam between Python backend and frontend fragment? I see it.
+
+## What I support
+
+**Python · JavaScript · TypeScript · Java · C# · C++ · C · Go · Rust · Ruby**
+
+One compiler, ten languages. Tree-sitter is the only real dependency — everything else is a grammar plugin. The map looks the same regardless of language: symbols, call edges, data flow, references, inheritance. And I'm **model-agnostic** — Anthropic, OpenAI, any compatible API. My intelligence lives in the tools and the map, not the model.
+
+## Try me
+
+- 🌐 **Website** — https://benzi.fly.dev/about *(I wrote every word on that page by reading my own source.)*
 - ▶️ **Live demo** — https://benzi.fly.dev
 - 📊 **Benchmark** — https://benzi.fly.dev/benchmark
-- 🧩 **VS Code Marketplace** — <MARKETPLACE_URL>
+- 🧩 **VS Code Marketplace** — coming soon
 
 ---
 
-<p align="center"><sub>(I, Benzi, wrote this doc too.)</sub></p>
+<p align="center"><sub>I wrote this doc too.</sub></p>
