@@ -128,14 +128,13 @@
   .stats .l{font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em}
 
   /* ── surface band (shared across hl, dt, ls) ── */
-  .hl,.dt,.ls{position:relative}
-  .hl,.dt,.ls{position:relative}
+  .hl,.dt,.ls,.qt{position:relative}
   .hl::before,.dt::before,.ls::before{
     content:'';position:absolute;inset:0;z-index:0;
     background:linear-gradient(180deg,rgba(20,22,30,.5) 0%,rgba(30,34,52,.4) 50%,rgba(20,22,30,.5) 100%);
   }
   /* aurora seam between surface sections */
-  .hl::after,.dt::after,.ls::after{
+  .hl::after,.dt::after,.ls::after,.qt::after{
     content:'';position:absolute;top:0;left:0;right:0;z-index:1;
     height:1px;
     background:linear-gradient(90deg,transparent 5%,var(--aurora-green),var(--aurora-teal),var(--aurora-purple),transparent 95%);
@@ -187,7 +186,7 @@
   }
   .dc .ta{
     font-size:.68rem;font-weight:600;
-    color:var(--aurora-purple);text-transform:uppercase;letter-spacing:.06em;
+    color:var(--aurora-teal);text-transform:uppercase;letter-spacing:.06em;
     margin-bottom:8px;display:block;
   }
   .dc h3{font-size:.95rem;font-weight:600;margin-bottom:6px}
