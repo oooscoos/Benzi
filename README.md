@@ -10,7 +10,7 @@
 
 <h1 align="center">Benzi</h1>
 
-<p align="center"><b>The codebase, compiled for the agent.</b></p>
+<p align="center"><b>An AI coding agent that doesn't guess — it <i>reads</i>.</b></p>
 
 <p align="center">
   <a href="<WEBSITE_URL>">Website</a> &nbsp;·&nbsp;
@@ -18,7 +18,7 @@
   <a href="<MARKETPLACE_URL>">VS&nbsp;Code&nbsp;Marketplace</a>
 </p>
 
-Benzi is a coding agent that actually **understands your codebase** — not by grepping or guessing, but by compiling it into a precise, queryable map: every symbol, call edge, and reference resolved up front. It navigates, reads, runs, and edits *through that map*, so it's **fast** (it never re-reads your whole repo) and **precise** (it reasons from proven structure, not vibes). It can even run your code to capture real runtime values, and it remembers what it learns from one session to the next.
+Every other agent dumps your files into a context window and hopes. Benzi compiles your codebase into a resolved map first — calls, data flow, references — then navigates it with real tools. One compiler, ten languages, one map.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/shobhitx64/Benzi/main/assets/demo.gif" alt="Benzi in action" width="820">
@@ -31,10 +31,19 @@ Benzi is a coding agent that actually **understands your codebase** — not by g
 
 ## What makes it different
 
-- **A resolved map, not a text search.** Benzi compiles your project once into an exact index — proven call edges, data flow, references — and queries *that* instead of re-reading files. Fewer tokens, sharper answers.
-- **It runs your code.** Click a Python file's run button (or just ask) and Benzi traces the actual execution, capturing real argument and return values — the only truth for dynamic dispatch, callbacks, and anything a runtime decides.
-- **Everything is verifiable.** When Benzi names a function, it lights up on the graph — click to jump straight to the source. Answers you can check, not take on faith.
-- **Persistent memory.** What it learns about your codebase carries across sessions.
+- **Compiled map, not a context dump.** Parallel parse every file, resolve imports, build class ancestry, trace every identifier to its definition — before answering a single question. A queryable index, not a blob of text.
+- **Three tiers of truth.** Proven edges resolved with evidence. Candidate edges the compiler refuses to guess on. Observed edges from real runtime traces.
+- **Runtime tracer.** Hooks every call at runtime — real argument values, real returns, real dispatch. Overlays onto the static map. No speculation.
+- **Call flow + data flow, one join.** Who calls whom and where a value originates — indexed separately, joined at every call site. Trace a bad value to its origin in one tool call.
+- **Context-aware runtime testcases.** Benzi writes a focused repro against the code you just changed, runs it under the real call tracer, and returns the observed values — no guesswork, no mock harness.
+- **Syntax-gated edits + blast radius.** Every edit checked with the real language parser. Broken parse = auto revert. Every successful edit reports the changed symbol, its callers, its holders.
+- **Persistent memory.** Durable per-repo facts survive restarts. Conventions and gotchas learned once aren't re-derived every session.
+- **Model-agnostic.** Anthropic, OpenAI, or any compatible API. The intelligence lives in the tools and the map, not the model.
+- **Dual-engine: code + markup.** A separate index for HTML/CSS/DOM-JS — cascade resolution, JS grabs, even frontend embedded inside Python strings.
+
+## Language support
+
+Python, JavaScript, TypeScript, Java, C#, C++, C, Go, Rust, Ruby — one compiler, one map. The language is just a grammar plugin.
 
 ## Requirements
 
@@ -49,4 +58,4 @@ Benzi is a coding agent that actually **understands your codebase** — not by g
 
 ---
 
-<p align="center"><sub>Built by <b>Variant</b>.</sub></p>
+<p align="center"><sub>Built by <b>Variant</b>. <i>(I wrote this doc too.)</i></sub></p>
