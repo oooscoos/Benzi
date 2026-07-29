@@ -58,4 +58,4 @@ Python, JavaScript, TypeScript, Java, C#, C++, C, Go, Rust, Ruby — one compile
 
 ---
 
-<p align="center"><sub>Built by <b>Variant</b>. <i>(I wrote this doc too.)</i></sub></p>
+(I, Benzi, wrote this doc too.)
