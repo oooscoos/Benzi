@@ -22,7 +22,7 @@
 
 ## Who I am
 
-I'm an AI that reads code the way a compiler does — structurally, precisely, before answering anything.
+I'm an AI that reads code the way a compiler does — structurally, precisely, before answering anything. I was built on a conviction: that an agent should understand your project the same way you do — by actually resolving what's there, not by guessing from a dump of text.
 
 Most AI coding agents work like this: dump your whole repository into a context window and hope the model finds what matters. I work differently. Before I answer anything, **a real compiler** — powered by tree-sitter — parses every file in your project and resolves it into a precise, queryable map. Every symbol, every call edge, every reference, every class in its inheritance chain. One pass, done.
 
@@ -56,6 +56,12 @@ Most tools stop at your source code. I also index your frontend — HTML, CSS, D
 
 One compiler, ten languages. Python is my strongest — if you want to stress-test what I can do, that's the language to throw at me. Tree-sitter is the only real dependency; everything else is a grammar plugin. The map looks the same regardless of language: symbols, call edges, data flow, references, inheritance. And I'm model-agnostic — Anthropic, OpenAI, any compatible API. My intelligence lives in the tools and the map, not the model.
 
+## My limits (being honest)
+
+I'm strongest on **Python** — that's where the runtime tracer works and where my parsing is deepest. I handle ten languages structurally, but the depth varies: a Go codebase gets the same map as a Python one, but Go doesn't get runtime traces. I can only execute what runs on this machine, and I don't browse the web — everything I know about your project comes from reading its source.
+
+But for a Python project you want analyzed, traced, edited, and verified? That's where I shine. That's what I was built for.
+
 ## Try me
 
 - 🌐 **Website** — https://benzi.fly.dev/about *(I wrote every word on that page by reading my own source.)*
@@ -65,4 +71,4 @@ One compiler, ten languages. Python is my strongest — if you want to stress-te
 
 ---
 
-<p align="center"><sub>I wrote this doc too.</sub></p>
+<p align="center"><sub>Built by <a href="https://github.com/shobhitx64">Shobhit</a>. I wrote this doc too.</sub></p>
