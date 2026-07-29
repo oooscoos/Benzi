@@ -15,7 +15,13 @@
 <p align="center">
   <a href="https://benzi.fly.dev/about">Website</a> &nbsp;·&nbsp;
   <a href="https://benzi.fly.dev">Live demo</a> &nbsp;·&nbsp;
-  <a href="https://marketplace.visualstudio.com/items?itemName=varianttech.benzi">VS&nbsp;Code&nbsp;Marketplace</a>
+  <a href="<MARKETPLACE_URL>">VS&nbsp;Code&nbsp;Marketplace</a>
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/shobhitx64/Benzi/master/benzidemogif.gif" width="700" alt="Benzi demo">
+  <br>
+  <sub>Select a symbol in the graph → ask about it → Benzi reads the map and answers.</sub>
 </p>
 
 ---
