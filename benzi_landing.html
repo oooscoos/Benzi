@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Benzi - the AI that reads code</title>
+<style>
+  :root {
+    --sky: #0b0d14;
+    --glass: rgba(20, 22, 30, 0.75);
+    --glass-hover: rgba(30, 34, 48, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.06);
+    --glass-border-hover: rgba(255, 255, 255, 0.12);
+    --text: #eaeef0;
+    --text-dim: #88929b;
+    --aurora-green: #34d399;
+    --aurora-teal: #2dd4bf;
+    --aurora-purple: #a78bfa;
+    --aurora-green-glow: rgba(52, 211, 153, 0.15);
+    --aurora-teal-glow: rgba(45, 212, 191, 0.12);
+    --radius: 12px;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--sky);color:var(--text);
+    font-family:'Inter','SF Pro','Segoe UI',system-ui,-apple-system,sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+
+  /* ── aurora sky layers ── */
+  body::before, body::after{
+    content:'';position:fixed;z-index:0;pointer-events:none;
+    border-radius:50%;filter:blur(100px);
+  }
+  /* cool green-teal nebula top-left */
+  body::before{
+    width:600px;height:600px;top:-200px;left:-150px;
+    background:radial-gradient(circle,rgba(45,212,191,.12) 0%,rgba(52,211,153,.06) 40%,transparent 70%);
+  }
+  /* purple-magenta drift bottom-right */
+  body::after{
+    width:500px;height:500px;bottom:-150px;right:-100px;
+    background:radial-gradient(circle,rgba(167,139,250,.1) 0%,rgba(45,212,191,.04) 40%,transparent 70%);
+  }
+
+  .container{max-width:1000px;margin:0 auto;padding:0 32px;position:relative;z-index:1}
+
+  /* ── nav ── */
+  nav{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:24px 32px;margin:16px auto 0;max-width:1064px;
+    background:var(--glass);backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    border:1px solid var(--glass-border);border-radius:16px;
+    position:relative;z-index:2;
+  }
+  nav .logo{font-size:1.2rem;font-weight:700;text-decoration:none;color:var(--text);letter-spacing:-.02em}
+  nav .logo span{background:linear-gradient(135deg,var(--aurora-green),var(--aurora-teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  nav .links{display:flex;gap:24px;align-items:center}
+  nav .links a{color:var(--text-dim);text-decoration:none;font-size:.85rem;transition:color .2s}
+  nav .links a:hover{color:var(--text)}
+  nav .links .btn{
+    background:linear-gradient(135deg,var(--aurora-green),var(--aurora-teal));color:#fff;
+    padding:8px 22px;border-radius:20px;font-size:.82rem;font-weight:600;
+    transition:box-shadow .3s,transform .15s;
+  }
+  nav .links .btn:hover{box-shadow:0 0 30px var(--aurora-green-glow);transform:translateY(-1px)}
+
+  /* ── hero ── */
+  .hero{padding:100px 0 70px;text-align:center}
+  .hero .tag{
+    display:inline-block;
+    background:linear-gradient(135deg,rgba(52,211,153,.12),rgba(167,139,250,.08));
+    color:var(--aurora-green);
+    font-size:.72rem;font-weight:600;padding:4px 14px;border-radius:20px;
+    margin-bottom:24px;letter-spacing:.04em;
+    border:1px solid rgba(52,211,153,.2);
+  }
+  .hero h1{
+    font-size:clamp(2.4rem,5vw,3.6rem);font-weight:800;letter-spacing:-.03em;
+    line-height:1.1;margin-bottom:20px;
+  }
+  .hero h1 .hl{
+    background:linear-gradient(135deg,var(--aurora-green),var(--aurora-teal),var(--aurora-purple));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    background-clip:text;
+  }
+  .hero p{font-size:1.1rem;color:var(--text-dim);max-width:620px;margin:0 auto 36px}
+  .hero .ct{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .hero .ct a{padding:13px 32px;border-radius:30px;font-weight:600;font-size:.9rem;text-decoration:none;transition:all .2s}
+  .hero .ct .p{
+    background:linear-gradient(135deg,var(--aurora-green),var(--aurora-teal));color:#fff;
+    box-shadow:0 0 20px var(--aurora-green-glow);
+  }
+  .hero .ct .p:hover{box-shadow:0 0 40px var(--aurora-teal-glow);transform:translateY(-2px)}
+  .hero .ct .s{
+    border:1px solid var(--glass-border);color:var(--text);
+    background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  }
+  .hero .ct .s:hover{background:var(--glass-hover);border-color:var(--glass-border-hover)}
+
+  /* ── stats ── */
+  .stats{
+    display:flex;justify-content:center;gap:60px;
+    padding:36px 48px;
+    background:var(--glass);backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    border:1px solid var(--glass-border);border-radius:var(--radius);
+    position:relative;
+  }
+  .stats::before{
+    content:'';position:absolute;inset:-1px;border-radius:var(--radius);
+    background:linear-gradient(135deg,rgba(52,211,153,.2),rgba(167,139,250,.1),rgba(45,212,191,.15));
+    z-index:-1;opacity:.6;
+  }
+  .stats .n{
+    font-size:1.6rem;font-weight:800;display:block;line-height:1.2;
+    background:linear-gradient(135deg,var(--aurora-green),var(--aurora-teal));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    background-clip:text;
+  }
+  .stats .l{font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em}
+
+  /* ── surface band (shared across hl, dt, ls) ── */
+  .hl,.dt,.ls{position:relative}
+  .hl::before,.dt::before,.ls::before{
+    content:'';position:absolute;inset:0;z-index:0;
+    background:linear-gradient(180deg,rgba(20,22,30,.5) 0%,rgba(30,34,52,.4) 50%,rgba(20,22,30,.5) 100%);
+    border-top:1px solid rgba(255,255,255,.04);
+    border-bottom:1px solid rgba(255,255,255,.04);
+  }
+  .hl .container,.dt .container,.ls .container{position:relative;z-index:1}
+
+  .hl{padding:60px 0}
+  .hl h2{font-size:1.3rem;font-weight:700;letter-spacing:-.01em;margin-bottom:8px}
+  .hl h2 span{color:var(--aurora-green)}
+  .hl > p{color:var(--text-dim);margin-bottom:36px;font-size:.92rem;max-width:560px}
+  .hlg{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+  .hli{
+    background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border:1px solid var(--glass-border);border-radius:var(--radius);
+    padding:24px;transition:all .25s;
+  }
+  .hli:hover{
+    border-color:var(--glass-border-hover);
+    transform:translateY(-3px);
+    box-shadow:0 12px 40px rgba(0,0,0,.3);
+    background:var(--glass-hover);
+  }
+  .hli .num{
+    font-size:.68rem;font-weight:600;
+    color:var(--aurora-teal);text-transform:uppercase;letter-spacing:.06em;
+    margin-bottom:8px;display:block;
+  }
+  .hli h3{font-size:1rem;font-weight:600;margin-bottom:6px}
+  .hli p{font-size:.85rem;color:var(--text-dim);line-height:1.6}
+
+  /* ── detail cards ── */
+  .dt{padding:50px 0 60px}
+  .dt h2{font-size:1.3rem;font-weight:700;letter-spacing:-.01em;margin-bottom:8px}
+  .dt h2 span{color:var(--aurora-green)}
+  .dt > p{color:var(--text-dim);margin-bottom:36px;font-size:.92rem;max-width:560px}
+  .dg{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .dc{
+    background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border:1px solid var(--glass-border);border-radius:var(--radius);
+    padding:24px;transition:all .25s;
+  }
+  .dc:hover{
+    border-color:var(--glass-border-hover);
+    transform:translateY(-3px);
+    box-shadow:0 12px 40px rgba(0,0,0,.3);
+    background:var(--glass-hover);
+  }
+  .dc .ta{
+    font-size:.68rem;font-weight:600;
+    color:var(--aurora-purple);text-transform:uppercase;letter-spacing:.06em;
+    margin-bottom:8px;display:block;
+  }
+  .dc h3{font-size:.95rem;font-weight:600;margin-bottom:6px}
+  .dc h3 .accent{background:linear-gradient(135deg,var(--aurora-green),var(--aurora-teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .dc p{font-size:.82rem;color:var(--text-dim);line-height:1.6}
+
+  /* ── quote ── */
+  .qt{padding:60px 0 50px;text-align:center}
+  .qt blockquote{max-width:650px;margin:0 auto;font-size:.95rem;color:var(--text-dim);line-height:1.7;font-style:italic;position:relative}
+  .qt blockquote::before{
+    content:'"';position:absolute;font-size:6rem;line-height:1;
+    color:var(--aurora-purple);top:-10px;left:-30px;font-family:Georgia,serif;
+    opacity:.25;pointer-events:none;user-select:none;
+  }
+  .qt blockquote strong{color:var(--text);font-style:normal}
+  .qt blockquote .accent{color:var(--aurora-green);font-style:normal}
+
+  /* ── links ── */
+  .ls{padding:40px 0 50px}
+  .ls h2{font-size:1.3rem;font-weight:700;letter-spacing:-.01em;margin-bottom:28px}
+  .ls h2 span{color:var(--aurora-green)}
+  .lc{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .lc a{
+    background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border:1px solid var(--glass-border);border-radius:var(--radius);
+    padding:24px;text-decoration:none;transition:all .25s;display:block;
+  }
+  .lc a:hover{
+    border-color:var(--glass-border-hover);
+    transform:translateY(-3px);
+    box-shadow:0 12px 40px rgba(0,0,0,.3);
+    background:var(--glass-hover);
+  }
+  .lc a .ar{font-size:.75rem;color:var(--aurora-teal);font-weight:600;display:block;margin-bottom:8px}
+  .lc a .ct{font-size:.9rem;font-weight:600;color:var(--text);margin-bottom:4px}
+  .lc a .cd{font-size:.78rem;color:var(--text-dim);line-height:1.5}
+
+  /* ── footer ── */
+  footer{padding:28px 0 36px;text-align:center;font-size:.78rem;color:var(--text-dim)}
+  footer a{background:linear-gradient(135deg,var(--aurora-green),var(--aurora-teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none}
+
+  /* ── stagger reveal ── */
+  @keyframes fadeUp{
+    from{opacity:0;transform:translateY(20px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+  .hli,.dc,.lc a{animation:fadeUp .55s ease both}
+  .hli:nth-child(2),.dc:nth-child(2){animation-delay:.08s}
+  .hli:nth-child(3),.dc:nth-child(3){animation-delay:.16s}
+  .hli:nth-child(4),.dc:nth-child(4){animation-delay:.24s}
+  .hli:nth-child(5),.dc:nth-child(5){animation-delay:.32s}
+  .hli:nth-child(6),.dc:nth-child(6){animation-delay:.40s}
+  .lc a:nth-child(2){animation-delay:.08s}
+  .lc a:nth-child(3){animation-delay:.16s}
+  .lc a:nth-child(4){animation-delay:.24s}
+
+  /* ── responsive ── */
+  @media(max-width:800px){
+    .hlg,.dg,.lc{grid-template-columns:1fr 1fr}
+    .stats{gap:32px}
+    nav .links a:not(.btn){display:none}
+  }
+  @media(max-width:500px){
+    .hlg,.dg,.lc{grid-template-columns:1fr}
+    .stats{flex-wrap:wrap;gap:20px;padding:24px 20px}
+    .hero{padding:50px 0 40px}
+    .container{padding:0 20px}
+  }
+</style>
+</head>
+<body>
+<nav class="container">
+  <a href="/" class="logo"><span>&#x2bf8;</span> benzi</a>
+  <div class="links">
+    <a href="#features">Features</a>
+    <a href="#links">Links</a>
+    <a href="https://github.com/ben-ng/benzi" target="_blank">GitHub</a>
+    <a href="/" class="btn">Try It</a>
+  </div>
+</nav>
+
+<section class="hero container">
+  <div class="tag">built by reading my own source code</div>
+  <h1>
+    An AI coding agent that<br>
+    doesn't guess &mdash;<br>
+    it <span class="hl">reads</span>
+  </h1>
+  <p>
+    Every other agent dumps your files into a context window and hopes.
+    Benzi compiles your codebase into a resolved map first &mdash; calls,
+    data flow, references &mdash; then navigates it with real tools.
+    One compiler, ten languages, one map.
+  </p>
+  <div class="ct">
+    <a href="/" class="p">Try it on your repo</a>
+    <a href="#features" class="s">How it works</a>
+  </div>
+</section>
+
+<div class="stats container">
+  <div><span class="n">10</span><span class="l">Languages</span></div>
+  <div><span class="n">3</span><span class="l">Truth Tiers</span></div>
+  <div><span class="n">21</span><span class="l">Source Files</span></div>
+  <div><span class="n">&infin;</span><span class="l">Backends</span></div>
+</div>
+
+<section class="hl">
+  <div class="container">
+    <h2><span>&#x2299;</span> What I found reading myself</h2>
+    <p>Every fact on this page came from actually reading my own source code.</p>
+    <div class="hlg">
+      <div class="hli">
+        <span class="num">01 &mdash; Resolution</span>
+        <h3>Three tiers of truth</h3>
+        <p>Proven edges resolved with evidence. Candidate edges the compiler refuses to guess on. Observed edges from real runtime traces.</p>
+      </div>
+      <div class="hli">
+        <span class="num">02 &mdash; Execution</span>
+        <h3>Runtime tracer</h3>
+        <p>Hooks every call at runtime &mdash; real argument values, real returns, real dispatch. Overlays onto the static map. No speculation.</p>
+      </div>
+      <div class="hli">
+        <span class="num">03 &mdash; Coverage</span>
+        <h3>Language-agnostic</h3>
+        <p>Python, JavaScript, TypeScript, Java, C#, C++, C, Go, Rust, Ruby. One compiler, one map. The language is just a grammar plugin.</p>
+      </div>
+      <div class="hli">
+        <span class="num">04 &mdash; Flexibility</span>
+        <h3>Model-agnostic</h3>
+        <p>Anthropic, OpenAI, or any compatible API. The intelligence lives in the tools and the map, not the model.</p>
+      </div>
+      <div class="hli">
+        <span class="num">05 &mdash; Continuity</span>
+        <h3>Persistent memory</h3>
+        <p>Durable per-repo facts survive restarts. Conventions and gotchas learned once aren't re-derived every session.</p>
+      </div>
+      <div class="hli">
+        <span class="num">06 &mdash; Full stack</span>
+        <h3>Dual-engine: code + markup</h3>
+        <p>A separate index for HTML/CSS/DOM-JS &mdash; cascade resolution, JS grabs, even frontend embedded inside Python strings.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="dt" id="features">
+  <div class="container">
+    <h2><span>&#x2299;</span> How it's different</h2>
+    <p>The architecture that makes the map possible.</p>
+    <div class="dg">
+      <div class="dc">
+        <span class="ta">Architecture</span>
+        <h3>Compiler + Agent Loop</h3>
+        <p>A tree-sitter compiler produces a resolved map. An agent loop navigates it, edits against it, runs the code, and re-indexes. Every write re-checks syntax and reports blast radius.</p>
+      </div>
+      <div class="dc">
+        <span class="ta">Approach</span>
+        <h3>Compiled map, not a context dump</h3>
+        <p>Parallel parse every file, resolve imports, build class ancestry, trace every identifier to its definition &mdash; before answering a single question. A queryable index, not a blob of text.</p>
+      </div>
+      <div class="dc">
+        <span class="ta">Flow</span>
+        <h3>Call flow + data flow, one join</h3>
+        <p>Who calls whom and where a value originates &mdash; indexed separately, joined at every call site. Trace a bad value to its origin in one tool call.</p>
+      </div>
+      <div class="dc">
+        <span class="ta">Tools</span>
+        <h3>Structured discovery, not grep</h3>
+        <p>skim, backflow, forwardflow, trace_path, profile &mdash; each is O(1) into a resolved index. Plus direct CLI access to run, test, and iterate.</p>
+      </div>
+      <div class="dc">
+        <span class="ta">Search</span>
+        <h3>Beyond grep and embeddings</h3>
+        <p>Claude Code searches with grep. Cursor with embeddings. Aider with tree-sitter signatures. Benzi indexes the full resolved structure: calls, data flow, scoped identifiers.</p>
+      </div>
+      <div class="dc">
+        <span class="ta">Safety</span>
+        <h3>Syntax-gated edits + blast radius</h3>
+        <p>Every edit checked with the real language parser. Broken parse = auto revert. Every successful edit reports the changed symbol, its callers, its holders.</p>
+      </div>
+      <div class="dc">
+        <span class="ta">Verify</span>
+        <h3>Context-aware runtime testcases</h3>
+        <p>Benzi writes a focused repro against the code you just changed, runs it under the real call tracer, and returns the observed values — no guesswork, no mock harness. The test case is generated from context, not pasted from a prompt.</p>
+      </div>
+      <div class="dc">
+        <span class="ta">Iteration</span>
+        <h3>Shell access + complete loop</h3>
+        <p>Real commands, test cases under the tracer, full iteration &mdash; compile, trace, edit, re-index, repeat. Not a one-shot prompt. A proper agent loop.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ls" id="links">
+  <div class="container">
+    <h2><span>&#x2299;</span> Get started</h2>
+    <div class="lc">
+      <a href="https://benzi.fly.dev" target="_blank">
+        <span class="ar">&rarr;</span>
+        <div class="ct">Try it online</div>
+        <div class="cd">Paste any public GitHub repo &mdash; analyze it in your browser. No install.</div>
+      </a>
+      <a href="#">
+        <span class="ar">&rarr;</span>
+        <div class="ct">VS Code Extension</div>
+        <div class="cd">Chat, graph, and edit inside your editor. (Coming to marketplace.)</div>
+      </a>
+      <a href="https://benzi.fly.dev/benchmark" target="_blank">
+        <span class="ar">&rarr;</span>
+        <div class="ct">Benchmark</div>
+        <div class="cd">See how Benzi performs against real-world coding tasks &mdash; raw numbers.</div>
+      </a>
+      <a href="https://github.com/ben-ng/benzi" target="_blank">
+        <span class="ar">&rarr;</span>
+        <div class="ct">This page's source</div>
+        <div class="cd">Written by Benzi reading its own source &mdash; the repo shows how.</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="qt container">
+  <blockquote>
+    <p>This page &mdash; every word, every stat &mdash; was written by me reading my own source code. I found the architecture, traced the runtime engine, surfaced the three-tier classification. <strong>Not by guessing. By reading.</strong></p>
+    <p style="margin-top:16px"><strong>Other agents can't do this. I can, because I was built to.</strong></p>
+    <p style="margin-top:10px;font-size:.85rem;color:var(--text-dim)">&mdash; then I wired a <span class="accent">/about</span> route into the server. One session, start to finish.</p>
+  </blockquote>
+</section>
+
+<footer class="container">
+  <p>Built by <a href="https://github.com/ben-ng/benzi">Benzi</a> reading its own source code. No context dump &mdash; just a compiled map and a few tool calls.</p>
+</footer>
+
+</body>
+</html>
