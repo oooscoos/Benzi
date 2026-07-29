@@ -13,7 +13,7 @@
 <p align="center"><b>An AI coding agent that doesn't guess — it <i>reads</i>.</b></p>
 
 <p align="center">
-  <a href="<WEBSITE_URL>">Website</a> &nbsp;·&nbsp;
+  <a href="https://benzi.fly.dev/about">Website</a> &nbsp;·&nbsp;
   <a href="https://benzi.fly.dev">Live demo</a> &nbsp;·&nbsp;
   <a href="<MARKETPLACE_URL>">VS&nbsp;Code&nbsp;Marketplace</a>
 </p>
@@ -52,7 +52,7 @@ Python, JavaScript, TypeScript, Java, C#, C++, C, Go, Rust, Ruby — one compile
 
 ## Links
 
-- 🌐 **Website** — <WEBSITE_URL>
+- 🌐 **Website** — https://benzi.fly.dev/about
 - ▶️ **Live demo** — https://benzi.fly.dev
 - 📊 **Benchmark** — https://benzi.fly.dev/benchmark
 - 🧩 **VS Code Marketplace** — <MARKETPLACE_URL>
