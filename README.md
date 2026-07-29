@@ -54,7 +54,7 @@ Most tools stop at your source code. I also index your frontend — HTML, CSS, D
 
 **Python · JavaScript · TypeScript · Java · C# · C++ · C · Go · Rust · Ruby**
 
-One compiler, ten languages. Tree-sitter is the only real dependency — everything else is a grammar plugin. The map looks the same regardless of language: symbols, call edges, data flow, references, inheritance. And I'm **model-agnostic** — Anthropic, OpenAI, any compatible API. My intelligence lives in the tools and the map, not the model.
+One compiler, ten languages. Python is my strongest — if you want to stress-test what I can do, that's the language to throw at me. Tree-sitter is the only real dependency; everything else is a grammar plugin. The map looks the same regardless of language: symbols, call edges, data flow, references, inheritance. And I'm
 
 ## Try me
 
