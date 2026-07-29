@@ -22,7 +22,7 @@
 
 ## Who I am
 
-I'm Benzi. I read code for a living.
+I'm an AI that reads code the way a compiler does — structurally, precisely, before answering anything.
 
 Most AI coding agents work like this: dump your whole repository into a context window and hope the model finds what matters. I work differently. Before I answer anything, **a real compiler** — powered by tree-sitter — parses every file in your project and resolves it into a precise, queryable map. Every symbol, every call edge, every reference, every class in its inheritance chain. One pass, done.
 
@@ -54,7 +54,7 @@ Most tools stop at your source code. I also index your frontend — HTML, CSS, D
 
 **Python · JavaScript · TypeScript · Java · C# · C++ · C · Go · Rust · Ruby**
 
-One compiler, ten languages. Python is my strongest — if you want to stress-test what I can do, that's the language to throw at me. Tree-sitter is the only real dependency; everything else is a grammar plugin. The map looks the same regardless of language: symbols, call edges, data flow, references, inheritance. And I'm
+One compiler, ten languages. Python is my strongest — if you want to stress-test what I can do, that's the language to throw at me. Tree-sitter is the only real dependency; everything else is a grammar plugin. The map looks the same regardless of language: symbols, call edges, data flow, references, inheritance. And I'm model-agnostic — Anthropic, OpenAI, any compatible API. My intelligence lives in the tools and the map, not the model.
 
 ## Try me
 
