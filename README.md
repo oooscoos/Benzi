@@ -18,7 +18,11 @@
   <a href="<MARKETPLACE_URL>">VS&nbsp;Code&nbsp;Marketplace</a>
 </p>
 
-Benzi is an AI coding agent paired with a real compiler. Before answering a single question, the compiler parses your project and resolves every symbol, call edge, and data flow into a queryable map. When the agent reasons about your code, that thinking lights up on the call graph beside you — every node and edge clickable, every answer traceable back to real source. Run a file and the tracer feeds back actual runtime values: the compiler and agent share everything, and so do you. One compiler, ten languages (tree-sitter is the only real dep), one map.
+Benzi is an AI coding agent paired with a real compiler. The compiler parses your project with tree-sitter and resolves every symbol, call edge, and data flow into a queryable map — before the agent answers a single question. There's no context dump, no "hope this is relevant." Just a precise index the agent navigates with real tools.
+
+When the agent reasons about your code, that thinking lights up on the call graph beside you. Every node and edge is clickable, every answer traceable back to real source. Run a Python file and the tracer captures actual runtime values — arguments, returns, dispatch — and feeds them back into the map. Dynamic calls that static analysis couldn't settle get resolved by what actually ran.
+
+The compiler and the agent share the same index. You share it too. One compiler, ten languages (tree-sitter is the only real dependency), one map.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/shobhitx64/Benzi/main/assets/demo.gif" alt="Benzi in action" width="820">
