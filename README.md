@@ -43,7 +43,7 @@ Every other agent dumps your files into a context window and hopes. Benzi compil
 
 ## Language support
 
-Python, JavaScript, TypeScript, Java, C#, C++, C, Go, Rust, Ruby — one compiler, one map. The language is just a grammar plugin.
+Python, JavaScript, TypeScript, Java, C#, C++, C, Go, Rust, Ruby — one compiler, one map. Tree-sitter is the only real dependency — everything else is just a grammar plugin.
 
 ## Requirements
 
@@ -54,6 +54,7 @@ Python, JavaScript, TypeScript, Java, C#, C++, C, Go, Rust, Ruby — one compile
 
 - 🌐 **Website** — <WEBSITE_URL>
 - ▶️ **Live demo** — https://benzi.fly.dev
+- 📊 **Benchmark** — https://benzi.fly.dev/benchmark
 - 🧩 **VS Code Marketplace** — <MARKETPLACE_URL>
 
 ---
