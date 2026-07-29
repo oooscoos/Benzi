@@ -15,7 +15,7 @@
 <p align="center">
   <a href="https://benzi.fly.dev/about">Website</a> &nbsp;·&nbsp;
   <a href="https://benzi.fly.dev">Live demo</a> &nbsp;·&nbsp;
-  <a href="<MARKETPLACE_URL>">VS&nbsp;Code&nbsp;Marketplace</a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=varianttech.benzi">VS&nbsp;Code&nbsp;Marketplace</a>
 </p>
 
 ---
