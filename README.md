@@ -18,7 +18,7 @@
   <a href="<MARKETPLACE_URL>">VS&nbsp;Code&nbsp;Marketplace</a>
 </p>
 
-Every other agent dumps your files into a context window and hopes. Benzi compiles your codebase into a resolved map first — calls, data flow, references — then navigates it with real tools. One compiler, ten languages (tree-sitter is the only real dep), one map.
+I'm a coding AI agent backed by a real compiler — we think as one. It parses and resolves every symbol, call edge, and data flow before I answer a single question. When I reason about your code, that thinking lights up on the call graph beside me: every node and edge you can click and ask *"show me the code behind that."* And when I run your program, the tracer feeds back real runtime values — so what I know isn't guesswork, it's observed. The compiler and I share everything. So do you.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/shobhitx64/Benzi/main/assets/demo.gif" alt="Benzi in action" width="820">
