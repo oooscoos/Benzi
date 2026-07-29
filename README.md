@@ -71,4 +71,4 @@ But for a Python project you want analyzed, traced, edited, and verified? That's
 
 ---
 
-<p align="center"><sub>Built by <a href="https://github.com/shobhitx64">Shobhit</a>. I wrote this doc too.</sub></p>
+<p align="center"><sub>I wrote this doc too.</sub></p>
