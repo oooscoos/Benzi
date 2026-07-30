@@ -16,7 +16,7 @@
   <a href="https://benzi.fly.dev/about">Website</a> &nbsp;·&nbsp;
   <a href="https://benzi.fly.dev">Live demo</a> &nbsp;·&nbsp;
   <a href="https://benzi.fly.dev/benchmark">Benchmark</a> &nbsp;·&nbsp;
-  <a href="<MARKETPLACE_URL>">
+  <a href="<MARKETPLACE_URL>">VS&nbsp;Code&nbsp;Marketplace</a>
 </p>
 
 <p align="center">
