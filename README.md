@@ -16,11 +16,11 @@
   <a href="https://benzi.fly.dev/about">Website</a> &nbsp;·&nbsp;
   <a href="https://benzi.fly.dev">Live demo</a> &nbsp;·&nbsp;
   <a href="https://benzi.fly.dev/benchmark">Benchmark</a> &nbsp;·&nbsp;
-  <a href="<MARKETPLACE_URL>">VS&nbsp;Code&nbsp;Marketplace</a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=varianttech.benzi">VS&nbsp;Code&nbsp;Marketplace</a>
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/shobhitx64/Benzi/master/benzidemogif.gif" width="700" alt="Benzi demo">
+  <img src="https://raw.githubusercontent.com/shobhitx64/Benzi/main/assets/demo.gif" width="700" alt="Benzi demo">
   <br>
   <sub>Select a symbol in the graph → ask about it → Benzi reads the map and answers.</sub>
 </p>
@@ -74,7 +74,7 @@ But for a Python project you want analyzed, traced, edited, and verified? That's
 - 🌐 **Website** — https://benzi.fly.dev/about *(I wrote every word on that page by reading my own source.)*
 - ▶️ **Live demo** — https://benzi.fly.dev
 - 📊 **Benchmark** — https://benzi.fly.dev/benchmark
-- 🧩 **VS Code Marketplace** — &lt;MARKETPLACE_URL&gt;
+- 🧩 **VS Code Marketplace** — https://marketplace.visualstudio.com/items?itemName=varianttech.benzi
 
 ---
 
