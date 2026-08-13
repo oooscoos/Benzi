@@ -1,0 +1,25 @@
+# Agent transcripts are NOT published.
+#
+# A Benzi transcript records every tool call together with its RESULT, and those
+# results are the index's output verbatim -- its card format, identifier scheme
+# and field set. That is the design of the product, not evidence about the
+# benchmark, so it stays private. Most recorded Benzi traces contain it.
+#
+# The run log (results/runs.jsonl) carries the measurements and none of those
+# shapes; it was scanned before publishing and contains no internal field names.
+# That difference is what makes the log publishable and the transcripts not.
+#
+# Blanket-ignored rather than listed file by file, so a future `git add -A`
+# cannot sweep in a new transcript by accident.
+results/transcripts/
+*_benzi.jsonl
+*_control.jsonl
+*_opencode.jsonl
+
+# Working repositories, worktrees and generated pages
+repos/
+wt/
+*.html
+pagedata.json
+__pycache__/
+*.pyc

@@ -251,8 +251,8 @@
   }
   @media(max-width:500px){
     .hlg,.dg,.lc{grid-template-columns:1fr}
-    .stats{flex-wrap:wrap;gap:20px;padding:24px 20px}
-    .hero{padding:50px 0 40px}
+    .stats{flex-wrap:wrap;gap:20px;padding:24px 20px;margin-top:24px}
+    .hero{padding:68px 0 40px}
     .container{padding:0 20px}
   }
 </style>
@@ -263,8 +263,7 @@
   <div class="links">
     <a href="#features">Features</a>
     <a href="#links">Links</a>
-<a href="https://github.com/shobhitx64/Benzi" target="_blank">GitHub</a>
-    <a href="/" class="btn">Try It</a>
+<a href="https://github.com/oooscoos/Benzi" target="_blank">GitHub</a>
   </div>
 </nav>
 
@@ -391,17 +390,17 @@
         <div class="ct">Try it online</div>
         <div class="cd">Paste any public GitHub repo &mdash; analyze it in your browser. No install.</div>
       </a>
-      <a href="#">
+      <a href="https://marketplace.visualstudio.com/items?itemName=varianttech.benzi" target="_blank">
         <span class="ar">&rarr;</span>
         <div class="ct">VS Code Extension</div>
-        <div class="cd">Chat, graph, and edit inside your editor. (Coming to marketplace.)</div>
+        <div class="cd">Chat, graph, and edit inside your editor. Get it on the VS Code Marketplace.</div>
       </a>
       <a href="https://benzi.fly.dev/benchmark" target="_blank">
         <span class="ar">&rarr;</span>
         <div class="ct">Benchmark</div>
         <div class="cd">See how Benzi performs against real-world coding tasks &mdash; raw numbers.</div>
       </a>
-      <a href="https://github.com/shobhitx64/Benzi" target="_blank">
+      <a href="https://github.com/oooscoos/Benzi" target="_blank">
         <span class="ar">&rarr;</span>
         <div class="ct">GitHub landing page</div>
         <div class="cd">The project that powers this page &mdash; fork, star, or follow along.</div>
@@ -410,16 +409,9 @@
   </div>
 </section>
 
-<section class="qt container">
-  <blockquote>
-    <p>Every agent can talk about your code. I can <strong>read</strong> it &mdash; structurally, map it, trace it at runtime, and show you my reasoning on a graph you can click through. This page wasn't written by someone describing what I do. I wrote it myself, by reading my own source, in one session, start to finish.</p>
-    <p style="margin-top:16px"><strong>I don't guess. I read. Then I show you what I found.</strong></p>
-  </blockquote>
-</section>
-
-<footer class="container">
-<p>I wrote this page by reading my own source code. No context dump &mdash; just a compiled map and a few tool calls.</p>
-</footer>
+<!-- Page ends on the aurora seam right after "Get started": this empty .qt
+     element carries only the ::after seam (the glowing line). -->
+<div class="qt container" style="padding:0 0 42px"></div>
 
 </body>
 </html>

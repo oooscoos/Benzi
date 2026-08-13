@@ -1,0 +1,13 @@
+{"task": "yamlcpp_base64", "arm": "opencode", "killed": true, "elapsed_s": 983, "cap_s": 909, "control_wall_s": 91.5, "benzi_wall_s": 90.9, "ts": "2026-08-11T19:53:36"}
+{"task": "jsoup_negative_nth_child", "arm": "opencode", "killed": true, "elapsed_s": 742, "cap_s": 737, "control_wall_s": 80.3, "benzi_wall_s": 73.7, "ts": "2026-08-11T20:09:13"}
+{"task": "csvhelper_nullable", "arm": "opencode", "killed": true, "elapsed_s": 1063, "cap_s": 1048, "control_wall_s": 104.8, "benzi_wall_s": 128.3, "ts": "2026-08-11T20:44:22"}
+{"task": "gson_duplicate_key_null", "arm": "opencode", "killed": true, "elapsed_s": 923, "cap_s": 895, "control_wall_s": 134.1, "benzi_wall_s": 89.5, "ts": "2026-08-11T21:12:00"}
+{"task": "fmt_4839", "arm": "opencode", "killed": true, "elapsed_s": 2008, "cap_s": 1989, "control_wall_s": 198.9, "benzi_wall_s": 596.2, "ts": "2026-08-11T22:07:38"}
+{"task": "sqlglot_7920", "arm": "opencode", "killed": true, "elapsed_s": 1127, "cap_s": 1125, "control_wall_s": 310.4, "benzi_wall_s": 562.7, "ts": "2026-08-11T22:41:22"}
+{"task": "httpparser_line_folding", "arm": "opencode", "killed": true, "elapsed_s": 1735, "cap_s": 1712, "control_wall_s": 856.0, "benzi_wall_s": 394.9, "ts": "2026-08-11T23:31:31"}
+{"task": "rich_softwrap_style_newline", "arm": "opencode", "killed": true, "elapsed_s": 609, "cap_s": 605, "control_wall_s": 302.5, "benzi_wall_s": 97.4, "ts": "2026-08-11T23:48:39"}
+{"task": "semver_prerelease", "arm": "opencode", "killed": true, "elapsed_s": 906, "cap_s": 882, "control_wall_s": 440.9, "benzi_wall_s": 170.1, "ts": "2026-08-12T00:39:18"}
+{"task": "quartznet_misfire_reschedule", "arm": "opencode", "killed": true, "elapsed_s": 1373, "cap_s": 1360, "control_wall_s": 559.8, "benzi_wall_s": 680.1, "ts": "2026-08-12T01:23:26"}
+{"task": "hashie_deep_merge_dup", "arm": "opencode", "killed": true, "elapsed_s": 415, "cap_s": 401, "control_wall_s": 200.5, "benzi_wall_s": 97.6, "ts": "2026-08-12T01:36:05"}
+{"task": "nlohmannjson_diagnostic_offsets", "arm": "opencode", "killed": true, "elapsed_s": 1012, "cap_s": 1008, "control_wall_s": 503.8, "benzi_wall_s": 386.5, "ts": "2026-08-12T02:08:13"}
+{"task": "sqlparser_exponential_backtrack", "arm": "opencode", "killed": true, "elapsed_s": 1777, "cap_s": 1200, "control_wall_s": 1076.5, "benzi_wall_s": null, "ts": "2026-08-12T07:09:02"}
