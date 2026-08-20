@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StallionSwipe 🐴 — Tinder for Horses</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --pink:#fd267d; --orange:#ff7854; --green:#4ce600; --red:#ff2f2f; }
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(160deg, var(--orange) 0%, var(--pink) 100%);
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 16px; color: #fff;
+  }
+  #phone {
+    width: 100%; max-width: 400px; height: 720px; max-height: 92vh;
+    background: #1c1c1e; border-radius: 32px; overflow: hidden;
+    display: flex; flex-direction: column; position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,.4);
+  }
+
+  /* ---- top bar ---- */
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px; background: #fff; color: var(--pink);
+    border-bottom: 1px solid #eee; flex-shrink: 0;
+  }
+  header .logo { font-weight: 800; font-size: 1.25rem; }
+  header .nav { display: flex; gap: 16px; font-size: 1.35rem; }
+  header .nav button {
+    background: none; border: none; cursor: pointer; font-size: 1.35rem;
+    opacity: .4; transition: opacity .15s; position: relative;
+  }
+  header .nav button.active { opacity: 1; }
+  header .nav button .badge {
+    position: absolute; top: -4px; right: -8px; background: var(--red); color: #fff;
+    font-size: .6rem; font-weight: 700; border-radius: 999px; padding: 1px 5px;
+  }
+
+  main { flex: 1; overflow: hidden; position: relative; background: #f2f2f7; }
+  .screen { position: absolute; inset: 0; display: none; flex-direction: column; }
+  .screen.active { display: flex; }
+
+  /* ---- onboarding ---- */
+  #screen-onboard { background: #fff; color: #333; padding: 30px 26px; overflow-y: auto; }
+  #screen-onboard h2 { color: var(--pink); margin-bottom: 4px; }
+  #screen-onboard p.sub { color: #888; font-size: .9rem; margin-bottom: 22px; }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: .8rem; font-weight: 700; color: #555; margin-bottom: 6px; }
+  .field input, .field select {
+    width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 10px; font-size: .95rem;
+  }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    padding: 7px 14px; border: 1px solid #ddd; border-radius: 999px; cursor: pointer;
+    font-size: .85rem; user-select: none; transition: all .12s;
+  }
+  .chip.on { background: var(--pink); color: #fff; border-color: var(--pink); }
+  .primary-btn {
+    width: 100%; padding: 14px; border: none; border-radius: 999px; margin-top: 10px;
+    background: linear-gradient(135deg, var(--orange), var(--pink)); color: #fff;
+    font-weight: 800; font-size: 1rem; cursor: pointer;
+  }
+
+  /* ---- swipe deck ---- */
+  #deck { position: relative; flex: 1; margin: 16px; }
+  .card {
+    position: absolute; inset: 0; background: #fff; border-radius: 20px;
+    box-shadow: 0 12px 30px rgba(0,0,0,.25); color: #333; overflow: hidden;
+    display: flex; flex-direction: column;
+    transition: transform .35s ease, opacity .35s ease; cursor: grab; user-select: none;
+  }
+  .card .photo {
+    flex: 1; overflow: hidden; position: relative;
+    background: linear-gradient(135deg, #ffe3ec, #ffd6a5);
+  }
+  .card .photo svg { width: 100%; height: 100%; display: block; object-fit: cover; }
+  .card .verified { position: absolute; top: 12px; left: 12px; font-size: 1.1rem;
+    background: #2196f3; color: #fff; border-radius: 999px; padding: 2px 9px; font-weight: 700; }
+  .card .info { padding: 14px 18px 18px; }
+  .card .info h2 { font-size: 1.35rem; }
+  .card .info h2 span { font-weight: 400; color: #888; font-size: 1.05rem; }
+  .card .meta { color: #666; font-size: .82rem; margin: 4px 0 8px; }
+  .card .bio { font-size: .88rem; color: #444; line-height: 1.35; }
+  .card .tags { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .card .tags span { background: #fd267d22; color: var(--pink);
+    padding: 3px 10px; border-radius: 999px; font-size: .72rem; font-weight: 600; }
+  .card .score { position: absolute; top: 14px; right: 14px; background: rgba(0,0,0,.55);
+    color: #fff; padding: 4px 10px; border-radius: 999px; font-size: .78rem; font-weight: 700; }
+  .card .likesyou { position: absolute; top: 46px; right: 14px; background: #2196f3;
+    color: #fff; padding: 3px 10px; border-radius: 999px; font-size: .72rem; font-weight: 700; }
+  .likeback { margin-left: auto; display: flex; gap: 8px; }
+  .likeback button { width: 38px; height: 38px; border-radius: 50%; border: none; cursor: pointer;
+    font-size: 1.05rem; box-shadow: 0 3px 8px rgba(0,0,0,.18); }
+  .likeback .lb-nope { color: var(--red); background: #fff; }
+  .likeback .lb-yes { color: #fff; background: linear-gradient(135deg, var(--orange), var(--pink)); }
+  .stamp { position: absolute; top: 26px; font-size: 1.8rem; font-weight: 900;
+    padding: 6px 14px; border: 4px solid; border-radius: 12px; opacity: 0;
+    transition: opacity .1s; text-transform: uppercase; z-index: 3; }
+  .stamp.like { left: 20px; color: var(--green); border-color: var(--green); transform: rotate(-18deg); }
+  .stamp.nope { right: 20px; color: var(--red); border-color: var(--red); transform: rotate(18deg); }
+  .card.gone-left  { transform: translateX(-160%) rotate(-24deg); opacity: 0; }
+  .card.gone-right { transform: translateX(160%)  rotate(24deg);  opacity: 0; }
+
+  #controls { display: flex; gap: 18px; justify-content: center; padding: 0 0 18px; }
+  #controls button {
+    width: 58px; height: 58px; border-radius: 50%; border: none; font-size: 1.5rem;
+    cursor: pointer; background: #fff; box-shadow: 0 6px 16px rgba(0,0,0,.25); transition: transform .12s;
+  }
+  #controls button:active { transform: scale(.9); }
+  #rewind-btn { color: #ffb300; font-size: 1.3rem; }
+  #nope-btn { color: var(--red); }
+  #superlike-btn { color: #2196f3; font-size: 1.3rem; }
+  #like-btn { color: var(--green); }
+
+  #empty { display: none; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; height: 100%; color: #777; padding: 40px; }
+  #empty h2 { margin-bottom: 8px; color: #444; }
+
+  /* ---- matches / chat lists ---- */
+  .list { flex: 1; overflow-y: auto; padding: 8px; color: #333; }
+  .list h3 { padding: 10px 12px 6px; color: #888; font-size: .8rem; text-transform: uppercase; }
+  .match-row { display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+    background: #fff; border-radius: 14px; margin: 6px 4px; cursor: pointer; }
+  .match-row:active { background: #f7f7f7; }
+  .match-row .av { width: 48px; height: 48px; border-radius: 50%; overflow: hidden; flex-shrink: 0;
+    background: linear-gradient(135deg, #ffe3ec, #ffd6a5); display: flex; align-items: center; justify-content: center; }
+  .match-row .av svg { width: 100%; height: 100%; }
+  #chat-head .av svg { width: 100%; height: 100%; }
+  .match-row .who { font-weight: 700; }
+  .match-row .last { color: #999; font-size: .82rem; }
+  .match-row .pct { margin-left: auto; color: var(--pink); font-weight: 700; font-size: .85rem; }
+  .empty-note { text-align: center; color: #999; padding: 40px 20px; }
+
+  /* ---- chat ---- */
+  #screen-chat { background: #f2f2f7; color: #333; }
+  #chat-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+    background: #fff; border-bottom: 1px solid #eee; }
+  #chat-head .av { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; display: inline-block; }
+  #chat-head .back { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--pink); }
+  #chat-msgs { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .bubble { max-width: 75%; padding: 9px 13px; border-radius: 16px; font-size: .92rem; line-height: 1.3; }
+  .bubble.them { background: #fff; align-self: flex-start; border-bottom-left-radius: 4px; }
+  .bubble.me { background: linear-gradient(135deg, var(--orange), var(--pink)); color: #fff;
+    align-self: flex-end; border-bottom-right-radius: 4px; }
+  #chat-input { display: flex; gap: 8px; padding: 10px; background: #fff; border-top: 1px solid #eee; }
+  #chat-input input { flex: 1; padding: 10px 14px; border: 1px solid #ddd; border-radius: 999px; }
+  #chat-input button { border: none; background: var(--pink); color: #fff; border-radius: 50%;
+    width: 40px; height: 40px; cursor: pointer; font-size: 1.1rem; }
+
+  /* ---- filters ---- */
+  #screen-filters { background: #fff; color: #333; padding: 24px; overflow-y: auto; }
+  #screen-filters h2 { color: var(--pink); margin-bottom: 18px; }
+  .range-val { float: right; color: var(--pink); font-weight: 700; }
+
+  /* ---- match modal ---- */
+  #match-modal { position: absolute; inset: 0; background: rgba(0,0,0,.75);
+    display: none; align-items: center; justify-content: center; z-index: 20; }
+  #match-modal .inner { text-align: center; animation: pop .4s ease; padding: 20px; }
+  #match-modal h2 { font-size: 2.4rem; margin-bottom: 6px; text-shadow: 0 2px 10px rgba(0,0,0,.4); }
+  #match-modal .emojis { font-size: 3.6rem; margin: 10px 0; }
+  #match-modal .btns { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
+  #match-modal button { padding: 12px 24px; border: none; border-radius: 999px; font-weight: 700;
+    cursor: pointer; font-size: .95rem; }
+  #match-modal .say { background: #fff; color: var(--pink); }
+  #match-modal .keep { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.5); }
+  @keyframes pop { from { transform: scale(.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .toast { position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,.8); color: #fff; padding: 8px 16px; border-radius: 999px;
+    font-size: .85rem; opacity: 0; transition: opacity .3s; z-index: 30; pointer-events: none; }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div id="phone">
+  <header>
+    <div class="logo">🐴 StallionSwipe</div>
+    <div class="nav" id="nav" style="display:none">
+      <button data-go="swipe" class="active" title="Swipe">🔥</button>
+      <button data-go="liked" title="Liked You">⭐<span class="badge" id="liked-badge" style="display:none;background:#2196f3">0</span></button>
+      <button data-go="matches" title="Matches">💬<span class="badge" id="match-badge" style="display:none">0</span></button>
+      <button data-go="filters" title="Filters">⚙️</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ONBOARDING -->
+    <section class="screen active" id="screen-onboard">
+      <h2>Create your profile</h2>
+      <p class="sub">Tell us about your horse so we can find their perfect stable-mate.</p>
+      <div class="field"><label>Name</label><input id="ob-name" placeholder="e.g. Bella" value="My Horse"></div>
+      <div class="field"><label>Age (years)</label><input id="ob-age" type="number" value="5" min="1" max="40"></div>
+      <div class="field"><label>Height (hands)</label><input id="ob-height" type="number" step="0.1" value="15.0"></div>
+      <div class="field"><label>Temperament</label>
+        <select id="ob-temp"><option>playful</option><option>chill</option><option>spirited</option><option>stoic</option></select>
+      </div>
+      <div class="field"><label>Disciplines (pick a few)</label>
+        <div class="chip-row" id="ob-disc"></div>
+      </div>
+      <div class="field"><label>Looking for</label>
+        <div class="chip-row" id="ob-seek"></div>
+      </div>
+      <button class="primary-btn" id="ob-start">Start Swiping 🔥</button>
+    </section>
+
+    <!-- SWIPE -->
+    <section class="screen" id="screen-swipe">
+      <div id="deck"></div>
+      <div id="empty">
+        <h2>🌾 That's the whole herd!</h2>
+        <p>Adjust your filters or check back when new horses trot into town.</p>
+      </div>
+      <div id="controls">
+        <button id="rewind-btn" title="Rewind">↩️</button>
+        <button id="nope-btn" title="Nope">✕</button>
+        <button id="superlike-btn" title="Super Like">⭐</button>
+        <button id="like-btn" title="Like">♥</button>
+      </div>
+    </section>
+
+    <!-- MATCHES -->
+    <section class="screen" id="screen-matches">
+      <div class="list" id="matches-list"></div>
+    </section>
+
+    <!-- LIKED YOU -->
+    <section class="screen" id="screen-liked">
+      <div class="list" id="liked-list"></div>
+    </section>
+
+    <!-- CHAT -->
+    <section class="screen" id="screen-chat">
+      <div id="chat-head">
+        <button class="back" onclick="go('matches')">‹</button>
+        <span class="av" id="chat-av"></span>
+        <b id="chat-name">Name</b>
+      </div>
+      <div id="chat-msgs"></div>
+      <div id="chat-input">
+        <input id="chat-text" placeholder="Send a neigh..." onkeydown="if(event.key==='Enter')sendMsg()">
+        <button onclick="sendMsg()">➤</button>
+      </div>
+    </section>
+
+    <!-- FILTERS -->
+    <section class="screen" id="screen-filters">
+      <h2>Discovery Filters</h2>
+      <div class="field"><label>Max distance <span class="range-val" id="fv-dist">500 km</span></label>
+        <input type="range" id="f-dist" min="5" max="500" value="500" style="width:100%"></div>
+      <div class="field"><label>Age range <span class="range-val" id="fv-age">1 – 40</span></label>
+        <input type="range" id="f-agemin" min="1" max="40" value="1" style="width:100%">
+        <input type="range" id="f-agemax" min="1" max="40" value="40" style="width:100%"></div>
+      <div class="field"><label>Show me</label><div class="chip-row" id="f-gender"></div></div>
+      <div class="field"><label><input type="checkbox" id="f-shared"> Only horses sharing a discipline with me</label></div>
+      <button class="primary-btn" id="f-apply">Apply Filters</button>
+      <button class="primary-btn" id="f-reset" style="background:#eee;color:#c00;margin-top:14px">Reset everything 🗑️</button>
+    </section>
+  </main>
+
+  <!-- match modal -->
+  <div id="match-modal">
+    <div class="inner">
+      <h2>It's a Match! 🎉</h2>
+      <div class="emojis" id="match-emojis">🐴💕🐎</div>
+      <p id="match-text">You and <b>Bella</b> both swiped right.</p>
+      <div class="btns">
+        <button class="say" id="mm-say">Send a Message</button>
+        <button class="keep" onclick="closeMatch()">Keep Swiping</button>
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ============================================================
+// StallionSwipe front-end. Mirrors stallionswipe.py's engine.
+// Persists to localStorage so swipes/matches/chats survive reload.
+// ============================================================
+
+const DISCIPLINES = ["trail","dressage","racing","barrel","driving","shows","jumping"];
+const GENDERS = ["mare","stallion","gelding"];
+
+// ---- SVG horse portraits: distinct per horse, no external images ----
+// coat = body color, mane = mane/tail color, marking = face pattern.
+function horseSVG(h, px) {
+  const size = px || 240;
+  const c = h.coat, m = h.mane;
+  // a soft gradient sky behind each horse, tinted by the coat
+  const bg1 = shade(c, 55), bg2 = shade(c, 25);
+  const blaze = h.marking === "blaze"
+    ? `<path d="M120 78 q6 40 0 74 q-6 -34 0 -74 Z" fill="#fff" opacity=".9"/>` : "";
+  const star = h.marking === "star"
+    ? `<circle cx="120" cy="86" r="7" fill="#fff" opacity=".9"/>` : "";
+  const spots = h.marking === "spots"
+    ? `<g fill="#fff" opacity=".55"><circle cx="96" cy="150" r="7"/><circle cx="140" cy="162" r="6"/><circle cx="112" cy="178" r="5"/><circle cx="150" cy="140" r="4"/></g>` : "";
+  const snip = h.marking === "snip"
+    ? `<ellipse cx="120" cy="132" rx="8" ry="6" fill="#ffd9e0"/>` : "";
+  return `
+  <svg viewBox="0 0 240 240" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="sky${h.id}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${bg1}"/><stop offset="1" stop-color="${bg2}"/>
+    </linearGradient></defs>
+    <rect width="240" height="240" fill="url(#sky${h.id})"/>
+    <!-- neck -->
+    <path d="M92 220 L96 150 Q120 120 150 130 L160 220 Z" fill="${c}"/>
+    <!-- mane -->
+    <path d="M96 150 Q80 170 84 220 L98 220 Q92 175 108 150 Z" fill="${m}"/>
+    <!-- head -->
+    <path d="M104 70 Q150 62 150 118 Q150 150 120 152 Q96 150 96 110 Q96 78 104 70 Z" fill="${c}"/>
+    <!-- muzzle -->
+    <ellipse cx="120" cy="140" rx="20" ry="16" fill="${shade(c, -12)}"/>
+    <!-- ears -->
+    <path d="M104 72 L96 46 L116 66 Z" fill="${c}"/>
+    <path d="M150 78 L162 54 L142 72 Z" fill="${c}"/>
+    <path d="M106 68 L101 54 L112 65 Z" fill="${m}"/>
+    <!-- forelock -->
+    <path d="M112 62 Q120 50 132 64 Q122 60 116 74 Z" fill="${m}"/>
+    ${blaze}${star}${snip}${spots}
+    <!-- eye -->
+    <circle cx="132" cy="104" r="6" fill="#2b2b2b"/>
+    <circle cx="134" cy="102" r="2" fill="#fff"/>
+    <!-- nostrils -->
+    <ellipse cx="114" cy="142" rx="3" ry="4" fill="#3a2a2a"/>
+    <ellipse cx="126" cy="144" rx="3" ry="4" fill="#3a2a2a"/>
+  </svg>`;
+}
+// lighten (amt>0) / darken (amt<0) a #rrggbb hex color
+function shade(hex, amt) {
+  let n = parseInt(hex.slice(1), 16);
+  let r = Math.max(0, Math.min(255, (n >> 16) + amt));
+  let g = Math.max(0, Math.min(255, ((n >> 8) & 255) + amt));
+  let b = Math.max(0, Math.min(255, (n & 255) + amt));
+  return "#" + ((r << 16) | (g << 8) | b).toString(16).padStart(6, "0");
+}
+
+// 20 horses: 10 mares, 10 stallions/geldings. Each has a unique coat/mane/marking.
+const HERD = [
+  // ---- mares (10) ----
+  { id:1, name:"Bella", breed:"Arabian", age:5, gender:"mare", temperament:"playful",
+    disciplines:["dressage","trail"], bio:"Desert princess seeking a trail buddy. Must love apples. 🍎", height:14.3, coat:"#c9915e", mane:"#4a2f1a", marking:"blaze", stable:"Meadowbrook", distance:3, verified:true },
+  { id:2, name:"Willow", breed:"Appaloosa", age:4, gender:"mare", temperament:"spirited",
+    disciplines:["barrel","racing"], bio:"Spotted and speedy. Swipe right if you can keep up.", height:15.0, coat:"#d8d2c6", mane:"#6b5b4a", marking:"spots", stable:"Meadowbrook", distance:3, verified:true },
+  { id:3, name:"Daisy", breed:"Shetland Pony", age:9, gender:"mare", temperament:"playful",
+    disciplines:["shows","trail"], bio:"Small but mighty. Great personality, height is just a number.", height:10.1, coat:"#e8c37a", mane:"#7a5a2a", marking:"star", stable:"Meadowbrook", distance:3, verified:false },
+  { id:4, name:"Luna", breed:"Friesian", age:5, gender:"mare", temperament:"chill",
+    disciplines:["dressage","driving"], bio:"All black, all heart. Long mane, longer walks at sunset. 🌅", height:16.1, coat:"#2b2b30", mane:"#0f0f12", marking:"none", stable:"Churchill Barn", distance:8, verified:true },
+  { id:5, name:"Rosie", breed:"Haflinger", age:6, gender:"mare", temperament:"playful",
+    disciplines:["trail","shows"], bio:"Golden girl with a flaxen mane. Sunshine in horse form. ☀️", height:14.0, coat:"#d68a3c", mane:"#f0e2c0", marking:"blaze", stable:"Meadowbrook", distance:5, verified:true },
+  { id:6, name:"Pepper", breed:"Percheron", age:7, gender:"mare", temperament:"chill",
+    disciplines:["driving","trail"], bio:"Dapple-grey and drama-free. Looking for someone to share hay with.", height:16.3, coat:"#9a9aa0", mane:"#5a5a60", marking:"snip", stable:"Highland Stables", distance:18, verified:false },
+  { id:7, name:"Ginger", breed:"Morgan", age:5, gender:"mare", temperament:"spirited",
+    disciplines:["dressage","jumping"], bio:"Fiery chestnut with a competitive streak. Bring your A-game.", height:15.1, coat:"#b45f2e", mane:"#7a3a18", marking:"star", stable:"Churchill Barn", distance:11, verified:true },
+  { id:8, name:"Misty", breed:"Connemara", age:8, gender:"mare", temperament:"chill",
+    disciplines:["jumping","trail"], bio:"Silver-grey and serene. Foggy mornings are my aesthetic.", height:14.2, coat:"#bfc4cc", mane:"#7d838c", marking:"none", stable:"Seaside Paddock", distance:31, verified:false },
+  { id:9, name:"Clover", breed:"Welsh Pony", age:4, gender:"mare", temperament:"playful",
+    disciplines:["shows","barrel"], bio:"Lucky in hooves, hopeful in love. Four-leaf energy only. 🍀", height:12.2, coat:"#7a5230", mane:"#3d2817", marking:"snip", stable:"Meadowbrook", distance:3, verified:false },
+  { id:10, name:"Aurora", breed:"Akhal-Teke", age:6, gender:"mare", temperament:"stoic",
+    disciplines:["dressage","racing"], bio:"Metallic sheen, mysterious vibe. Rare breed, rarer heart. ✨", height:15.2, coat:"#c9a24b", mane:"#8a6a2a", marking:"blaze", stable:"Highland Stables", distance:22, verified:true },
+
+  // ---- stallions & geldings (10) ----
+  { id:11, name:"Seabiscuit", breed:"Thoroughbred", age:6, gender:"stallion", temperament:"spirited",
+    disciplines:["racing","trail"], bio:"Fast on the track, faster to your heart. Hay is my love language.", height:15.2, coat:"#8a5a34", mane:"#3d2513", marking:"star", stable:"Churchill Barn", distance:8, verified:true },
+  { id:12, name:"Duke", breed:"Clydesdale", age:8, gender:"gelding", temperament:"chill",
+    disciplines:["driving","shows"], bio:"Big guy, bigger heart. Gentle giant vibes only.", height:18.0, coat:"#5a3a24", mane:"#2a1a10", marking:"blaze", stable:"Highland Stables", distance:22, verified:false },
+  { id:13, name:"Comet", breed:"Mustang", age:7, gender:"stallion", temperament:"spirited",
+    disciplines:["trail","racing"], bio:"Wild at heart, free to a good pasture. No fences on my feelings.", height:14.2, coat:"#7d5b3a", mane:"#4a3520", marking:"snip", stable:"Open Range", distance:45, verified:false },
+  { id:14, name:"Apollo", breed:"Andalusian", age:6, gender:"stallion", temperament:"stoic",
+    disciplines:["dressage","shows"], bio:"Classically trained, effortlessly elegant. Seeking my dance partner.", height:16.0, coat:"#e6e6ea", mane:"#c4c4cc", marking:"none", stable:"Highland Stables", distance:22, verified:true },
+  { id:15, name:"Rocky", breed:"Quarter Horse", age:10, gender:"gelding", temperament:"chill",
+    disciplines:["trail","barrel"], bio:"Retired rodeo star. Just here for the good hay and better company.", height:15.1, coat:"#9a6a3a", mane:"#5a3a1a", marking:"star", stable:"Open Range", distance:45, verified:false },
+  { id:16, name:"Thor", breed:"Norwegian Fjord", age:5, gender:"stallion", temperament:"playful",
+    disciplines:["driving","trail"], bio:"Viking hair, big smile. My mane stands up on its own, no gel.", height:14.1, coat:"#c2a878", mane:"#4a4038", marking:"none", stable:"Seaside Paddock", distance:31, verified:true },
+  { id:17, name:"Blaze", breed:"Tennessee Walker", age:7, gender:"gelding", temperament:"chill",
+    disciplines:["trail","shows"], bio:"Smoothest gait in the county. I'll sweep you off all four feet.", height:15.3, coat:"#7a3020", mane:"#e8d8b0", marking:"blaze", stable:"Meadowbrook", distance:6, verified:false },
+  { id:18, name:"Zephyr", breed:"Lipizzaner", age:6, gender:"stallion", temperament:"stoic",
+    disciplines:["dressage","jumping"], bio:"Born dark, turned brilliant white. Airs above the ground, feelings below.", height:15.2, coat:"#f0f0f4", mane:"#d0d0d8", marking:"none", stable:"Highland Stables", distance:20, verified:true },
+  { id:19, name:"Bandit", breed:"Paint Horse", age:5, gender:"stallion", temperament:"spirited",
+    disciplines:["barrel","racing"], bio:"Two-toned troublemaker with a heart of gold. Steal your feed, steal your heart.", height:15.0, coat:"#6a4a30", mane:"#e8e0d0", marking:"spots", stable:"Open Range", distance:40, verified:false },
+  { id:20, name:"Shadow", breed:"Friesian", age:8, gender:"gelding", temperament:"stoic",
+    disciplines:["dressage","driving"], bio:"Tall, dark, and dramatic. My mane has its own fan club.", height:16.2, coat:"#26262b", mane:"#111114", marking:"none", stable:"Churchill Barn", distance:9, verified:true },
+];
+
+// canned replies so matches feel alive
+const REPLIES = [
+  "Neigh way, that's so sweet! 🥰", "Hay there 👋 tell me more!",
+  "You had me at 'apples' 🍎", "Trotting over to your paddock now 😏",
+  "Stable relationship? I'm in. 💕", "That's un-bri-dled charm right there!",
+  "Foal-ing for you already 🐴", "Let's canter into the sunset 🌅",
+];
+
+// ---- persisted state ----
+const DEFAULT_STATE = () => ({
+  profile: null,               // {name, age, height, temperament, disciplines}
+  filters: { dist:500, ageMin:1, ageMax:40, genders:[...GENDERS], shared:false },
+  liked: [],                   // horse ids you swiped right
+  passed: [],                  // horse ids you swiped left
+  matched: [],                 // horse ids that matched back
+  admirers: [],                // horse ids that already liked YOU (secret admirers)
+  threads: {},                 // { horseId: [{from:'me'|'them', text}] }
+  lastPassed: null,
+});
+let S = load();
+
+function load() {
+  const d = DEFAULT_STATE();
+  try {
+    const raw = localStorage.getItem("stallionswipe");
+    if (raw) {
+      const saved = JSON.parse(raw);
+      // shallow-merge top level, but DEEP-merge filters so an older saved
+      // state that lacks a filter field can't leave e.g. genders undefined.
+      const merged = Object.assign(d, saved);
+      merged.filters = Object.assign(DEFAULT_STATE().filters, saved.filters || {});
+      // guard the array fields
+      for (const k of ["liked","passed","matched","admirers"])
+        if (!Array.isArray(merged[k])) merged[k] = [];
+      if (!merged.threads || typeof merged.threads !== "object") merged.threads = {};
+      return merged;
+    }
+  } catch (e) { console.warn("load failed, resetting", e); }
+  return d;
+}
+function save() { localStorage.setItem("stallionswipe", JSON.stringify(S)); }
+
+// Seed "secret admirers" once: a spread of horses who already liked you.
+// Deterministic-ish pick so the Liked You list feels real from the first launch.
+function seedAdmirers() {
+  if (S.admirers && S.admirers.length) return;
+  const picks = [1, 4, 8, 11, 14, 18];   // Bella, Willow, Luna, Seabiscuit, Apollo, Zephyr
+  S.admirers = picks;
+  save();
+}
+seedAdmirers();
+function likedYou(id) { return S.admirers.includes(id); }
+
+// ---- scoring (mirrors compatibility() in stallionswipe.py) ----
+function compatibility(me, h) {
+  let score = 42;
+  const shared = me.disciplines.filter(d => h.disciplines.includes(d));
+  score += 12 * shared.length;
+  if (me.temperament === h.temperament) score += 10;
+  if (Math.abs(me.age - h.age) <= 4) score += 8;
+  if (Math.abs(me.height - h.height) <= 2) score += 6;
+  if (h.distance <= 10) score += 6; else if (h.distance <= 50) score += 3;
+  if (h.verified) score += 4;
+  if (h.gender === "gelding") score = Math.min(score, 82);
+  return Math.max(0, Math.min(100, score));
+}
+function passesFilters(h) {
+  const f = S.filters;
+  if (!f.genders.includes(h.gender)) return false;
+  if (h.age < f.ageMin || h.age > f.ageMax) return false;
+  if (h.distance > f.dist) return false;
+  if (f.shared && !S.profile.disciplines.some(d => h.disciplines.includes(d))) return false;
+  return true;
+}
+function theyLikeYouBack(h) {
+  return Math.random() < (compatibility(S.profile, h) / 100) * 0.85 + 0.1;
+}
+
+// ---- deck ----
+function buildDeck() {
+  const seen = new Set([...S.liked, ...S.passed]);
+  return HERD
+    .filter(h => !seen.has(h.id) && passesFilters(h))
+    .map(h => ({ ...h, score: compatibility(S.profile, h) }))
+    .sort((a, b) => b.score - a.score);
+}
+let deck = [];
+
+// ---- screen routing ----
+function go(name) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById("screen-" + name).classList.add("active");
+  document.querySelectorAll("#nav button").forEach(b =>
+    b.classList.toggle("active", b.dataset.go === name));
+  if (name === "swipe") renderDeck();
+  if (name === "matches") renderMatches();
+  if (name === "liked") renderLikedYou();
+}
+
+// ---- DOM refs ----
+const deckEl = document.getElementById("deck");
+const emptyEl = document.getElementById("empty");
+
+function renderDeck() {
+  deck = buildDeck();
+  deckEl.innerHTML = "";
+  emptyEl.style.display = deck.length === 0 ? "flex" : "none";
+  deck.slice().reverse().forEach((h, i) => {
+    const idx = deck.length - 1 - i;
+    if (idx > 2) return; // only stack the top 3 for perf
+    const card = document.createElement("div");
+    card.className = "card";
+    card.dataset.idx = idx;
+    card.style.zIndex = deck.length - idx;
+    card.style.transform = `scale(${1 - idx * 0.03}) translateY(${idx * 8}px)`;
+    card.innerHTML = `
+      <div class="score">💘 ${h.score}%</div>
+      ${likedYou(h.id) ? '<div class="likesyou">⭐ Likes you</div>' : ''}
+      <div class="stamp like">Like</div>
+      <div class="stamp nope">Nope</div>
+      <div class="photo">${h.verified ? '<span class="verified">✓</span>' : ''}${horseSVG(h)}</div>
+      <div class="info">
+        <h2>${h.name} <span>${h.age}</span></h2>
+        <div class="meta">${h.breed} · ${h.gender} · ${h.height} hands · ${h.distance}km away</div>
+        <div class="bio">${h.bio}</div>
+        <div class="tags">${h.disciplines.map(d => `<span>${d}</span>`).join("")}</div>
+      </div>`;
+    if (idx === 0) attachDrag(card);
+    deckEl.appendChild(card);
+  });
+}
+
+function topCard() { return deckEl.querySelector('.card[data-idx="0"]'); }
+
+function doSwipe(liked, superLike) {
+  const card = topCard();
+  if (!card || deck.length === 0) return;
+  const horse = deck[0];
+  card.classList.add(liked ? "gone-right" : "gone-left");
+  if (liked) {
+    S.liked.push(horse.id);
+    S.lastPassed = null;
+  } else {
+    S.passed.push(horse.id);
+    S.lastPassed = horse.id;
+  }
+  // an admirer (already liked you) or a super-like guarantees the match
+  const matched = liked && (superLike || likedYou(horse.id) || theyLikeYouBack(horse));
+  if (matched && !S.matched.includes(horse.id)) {
+    S.matched.push(horse.id);
+    S.threads[horse.id] = S.threads[horse.id] || [];
+    S.admirers = S.admirers.filter(id => id !== horse.id);  // no longer "pending"
+  }
+  save();
+  setTimeout(() => {
+    renderDeck();
+    updateBadge();
+    if (matched) showMatch(horse);
+  }, 340);
+}
+
+function rewind() {
+  if (S.lastPassed == null) { toast("Nothing to rewind 🤷"); return; }
+  S.passed = S.passed.filter(id => id !== S.lastPassed);
+  S.lastPassed = null;
+  save(); renderDeck(); toast("Rewound! ↩️");
+}
+
+// ---- drag ----
+function attachDrag(card) {
+  let startX = 0, curX = 0, dragging = false;
+  const like = card.querySelector(".stamp.like");
+  const nope = card.querySelector(".stamp.nope");
+  const down = e => { dragging = true; startX = (e.touches ? e.touches[0].clientX : e.clientX); card.style.transition = "none"; };
+  const move = e => {
+    if (!dragging) return;
+    curX = (e.touches ? e.touches[0].clientX : e.clientX) - startX;
+    card.style.transform = `translateX(${curX}px) rotate(${curX / 20}deg)`;
+    like.style.opacity = curX > 0 ? Math.min(curX / 100, 1) : 0;
+    nope.style.opacity = curX < 0 ? Math.min(-curX / 100, 1) : 0;
+  };
+  const up = () => {
+    if (!dragging) return;
+    dragging = false; card.style.transition = "";
+    if (Math.abs(curX) > 110) doSwipe(curX > 0, false);
+    else { card.style.transform = ""; like.style.opacity = 0; nope.style.opacity = 0; }
+    curX = 0;
+  };
+  card.addEventListener("mousedown", down);
+  window.addEventListener("mousemove", move);
+  window.addEventListener("mouseup", up);
+  card.addEventListener("touchstart", down, { passive: true });
+  card.addEventListener("touchmove", move, { passive: true });
+  card.addEventListener("touchend", up);
+}
+
+// ---- matches list ----
+function renderMatches() {
+  const el = document.getElementById("matches-list");
+  const ms = S.matched.map(id => HERD.find(h => h.id === id)).filter(Boolean)
+    .sort((a, b) => compatibility(S.profile, b) - compatibility(S.profile, a));
+  if (ms.length === 0) {
+    el.innerHTML = `<div class="empty-note">No matches yet 🐴<br>Keep swiping to find your herd!</div>`;
+    return;
+  }
+  el.innerHTML = `<h3>${ms.length} Match${ms.length>1?"es":""}</h3>` + ms.map(h => {
+    const t = S.threads[h.id] || [];
+    const last = t.length ? t[t.length-1].text : "You matched! Say hi 👋";
+    return `<div class="match-row" onclick="openChat(${h.id})">
+      <div class="av">${horseSVG(h, 48)}</div>
+      <div><div class="who">${h.name} ${h.verified?'✓':''}</div><div class="last">${last.slice(0,32)}</div></div>
+      <div class="pct">${compatibility(S.profile, h)}%</div>
+    </div>`;
+  }).join("");
+}
+
+// ---- chat ----
+let chatWith = null;
+function openChat(id) {
+  chatWith = HERD.find(h => h.id === id);
+  document.getElementById("chat-av").innerHTML = horseSVG(chatWith, 34);
+  document.getElementById("chat-name").textContent = chatWith.name;
+  renderChat();
+  go("chat");
+}
+function renderChat() {
+  const box = document.getElementById("chat-msgs");
+  const t = S.threads[chatWith.id] || [];
+  box.innerHTML = t.length ? t.map(m =>
+    `<div class="bubble ${m.from === 'me' ? 'me' : 'them'}">${m.text}</div>`).join("")
+    : `<div class="empty-note">You matched with ${chatWith.name}! Send the first neigh 🐴</div>`;
+  box.scrollTop = box.scrollHeight;
+}
+function sendMsg() {
+  const inp = document.getElementById("chat-text");
+  const text = inp.value.trim();
+  if (!text || !chatWith) return;
+  S.threads[chatWith.id] = S.threads[chatWith.id] || [];
+  S.threads[chatWith.id].push({ from: "me", text });
+  inp.value = "";
+  save(); renderChat();
+  // canned reply after a beat
+  setTimeout(() => {
+    S.threads[chatWith.id].push({ from: "them", text: REPLIES[Math.floor(Math.random()*REPLIES.length)] });
+    save(); renderChat();
+  }, 900 + Math.random()*800);
+}
+
+// ---- match modal ----
+let modalHorse = null;
+function showMatch(horse) {
+  modalHorse = horse;
+  document.getElementById("match-emojis").innerHTML =
+    `<span style="display:inline-block;width:88px;height:88px;border-radius:50%;overflow:hidden;vertical-align:middle;box-shadow:0 4px 14px rgba(0,0,0,.4)">${horseSVG(horse, 88)}</span>`
+    + `<span style="font-size:2rem;margin:0 6px">💕</span>`
+    + `<span style="display:inline-block;width:88px;height:88px;border-radius:50%;overflow:hidden;vertical-align:middle;background:linear-gradient(135deg,#ffe3ec,#ffd6a5);box-shadow:0 4px 14px rgba(0,0,0,.4)"><span style="font-size:2.6rem;line-height:88px">🧑</span></span>`;
+  document.getElementById("match-text").innerHTML = `You and <b>${horse.name}</b> both swiped right.`;
+  document.getElementById("match-modal").style.display = "flex";
+}
+function closeMatch() { document.getElementById("match-modal").style.display = "none"; }
+document.getElementById("mm-say").addEventListener("click", () => { closeMatch(); openChat(modalHorse.id); });
+
+// ---- badge + toast ----
+function updateBadge() {
+  const b = document.getElementById("match-badge");
+  b.textContent = S.matched.length;
+  b.style.display = S.matched.length ? "inline-block" : "none";
+  const lb = document.getElementById("liked-badge");
+  const pending = S.admirers.filter(id => !S.liked.includes(id) && !S.passed.includes(id)).length;
+  lb.textContent = pending;
+  lb.style.display = pending ? "inline-block" : "none";
+}
+
+// ---- "Liked You" screen: horses who already swiped right on you ----
+function renderLikedYou() {
+  const el = document.getElementById("liked-list");
+  const pend = S.admirers
+    .filter(id => !S.matched.includes(id) && !S.passed.includes(id))
+    .map(id => HERD.find(h => h.id === id)).filter(Boolean)
+    .sort((a, b) => compatibility(S.profile, b) - compatibility(S.profile, a));
+  if (pend.length === 0) {
+    el.innerHTML = `<div class="empty-note">No pending admirers ⭐<br>When a horse likes you, they'll show up here!</div>`;
+    return;
+  }
+  el.innerHTML = `<h3>${pend.length} horse${pend.length>1?"s":""} liked you</h3>` + pend.map(h =>
+    `<div class="match-row">
+      <div class="av">${horseSVG(h, 48)}</div>
+      <div><div class="who">${h.name} ${h.verified?'✓':''}</div>
+           <div class="last">${h.breed} · ${h.distance}km away</div></div>
+      <div class="likeback">
+        <button class="lb-nope" onclick="likeBack(${h.id}, false)">✕</button>
+        <button class="lb-yes" onclick="likeBack(${h.id}, true)">♥</button>
+      </div>
+    </div>`).join("");
+}
+// Act on an admirer straight from the Liked You list.
+function likeBack(id, yes) {
+  const horse = HERD.find(h => h.id === id);
+  if (yes) {
+    if (!S.liked.includes(id)) S.liked.push(id);
+    if (!S.matched.includes(id)) { S.matched.push(id); S.threads[id] = S.threads[id] || []; }
+    S.admirers = S.admirers.filter(x => x !== id);
+    save(); updateBadge(); renderLikedYou(); showMatch(horse);
+  } else {
+    if (!S.passed.includes(id)) S.passed.push(id);
+    S.admirers = S.admirers.filter(x => x !== id);
+    save(); updateBadge(); renderLikedYou(); toast("Passed on " + horse.name);
+  }
+}
+let toastTimer;
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 1600);
+}
+
+// ---- onboarding wiring ----
+function buildChips(containerId, values, selected, single) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = "";
+  values.forEach(v => {
+    const c = document.createElement("div");
+    c.className = "chip" + (selected.includes(v) ? " on" : "");
+    c.textContent = v;
+    c.onclick = () => {
+      if (single) { selected.length = 0; selected.push(v); }
+      else if (selected.includes(v)) selected.splice(selected.indexOf(v), 1);
+      else selected.push(v);
+      buildChips(containerId, values, selected, single);
+    };
+    el.appendChild(c);
+  });
+}
+const obDisc = ["trail","dressage"];
+const obSeek = [...GENDERS];
+buildChips("ob-disc", DISCIPLINES, obDisc, false);
+buildChips("ob-seek", GENDERS, obSeek, false);
+
+document.getElementById("ob-start").addEventListener("click", () => {
+  S.profile = {
+    name: document.getElementById("ob-name").value || "My Horse",
+    age: +document.getElementById("ob-age").value || 5,
+    height: +document.getElementById("ob-height").value || 15,
+    temperament: document.getElementById("ob-temp").value,
+    disciplines: obDisc.length ? [...obDisc] : ["trail"],
+    photo: "🐴",
+  };
+  S.filters.genders = obSeek.length ? [...obSeek] : [...GENDERS];
+  save();
+  document.getElementById("nav").style.display = "flex";
+  go("swipe");
+});
+
+// ---- filters wiring ----
+const fDist = document.getElementById("f-dist"), fvDist = document.getElementById("fv-dist");
+const fMin = document.getElementById("f-agemin"), fMax = document.getElementById("f-agemax"), fvAge = document.getElementById("fv-age");
+const gChips = [];
+function refreshFilterUI() {
+  fDist.value = S.filters.dist; fvDist.textContent = S.filters.dist + " km";
+  fMin.value = S.filters.ageMin; fMax.value = S.filters.ageMax;
+  fvAge.textContent = `${S.filters.ageMin} – ${S.filters.ageMax}`;
+  gChips.length = 0; gChips.push(...S.filters.genders);
+  buildChips("f-gender", GENDERS, gChips, false);
+  document.getElementById("f-shared").checked = S.filters.shared;
+}
+fDist.oninput = () => fvDist.textContent = fDist.value + " km";
+fMin.oninput = fMax.oninput = () => fvAge.textContent = `${Math.min(+fMin.value,+fMax.value)} – ${Math.max(+fMin.value,+fMax.value)}`;
+document.getElementById("f-apply").addEventListener("click", () => {
+  S.filters.dist = +fDist.value;
+  S.filters.ageMin = Math.min(+fMin.value, +fMax.value);
+  S.filters.ageMax = Math.max(+fMin.value, +fMax.value);
+  S.filters.genders = gChips.length ? [...gChips] : [...GENDERS];
+  S.filters.shared = document.getElementById("f-shared").checked;
+  save(); toast("Filters applied ✅"); go("swipe");
+});
+document.getElementById("f-reset").addEventListener("click", () => {
+  if (!confirm("Reset all swipes, matches, chats and your profile?")) return;
+  localStorage.removeItem("stallionswipe");
+  location.reload();
+});
+
+// ---- nav + keyboard ----
+document.querySelectorAll("#nav button").forEach(b => b.addEventListener("click", () => {
+  if (b.dataset.go === "filters") refreshFilterUI();
+  go(b.dataset.go);
+}));
+document.getElementById("like-btn").addEventListener("click", () => doSwipe(true, false));
+document.getElementById("nope-btn").addEventListener("click", () => doSwipe(false, false));
+document.getElementById("superlike-btn").addEventListener("click", () => doSwipe(true, true));
+document.getElementById("rewind-btn").addEventListener("click", rewind);
+document.addEventListener("keydown", e => {
+  if (!document.getElementById("screen-swipe").classList.contains("active")) return;
+  if (e.key === "ArrowRight") doSwipe(true, false);
+  if (e.key === "ArrowLeft") doSwipe(false, false);
+  if (e.key === "ArrowUp") doSwipe(true, true);
+});
+
+// ---- boot ----
+try {
+  updateBadge();
+  if (S.profile) { document.getElementById("nav").style.display = "flex"; go("swipe"); }
+} catch (e) {
+  // corrupt/stale saved state from an older version -> self-heal to a clean start
+  console.warn("boot failed, clearing saved state", e);
+  localStorage.removeItem("stallionswipe");
+  S = DEFAULT_STATE();
+  seedAdmirers();
+  document.getElementById("nav").style.display = "none";
+  go("onboard");
+}
+</script>
+</body>
+</html>
