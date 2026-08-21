@@ -9,7 +9,7 @@
 
 <h1 align="center">Benzi</h1>
 
-<p align="center"><b>An AI coding agent that doesn't guess — it <i>queries</i>.</b></p>
+<p align="center"><b>An AI coding agent that doesn't read — it <i>queries</i>.</b></p>
 
 <p align="center">
   <a href="https://benzi.fly.dev/horse_tinder">Horse&nbsp;Tinder&nbsp;Demo</a> &nbsp;·&nbsp;
