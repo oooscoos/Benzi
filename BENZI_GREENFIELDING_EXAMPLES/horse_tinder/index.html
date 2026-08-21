@@ -10,7 +10,13 @@
 <title>StallionSwipe 🐴 — Tinder for Horses</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  :root { --pink:#fd267d; --orange:#ff7854; --green:#4ce600; --red:#ff2f2f; }
+  :root {
+    --pink:#fd267d; --orange:#ff7854; --green:#4ce600; --red:#ff2f2f;
+    --surface:#fff6f4;      /* warm blush panels instead of stark white */
+    --surface-2:#fbe9e6;    /* slightly deeper blush for the app bg */
+    --bubble:#fff9f8;       /* incoming chat bubble */
+    --line:#f3dcd8;         /* soft warm borders */
+  }
   html, body { height: 100vh; height: 100dvh; }
   body {
     font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -34,7 +40,7 @@
   /* ---- top bar ---- */
   header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 18px; background: #fff; color: var(--pink);
+    padding: 14px 18px; background: var(--surface); color: var(--pink);
     border-bottom: 1px solid #eee; flex-shrink: 0;
   }
   header .logo { font-weight: 800; font-size: 1.25rem; }
@@ -54,22 +60,22 @@
   header .nav button .badge.pulse { animation: badgePulse .6s ease 2; }
   @keyframes badgePulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.5); } }
 
-  main { flex: 1; overflow: hidden; position: relative; background: #f2f2f7; }
+  main { flex: 1; overflow: hidden; position: relative; background: var(--surface-2); }
   .screen { position: absolute; inset: 0; display: none; flex-direction: column; }
   .screen.active { display: flex; }
 
   /* ---- onboarding ---- */
-  #screen-onboard { background: #fff; color: #333; padding: 30px 26px; overflow-y: auto; }
+  #screen-onboard { background: var(--surface); color: #4a3f3d; padding: 30px 26px; overflow-y: auto; }
   #screen-onboard h2 { color: var(--pink); margin-bottom: 4px; }
   #screen-onboard p.sub { color: #888; font-size: .9rem; margin-bottom: 22px; }
   .field { margin-bottom: 16px; }
   .field label { display: block; font-size: .8rem; font-weight: 700; color: #555; margin-bottom: 6px; }
   .field input, .field select {
-    width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 10px; font-size: .95rem;
+    width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; font-size: .95rem; background: #fff; color: #4a3f3d;
   }
   .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
   .chip {
-    padding: 7px 14px; border: 1px solid #ddd; border-radius: 999px; cursor: pointer;
+    padding: 7px 14px; border: 1px solid var(--line); border-radius: 999px; cursor: pointer;
     font-size: .85rem; user-select: none; transition: all .12s;
   }
   .chip.on { background: var(--pink); color: #fff; border-color: var(--pink); }
@@ -83,7 +89,7 @@
   /* ---- swipe deck ---- */
   #deck { position: relative; flex: 1; margin: 16px; }
   .card {
-    position: absolute; inset: 0; background: #fff; border-radius: 20px;
+    position: absolute; inset: 0; background: var(--surface); border-radius: 20px;
     box-shadow: 0 12px 30px rgba(0,0,0,.25); color: #333; overflow: hidden;
     display: flex; flex-direction: column;
     transition: transform .35s ease, opacity .35s ease; cursor: grab; user-select: none;
@@ -157,7 +163,7 @@
   .list { flex: 1; overflow-y: auto; padding: 8px; color: #333; }
   .list h3 { padding: 10px 12px 6px; color: #888; font-size: .8rem; text-transform: uppercase; }
   .match-row { display: flex; align-items: center; gap: 12px; padding: 10px 12px;
-    background: #fff; border-radius: 14px; margin: 6px 4px; cursor: pointer; }
+    background: var(--surface); border-radius: 14px; margin: 6px 4px; cursor: pointer; }
   .match-row:active { background: #f7f7f7; }
   .match-row .av { width: 48px; height: 48px; border-radius: 50%; overflow: hidden; flex-shrink: 0;
     background: linear-gradient(135deg, #ffe3ec, #ffd6a5); display: flex; align-items: center; justify-content: center; }
@@ -169,14 +175,14 @@
   .empty-note { text-align: center; color: #999; padding: 40px 20px; }
 
   /* ---- chat ---- */
-  #screen-chat { background: #f2f2f7; color: #333; }
+  #screen-chat { background: var(--surface-2); color: #4a3f3d; }
   #chat-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px;
-    background: #fff; border-bottom: 1px solid #eee; }
+    background: var(--surface); border-bottom: 1px solid var(--line); }
   #chat-head .av { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; display: inline-block; }
   #chat-head .back { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--pink); }
   #chat-msgs { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
   .bubble { max-width: 75%; padding: 9px 13px; border-radius: 16px; font-size: .92rem; line-height: 1.3; }
-  .bubble.them { background: #fff; align-self: flex-start; border-bottom-left-radius: 4px; }
+  .bubble.them { background: var(--bubble); align-self: flex-start; border-bottom-left-radius: 4px; }
   .chat-head-txt { display: flex; flex-direction: column; line-height: 1.15; }
   .chat-status { font-size: .72rem; font-weight: 600; }
   .chat-status.on { color: #2fae4e; }
@@ -189,13 +195,13 @@
   @keyframes blink { 0%,60%,100% { opacity: .3; } 30% { opacity: 1; } }
   .bubble.me { background: linear-gradient(135deg, var(--orange), var(--pink)); color: #fff;
     align-self: flex-end; border-bottom-right-radius: 4px; }
-  #chat-input { display: flex; gap: 8px; padding: 10px; background: #fff; border-top: 1px solid #eee; }
-  #chat-input input { flex: 1; padding: 10px 14px; border: 1px solid #ddd; border-radius: 999px; }
+  #chat-input { display: flex; gap: 8px; padding: 10px; background: var(--surface); border-top: 1px solid var(--line); }
+  #chat-input input { flex: 1; padding: 10px 14px; border: 1px solid var(--line); border-radius: 999px; background: #fff; }
   #chat-input button { border: none; background: var(--pink); color: #fff; border-radius: 50%;
     width: 40px; height: 40px; cursor: pointer; font-size: 1.1rem; }
 
   /* ---- filters ---- */
-  #screen-filters { background: #fff; color: #333; padding: 24px; overflow-y: auto; }
+  #screen-filters { background: var(--surface); color: #4a3f3d; padding: 24px; overflow-y: auto; }
   #screen-filters h2 { color: var(--pink); margin-bottom: 18px; }
   .range-val { float: right; color: var(--pink); font-weight: 700; }
   /* simple native sliders + checkboxes, recolored to the app's pink */
@@ -224,7 +230,7 @@
   #profile-modal { position: absolute; inset: 0; background: rgba(0,0,0,.55); z-index: 22;
     display: none; align-items: center; justify-content: center; padding: 20px; }
   #profile-modal.open { display: flex; }
-  .profile-card { background: #fff; color: #333; border-radius: 20px; width: 100%; max-width: 330px;
+  .profile-card { background: var(--surface); color: #4a3f3d; border-radius: 20px; width: 100%; max-width: 330px;
     max-height: 90%; overflow-y: auto; animation: pop .3s ease; }
   .profile-card .p-photo { height: 220px; overflow: hidden; border-radius: 20px 20px 0 0;
     background: linear-gradient(135deg,#ffe3ec,#ffd6a5); position: relative; }
@@ -494,7 +500,7 @@ function horseSVG(h, px) {
   const face = faces[bag[h.id % bag.length]];   // stable per horse, still varied
 
   return `
-  <svg viewBox="0 0 240 240" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
+  <svg viewBox="0 0 240 240" width="${size}" height="${size}" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
     <defs><linearGradient id="sky${h.id}" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="${bg1}"/><stop offset="1" stop-color="${bg2}"/>
     </linearGradient></defs>
@@ -566,7 +572,8 @@ const HERD = [
 
 // ============================================================
 // ONLINE-STATUS ENGINE
-// A live set of "active now" horses. ~45% start online; every 25s a few
+// A live set of "active now" horses (one source of truth, read via isOnline()).
+// ~75% start online; every 25s horses flip (offline->online readily, online->offline
 // flip. When a horse comes ONLINE we fire onHorseOnline() so chat can
 // deliver queued replies and the badge can pulse. Offline horses go quiet.
 // ============================================================
@@ -575,7 +582,7 @@ const lastSeen = {};   // id -> minutes-ago label seed for offline horses
 
 function _seedOnline() {
   HERD.forEach(h => {
-    if (Math.random() < 0.45) ONLINE.add(h.id);
+    if (Math.random() < 0.75) ONLINE.add(h.id);
     else lastSeen[h.id] = 1 + Math.floor(Math.random() * 47);  // "Active Xh/Xm ago"
   });
 }
@@ -588,7 +595,8 @@ function lastSeenLabel(id) {
 // flip a few horses every 25s so the herd feels alive
 function _tickOnline() {
   HERD.forEach(h => {
-    if (Math.random() < 0.12) {                  // 12% chance to flip each tick
+    const flip = ONLINE.has(h.id) ? 0.05 : 0.25;   // rarely go offline, readily come online
+    if (Math.random() < flip) {
       if (ONLINE.has(h.id)) {                     // going OFFLINE
         ONLINE.delete(h.id);
         lastSeen[h.id] = 1;
@@ -600,7 +608,10 @@ function _tickOnline() {
     }
   });
   // repaint any visible status
-  if (document.getElementById("screen-swipe").classList.contains("active")) renderDeck();
+  // NOTE: don't rebuild the swipe deck on a tick -- it would reshuffle and flicker
+  // the card's status out from under the user. The deck refreshes between swipes
+  // (renderDeck runs after each swipe & on entering the screen); matching always
+  // reads the live isOnline() at swipe time, so card + chat stay one system.
   if (document.getElementById("screen-matches").classList.contains("active")) renderMatches();
   if (document.getElementById("screen-liked").classList.contains("active")) renderLikedYou();
   if (document.getElementById("screen-chat").classList.contains("active") && typeof renderChatStatus === "function") { renderChatStatus(); renderChat(); }
