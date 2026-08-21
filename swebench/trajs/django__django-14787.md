@@ -1,0 +1,62 @@
+# Trajectory: django__django-14787
+
+- model: deepseek-v4-flash (worker + verifier)
+- turns: 13
+- tool calls: 17
+- source lines read: 537
+
+## Tool-call sequence (recorded during inference)
+
+- turn 1: `read_source` django/utils/decorators.py
+- turn 1: `benzi_grep` tests
+- turn 2: `read_source` tests/decorators/tests.py
+- turn 2: `shell` cat django/__init__.py | head -10; echo ---; git log --oneli
+- turn 3: `execute_generated_testcase` 
+- turn 3: `shell` cd tests && python runtests.py decorators -v1 2>&1 | tail -3
+- turn 4: `read_source` tests/decorators/tests.py
+- turn 4: `shell` python --version; python -c "
+from functools import partial
+
+- turn 5: `edit_lines` django/utils/decorators.py
+- turn 5: `edit_lines` django/utils/decorators.py
+- turn 6: `execute_generated_testcase` 
+- turn 6: `shell` cd tests && python runtests.py decorators -v1 2>&1 | tail -8
+- turn 7: `shell` cd tests && python runtests.py middleware -v1 2>&1 | tail -6
+- turn 8: `read_source` django/utils/decorators.py
+- turn 10: `get_callers` django/utils/decorators.py::_multi_decorate
+- turn 10: `shell` git status --short; echo ---; git diff; echo ---; grep -n "p
+- turn 12: `execute_generated_testcase` 
+
+## Verifier
+
+- verdict: revise
+- critique: 
+
+## Final patch
+
+```diff
+diff --git a/django/utils/decorators.py b/django/utils/decorators.py
+index 5c9a5d01c7..866f382e60 100755
+--- a/django/utils/decorators.py
++++ b/django/utils/decorators.py
+@@ -1,6 +1,6 @@
+ "Functions that help with dynamically creating decorators for views."
+ 
+-from functools import partial, update_wrapper, wraps
++from functools import update_wrapper, wraps
+ 
+ 
+ class classonlymethod(classmethod):
+@@ -37,7 +37,9 @@ def _multi_decorate(decorators, method):
+         # 'self' argument, but it's a closure over self so it can call
+         # 'func'. Also, wrap method.__get__() in a function because new
+         # attributes can't be set on bound method objects, only on functions.
+-        bound_method = partial(method.__get__(self, type(self)))
++        def bound_method(*args, **kwargs):
++            return method.__get__(self, type(self))(*args, **kwargs)
++        update_wrapper(bound_method, method)
+         for dec in decorators:
+             bound_method = dec(bound_method)
+         return bound_method(*args, **kwargs)
+
+```

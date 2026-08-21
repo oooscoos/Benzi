@@ -1,0 +1,8 @@
+name: Benzi
+org: Variant Technologies
+model: DeepSeek v4-flash
+site: https://github.com/oooscoos/Benzi
+oss: false
+verified: false
+trajs: true
+logs: true
