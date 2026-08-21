@@ -146,7 +146,7 @@
     display: flex; align-items: center; justify-content: center; line-height: 1;
   }
   #controls button:active, #controls a:active { transform: scale(.92); }
-  #about-btn { color: #9a8f8c; border: 2px solid var(--line); text-decoration: none; }
+  #about-btn { color: #9a8f8c; border: 2px solid #9a8f8c; text-decoration: none; }
   #about-btn:hover { background: #9a8f8c; color: #fff; }
   #rewind-btn { color: #ffb300; border: 2px solid #ffb300; }
   #rewind-btn:hover { background: #ffb300; color: #fff; }
@@ -209,6 +209,10 @@
   /* simple native sliders + checkboxes, recolored to the app's pink */
   #screen-filters input[type="range"] { accent-color: var(--pink); width: 100%; margin: 10px 0; }
   #screen-filters input[type="checkbox"] { accent-color: var(--pink); width: 16px; height: 16px; vertical-align: -2px; margin-right: 6px; }
+  #screen-filters .about-link { display: block; text-align: center; margin-top: 20px; padding: 10px;
+    color: var(--pink); font-size: 1rem; font-weight: 700;
+    text-decoration: underline; text-underline-offset: 3px; }
+  #screen-filters .about-link:hover { color: #e01f6c; }
   /* ---- match modal ---- */
   #match-modal { position: absolute; inset: 0; background: rgba(0,0,0,.75);
     display: none; align-items: center; justify-content: center; z-index: 20; }
@@ -352,6 +356,7 @@
       <div class="field"><label><input type="checkbox" id="f-sound"> Sound effects 🔊</label></div>
       <button class="primary-btn" id="f-apply">Apply Filters</button>
       <button class="primary-btn" id="f-reset" style="background:#eee;color:#c00;margin-top:14px">Reset everything 🗑️</button>
+      <a class="about-link" id="about-link" href="https://benzi.fly.dev/about" target="_blank" rel="noopener">About this app</a>
     </section>
   </main>
 
