@@ -2,22 +2,33 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#fd267d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
 <title>StallionSwipe 🐴 — Tinder for Horses</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   :root { --pink:#fd267d; --orange:#ff7854; --green:#4ce600; --red:#ff2f2f; }
+  html, body { height: 100vh; height: 100dvh; }
   body {
     font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
     background: linear-gradient(160deg, var(--orange) 0%, var(--pink) 100%);
-    min-height: 100vh; display: flex; align-items: center; justify-content: center;
-    padding: 16px; color: #fff;
+    display: flex; align-items: center; justify-content: center; color: #fff;
+    overflow: hidden;   /* the app scrolls internally, not the page */
   }
   #phone {
-    width: 100%; max-width: 400px; height: 720px; max-height: 92vh;
-    background: #1c1c1e; border-radius: 32px; overflow: hidden;
+    width: 100%; height: 100%;
+    background: #1c1c1e; overflow: hidden;
     display: flex; flex-direction: column; position: relative;
-    box-shadow: 0 20px 60px rgba(0,0,0,.4);
+  }
+  /* On big screens, show it as a centered "phone" mockup instead of full-bleed */
+  @media (min-width: 640px) {
+    #phone {
+      max-width: 420px; height: 100vh; height: 100dvh;
+      box-shadow: 0 0 60px rgba(0,0,0,.4);
+    }
   }
 
   /* ---- top bar ---- */
