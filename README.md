@@ -39,9 +39,9 @@ The full SWE-bench Verified set — 500 real GitHub issues from twelve Python re
 
 | | |
 |---|---|
-| **Resolved** | **390 / 500 — 78.0%** |
+| **Resolved** | **391 / 500 — 78.2%** |
 | Total cost, all 500 instances | $37.33 |
-| Cost per instance resolved | $0.096 |
+| Cost per instance resolved | $0.095 |
 | Source lines read (total / median) | 231,574 / 379 |
 | Model turns (total / median) | 16,091 / 27 |
 | Input tokens served from cache | 97% |

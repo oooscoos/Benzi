@@ -1,6 +1,6 @@
 # Benzi on SWE-bench Verified
 
-**390 of 500 resolved (78.0%), pass@1, on DeepSeek v4-flash, for $37.33 total — 9.6¢ per resolved instance.**
+**391 of 500 resolved (78.2%), pass@1, on DeepSeek v4-flash, for $37.33 total — 9.5¢ per resolved instance.**
 
 One configuration, one attempt per instance, no ensembling, no test-time selection, graded by the official SWE-bench harness. This report describes the system, the setup, the results, and how to reproduce them.
 
@@ -10,11 +10,11 @@ One configuration, one attempt per instance, no ensembling, no test-time selecti
 
 | | |
 |---|---|
-| **Resolved** | **390 / 500 (78.0%)** |
+| **Resolved** | **391 / 500 (78.2%)** |
 | Attempts per instance | 1 (pass@1) |
 | Model (all roles) | DeepSeek v4-flash |
 | Total generation cost, all 500 | $37.33 |
-| Cost per resolved instance | $0.096 |
+| Cost per resolved instance | $0.095 |
 | Source lines read — total / median per instance | 231,574 / 379 |
 | Model turns — total / median per instance | 16,091 / 27 |
 | Input tokens served from prompt cache | 97% |
@@ -35,7 +35,7 @@ Grading: `swebench.harness.run_evaluation` (swebench 5.0.2), official per-instan
 | django | 231 | 181 | 78.4% |
 | xarray | 22 | 17 | 77.3% |
 | sphinx | 44 | 32 | 72.7% |
-| matplotlib | 34 | 24 | 70.6% |
+| matplotlib | 34 | 25 | 73.5% |
 | astropy | 22 | 15 | 68.2% |
 | pylint | 10 | 4 | 40.0% |
 
