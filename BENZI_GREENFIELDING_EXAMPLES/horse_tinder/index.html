@@ -27,12 +27,14 @@
     border-bottom: 1px solid #eee; flex-shrink: 0;
   }
   header .logo { font-weight: 800; font-size: 1.25rem; }
-  header .nav { display: flex; gap: 16px; font-size: 1.35rem; }
+  header .nav { display: flex; gap: 8px; }
   header .nav button {
-    background: none; border: none; cursor: pointer; font-size: 1.35rem;
-    opacity: .4; transition: opacity .15s; position: relative;
+    background: none; border: none; cursor: pointer; font-size: 1.2rem;
+    opacity: .45; transition: opacity .15s, background .15s; position: relative;
+    width: 40px; height: 40px; border-radius: 10px; line-height: 1;
   }
-  header .nav button.active { opacity: 1; }
+  header .nav button:hover { opacity: .8; }
+  header .nav button.active { opacity: 1; background: #fde3ee; }
   header .nav button .badge {
     position: absolute; top: -4px; right: -8px; background: var(--red); color: #fff;
     font-size: .6rem; font-weight: 700; border-radius: 999px; padding: 1px 5px;
@@ -58,10 +60,11 @@
   }
   .chip.on { background: var(--pink); color: #fff; border-color: var(--pink); }
   .primary-btn {
-    width: 100%; padding: 14px; border: none; border-radius: 999px; margin-top: 10px;
-    background: linear-gradient(135deg, var(--orange), var(--pink)); color: #fff;
-    font-weight: 800; font-size: 1rem; cursor: pointer;
+    width: 100%; padding: 14px; border: none; border-radius: 10px; margin-top: 10px;
+    background: var(--pink); color: #fff;
+    font-weight: 700; font-size: 1rem; cursor: pointer; transition: background .12s;
   }
+  .primary-btn:hover { background: #e01f6c; }
 
   /* ---- swipe deck ---- */
   #deck { position: relative; flex: 1; margin: 16px; }
@@ -91,10 +94,10 @@
   .card .likesyou { position: absolute; top: 46px; right: 14px; background: #2196f3;
     color: #fff; padding: 3px 10px; border-radius: 999px; font-size: .72rem; font-weight: 700; }
   .likeback { margin-left: auto; display: flex; gap: 8px; }
-  .likeback button { width: 38px; height: 38px; border-radius: 50%; border: none; cursor: pointer;
-    font-size: 1.05rem; box-shadow: 0 3px 8px rgba(0,0,0,.18); }
-  .likeback .lb-nope { color: var(--red); background: #fff; }
-  .likeback .lb-yes { color: #fff; background: linear-gradient(135deg, var(--orange), var(--pink)); }
+  .likeback button { width: 38px; height: 38px; border-radius: 50%; border: 2px solid; cursor: pointer;
+    font-size: 1rem; display: flex; align-items: center; justify-content: center; line-height: 1; }
+  .likeback .lb-nope { color: var(--red); background: transparent; border-color: var(--red); }
+  .likeback .lb-yes { color: #fff; background: var(--pink); border-color: var(--pink); }
   .stamp { position: absolute; top: 26px; font-size: 1.8rem; font-weight: 900;
     padding: 6px 14px; border: 4px solid; border-radius: 12px; opacity: 0;
     transition: opacity .1s; text-transform: uppercase; z-index: 3; }
@@ -102,17 +105,26 @@
   .stamp.nope { right: 20px; color: var(--red); border-color: var(--red); transform: rotate(18deg); }
   .card.gone-left  { transform: translateX(-160%) rotate(-24deg); opacity: 0; }
   .card.gone-right { transform: translateX(160%)  rotate(24deg);  opacity: 0; }
-
-  #controls { display: flex; gap: 18px; justify-content: center; padding: 0 0 18px; }
-  #controls button {
-    width: 58px; height: 58px; border-radius: 50%; border: none; font-size: 1.5rem;
-    cursor: pointer; background: #fff; box-shadow: 0 6px 16px rgba(0,0,0,.25); transition: transform .12s;
+  .card.gone-up    { transform: translateY(-160%) rotate(6deg);   opacity: 0; }
+  .card.rewind-in  { animation: rewindIn .38s ease; }
+  @keyframes rewindIn {
+    from { transform: translateY(-160%) rotate(-6deg); opacity: 0; }
+    to   { transform: translateY(0) rotate(0); opacity: 1; }
   }
-  #controls button:active { transform: scale(.9); }
-  #rewind-btn { color: #ffb300; font-size: 1.3rem; }
-  #nope-btn { color: var(--red); }
-  #superlike-btn { color: #2196f3; font-size: 1.3rem; }
-  #like-btn { color: var(--green); }
+
+  #controls { display: flex; gap: 22px; justify-content: center; padding: 4px 0 20px; }
+  #controls button {
+    width: 56px; height: 56px; border-radius: 50%; font-size: 1.4rem;
+    cursor: pointer; background: transparent; transition: background .12s, color .12s;
+    display: flex; align-items: center; justify-content: center; line-height: 1;
+  }
+  #controls button:active { transform: scale(.92); }
+  #rewind-btn { color: #ffb300; border: 2px solid #ffb300; }
+  #rewind-btn:hover { background: #ffb300; color: #fff; }
+  #nope-btn { color: var(--red); border: 2px solid var(--red); }
+  #nope-btn:hover { background: var(--red); color: #fff; }
+  #like-btn { color: var(--pink); border: 2px solid var(--pink); }
+  #like-btn:hover { background: var(--pink); color: #fff; }
 
   #empty { display: none; flex-direction: column; align-items: center; justify-content: center;
     text-align: center; height: 100%; color: #777; padding: 40px; }
@@ -153,7 +165,9 @@
   #screen-filters { background: #fff; color: #333; padding: 24px; overflow-y: auto; }
   #screen-filters h2 { color: var(--pink); margin-bottom: 18px; }
   .range-val { float: right; color: var(--pink); font-weight: 700; }
-
+  /* simple native sliders + checkboxes, recolored to the app's pink */
+  #screen-filters input[type="range"] { accent-color: var(--pink); width: 100%; margin: 10px 0; }
+  #screen-filters input[type="checkbox"] { accent-color: var(--pink); width: 16px; height: 16px; vertical-align: -2px; margin-right: 6px; }
   /* ---- match modal ---- */
   #match-modal { position: absolute; inset: 0; background: rgba(0,0,0,.75);
     display: none; align-items: center; justify-content: center; z-index: 20; }
@@ -161,7 +175,7 @@
   #match-modal h2 { font-size: 2.4rem; margin-bottom: 6px; text-shadow: 0 2px 10px rgba(0,0,0,.4); }
   #match-modal .emojis { font-size: 3.6rem; margin: 10px 0; }
   #match-modal .btns { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
-  #match-modal button { padding: 12px 24px; border: none; border-radius: 999px; font-weight: 700;
+  #match-modal button { padding: 12px 24px; border: none; border-radius: 10px; font-weight: 700;
     cursor: pointer; font-size: .95rem; }
   #match-modal .say { background: #fff; color: var(--pink); }
   #match-modal .keep { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.5); }
@@ -189,7 +203,7 @@
     <section class="screen active" id="screen-onboard">
       <h2>Create your profile</h2>
       <p class="sub">Tell us about your horse so we can find their perfect stable-mate.</p>
-      <div class="field"><label>Name</label><input id="ob-name" placeholder="e.g. Bella" value="My Horse"></div>
+      <div class="field"><label>Name</label><input id="ob-name" placeholder="e.g. Bella" value="Neigh-oncé"></div>
       <div class="field"><label>Age (years)</label><input id="ob-age" type="number" value="5" min="1" max="40"></div>
       <div class="field"><label>Height (hands)</label><input id="ob-height" type="number" step="0.1" value="15.0"></div>
       <div class="field"><label>Temperament</label>
@@ -212,10 +226,9 @@
         <p>Adjust your filters or check back when new horses trot into town.</p>
       </div>
       <div id="controls">
-        <button id="rewind-btn" title="Rewind">↩️</button>
-        <button id="nope-btn" title="Nope">✕</button>
-        <button id="superlike-btn" title="Super Like">⭐</button>
-        <button id="like-btn" title="Like">♥</button>
+        <button id="rewind-btn" title="Rewind"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h11a5 5 0 0 1 0 10h-2"/><path d="M7 5 3 9l4 4"/></svg></button>
+        <button id="nope-btn" title="Nope"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6 18 18M18 6 6 18"/></svg></button>
+        <button id="like-btn" title="Like"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 20.5 4.2 12.7a4.8 4.8 0 0 1 6.8-6.8l1 1 1-1a4.8 4.8 0 0 1 6.8 6.8Z"/></svg></button>
       </div>
     </section>
 
@@ -286,9 +299,21 @@ const GENDERS = ["mare","stallion","gelding"];
 // coat = body color, mane = mane/tail color, marking = face pattern.
 function horseSVG(h, px) {
   const size = px || 240;
-  const c = h.coat, m = h.mane;
-  // a soft gradient sky behind each horse, tinted by the coat
+  const c = h.coat, m = h.mane, d = shade(c, -12);
   const bg1 = shade(c, 55), bg2 = shade(c, 25);
+  const variant = h.id % 4;   // 4 distinct silhouettes spread across the herd
+
+  // ---- SIZE the portrait by the horse's stats ----
+  // height (hands) is the main driver: ~10 (Shetland pony) -> ~18 (Clydesdale).
+  // age gives a small extra nudge (older reads as a bit bigger/sturdier).
+  const hh = h.height || 15;
+  let scale = 0.72 + (hh - 10) / 8 * 0.43;          // 10h->0.72  18h->1.15
+  scale += Math.min((h.age || 5) - 4, 8) * 0.012;   // up to +~0.1 with age
+  scale = Math.max(0.68, Math.min(1.2, scale));
+  // anchor at bottom-centre (120,220) so bigger horses stand taller from the ground
+  const gx = 120 - 120 * scale, gy = 220 - 220 * scale;
+
+  // ---- shared face markings ----
   const blaze = h.marking === "blaze"
     ? `<path d="M120 78 q6 40 0 74 q-6 -34 0 -74 Z" fill="#fff" opacity=".9"/>` : "";
   const star = h.marking === "star"
@@ -297,33 +322,113 @@ function horseSVG(h, px) {
     ? `<g fill="#fff" opacity=".55"><circle cx="96" cy="150" r="7"/><circle cx="140" cy="162" r="6"/><circle cx="112" cy="178" r="5"/><circle cx="150" cy="140" r="4"/></g>` : "";
   const snip = h.marking === "snip"
     ? `<ellipse cx="120" cy="132" rx="8" ry="6" fill="#ffd9e0"/>` : "";
+  const markings = blaze + star + snip + spots;
+
+  // ---- 4 body/head shapes; each returns {body, eye:{x,y}, nose:{x,y}} ----
+  const shapes = {
+    // 0 -- SLEEK (thoroughbred / arabian): slim refined head, upright neck
+    0: {
+      body: `
+        <path d="M92 220 L96 150 Q120 118 150 128 L162 220 Z" fill="${c}"/>
+        <path d="M96 150 Q78 172 82 220 L98 220 Q92 176 108 150 Z" fill="${m}"/>
+        <path d="M104 68 Q152 60 150 116 Q150 150 118 152 Q94 150 94 108 Q94 76 104 68 Z" fill="${c}"/>
+        <ellipse cx="116" cy="140" rx="17" ry="14" fill="${d}"/>
+        <path d="M102 70 L94 42 L116 64 Z" fill="${c}"/>
+        <path d="M150 76 L164 50 L142 70 Z" fill="${c}"/>
+        <path d="M104 66 L99 50 L112 63 Z" fill="${m}"/>
+        <path d="M112 60 Q120 48 132 62 Q122 58 116 72 Z" fill="${m}"/>`,
+      eye: { x: 130, y: 102 }, nose: { x: 113, y: 141 },
+    },
+    // 1 -- DRAFT (clydesdale / percheron): big blocky head, thick neck
+    1: {
+      body: `
+        <path d="M78 220 L86 148 Q120 112 158 126 L172 220 Z" fill="${c}"/>
+        <path d="M86 148 Q64 172 70 220 L92 220 Q84 176 104 150 Z" fill="${m}"/>
+        <rect x="92" y="72" width="60" height="76" rx="26" fill="${c}"/>
+        <ellipse cx="122" cy="146" rx="26" ry="19" fill="${d}"/>
+        <path d="M96 76 L86 50 L114 70 Z" fill="${c}"/>
+        <path d="M150 76 L162 50 L136 70 Z" fill="${c}"/>
+        <path d="M98 74 L92 56 L108 70 Z" fill="${m}"/>
+        <path d="M110 62 Q122 46 138 62 Q124 58 118 76 Z" fill="${m}"/>`,
+      eye: { x: 134, y: 104 }, nose: { x: 116, y: 146 },
+    },
+    // 2 -- PONY (shetland / welsh): short round head, stubby, big forelock
+    2: {
+      body: `
+        <path d="M84 220 L92 158 Q120 132 150 150 L160 220 Z" fill="${c}"/>
+        <path d="M92 158 Q74 178 80 220 L100 220 Q94 182 106 158 Z" fill="${m}"/>
+        <ellipse cx="122" cy="118" rx="34" ry="34" fill="${c}"/>
+        <ellipse cx="122" cy="146" rx="22" ry="17" fill="${d}"/>
+        <path d="M98 92 L88 68 L114 88 Z" fill="${c}"/>
+        <path d="M146 92 L158 68 L132 88 Z" fill="${c}"/>
+        <path d="M104 100 Q122 74 142 98 Q128 88 122 108 Q116 88 104 100 Z" fill="${m}"/>`,
+      eye: { x: 134, y: 110 }, nose: { x: 116, y: 146 },
+    },
+    // 3 -- ELEGANT (andalusian / friesian): long arched neck, flowing mane
+    3: {
+      body: `
+        <path d="M96 220 L94 150 Q92 108 128 104 Q156 102 152 132 L166 220 Z" fill="${c}"/>
+        <path d="M94 150 Q66 168 74 220 L96 220 Q86 176 100 148 Q92 122 108 106 L100 100 Q80 120 88 156 Z" fill="${m}"/>
+        <path d="M112 62 Q156 66 152 116 Q150 150 120 152 Q100 150 102 112 Q104 66 112 62 Z" fill="${c}"/>
+        <ellipse cx="118" cy="142" rx="16" ry="14" fill="${d}"/>
+        <path d="M112 64 L106 38 L126 60 Z" fill="${c}"/>
+        <path d="M150 74 L162 48 L140 68 Z" fill="${c}"/>
+        <path d="M114 60 L109 44 L122 58 Z" fill="${m}"/>
+        <path d="M118 56 Q128 42 140 58 Q130 54 124 70 Z" fill="${m}"/>`,
+      eye: { x: 130, y: 104 }, nose: { x: 115, y: 143 },
+    },
+  };
+  const s = shapes[variant];
+
+  // ---- EXPRESSIONS: eyes + mouth, shuffled per horse ----
+  // eye anchor (ex,ey), mouth sits below-forward of the muzzle.
+  const ex = s.eye.x, ey = s.eye.y, mx = s.nose.x + 4, my = s.nose.y + 12;
+  const faces = {
+    happy: `
+      <path d="M${ex-5} ${ey} Q${ex} ${ey-6} ${ex+5} ${ey}" stroke="#2b2b2b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M${ex-14} ${ey-3} Q${ex} ${ey-9} ${ex+7} ${ey-4}" stroke="#2b2b2b" stroke-width="1.6" fill="none"/>
+      <path d="M${mx-9} ${my} Q${mx} ${my+6} ${mx+9} ${my}" stroke="#3a2a2a" stroke-width="2" fill="none" stroke-linecap="round"/>`,
+    flirty: `
+      <path d="M${ex-6} ${ey} Q${ex} ${ey-5} ${ex+6} ${ey}" stroke="#2b2b2b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <circle cx="${ex-16}" cy="${ey-2}" r="4.5" fill="#2b2b2b"/>
+      <path d="M${mx-9} ${my+1} Q${mx-1} ${my+7} ${mx+9} ${my-2}" stroke="#3a2a2a" stroke-width="2" fill="none" stroke-linecap="round"/>`,
+    chill: `
+      <path d="M${ex-6} ${ey-1} Q${ex} ${ey+3} ${ex+6} ${ey-1}" stroke="#2b2b2b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M${ex-16} ${ey-1} Q${ex-10} ${ey+3} ${ex-4} ${ey-1}" stroke="#2b2b2b" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M${mx-7} ${my+1} Q${mx} ${my+3} ${mx+7} ${my+1}" stroke="#3a2a2a" stroke-width="1.8" fill="none" stroke-linecap="round"/>`,
+    excited: `
+      <circle cx="${ex}" cy="${ey}" r="7" fill="#2b2b2b"/><circle cx="${ex+2.5}" cy="${ey-2.5}" r="2.5" fill="#fff"/>
+      <circle cx="${ex-16}" cy="${ey}" r="7" fill="#2b2b2b"/><circle cx="${ex-13.5}" cy="${ey-2.5}" r="2.5" fill="#fff"/>
+      <ellipse cx="${mx}" cy="${my+3}" rx="8" ry="7" fill="#5a2a2a"/><ellipse cx="${mx}" cy="${my+5}" rx="4" ry="3" fill="#c86"/>`,
+    cool: `
+      <path d="M${ex-6} ${ey} L${ex+6} ${ey}" stroke="#2b2b2b" stroke-width="3" stroke-linecap="round"/>
+      <path d="M${ex-17} ${ey} L${ex-6} ${ey}" stroke="#2b2b2b" stroke-width="3" stroke-linecap="round"/>
+      <path d="M${mx-8} ${my} Q${mx} ${my+2} ${mx+9} ${my-3}" stroke="#3a2a2a" stroke-width="2" fill="none" stroke-linecap="round"/>`,
+    derp: `
+      <circle cx="${ex}" cy="${ey-1}" r="6.5" fill="#2b2b2b"/><circle cx="${ex+2}" cy="${ey-3}" r="2" fill="#fff"/>
+      <circle cx="${ex-16}" cy="${ey+2}" r="6.5" fill="#2b2b2b"/><circle cx="${ex-14}" cy="${ey}" r="2" fill="#fff"/>
+      <path d="M${mx-7} ${my+2} Q${mx} ${my-2} ${mx+8} ${my+3}" stroke="#3a2a2a" stroke-width="2" fill="none" stroke-linecap="round"/>`,
+  };
+  // shuffle, but nudge by temperament so personality shows
+  const all = ["happy","flirty","chill","excited","cool","derp"];
+  const bias = { playful:["excited","happy","derp"], spirited:["flirty","excited","cool"],
+                 chill:["chill","happy"], stoic:["cool","chill","flirty"] }[h.temperament] || [];
+  const bag = bias.concat(all);                 // biased picks appear more often
+  const face = faces[bag[h.id % bag.length]];   // stable per horse, still varied
+
   return `
   <svg viewBox="0 0 240 240" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
     <defs><linearGradient id="sky${h.id}" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="${bg1}"/><stop offset="1" stop-color="${bg2}"/>
     </linearGradient></defs>
     <rect width="240" height="240" fill="url(#sky${h.id})"/>
-    <!-- neck -->
-    <path d="M92 220 L96 150 Q120 120 150 130 L160 220 Z" fill="${c}"/>
-    <!-- mane -->
-    <path d="M96 150 Q80 170 84 220 L98 220 Q92 175 108 150 Z" fill="${m}"/>
-    <!-- head -->
-    <path d="M104 70 Q150 62 150 118 Q150 150 120 152 Q96 150 96 110 Q96 78 104 70 Z" fill="${c}"/>
-    <!-- muzzle -->
-    <ellipse cx="120" cy="140" rx="20" ry="16" fill="${shade(c, -12)}"/>
-    <!-- ears -->
-    <path d="M104 72 L96 46 L116 66 Z" fill="${c}"/>
-    <path d="M150 78 L162 54 L142 72 Z" fill="${c}"/>
-    <path d="M106 68 L101 54 L112 65 Z" fill="${m}"/>
-    <!-- forelock -->
-    <path d="M112 62 Q120 50 132 64 Q122 60 116 74 Z" fill="${m}"/>
-    ${blaze}${star}${snip}${spots}
-    <!-- eye -->
-    <circle cx="132" cy="104" r="6" fill="#2b2b2b"/>
-    <circle cx="134" cy="102" r="2" fill="#fff"/>
-    <!-- nostrils -->
-    <ellipse cx="114" cy="142" rx="3" ry="4" fill="#3a2a2a"/>
-    <ellipse cx="126" cy="144" rx="3" ry="4" fill="#3a2a2a"/>
+    <g transform="translate(${gx.toFixed(1)} ${gy.toFixed(1)}) scale(${scale.toFixed(3)})">
+      ${s.body}
+      ${markings}
+      ${face}
+      <ellipse cx="${s.nose.x}" cy="${s.nose.y}" rx="3" ry="4" fill="#3a2a2a"/>
+      <ellipse cx="${s.nose.x + 12}" cy="${s.nose.y + 2}" rx="3" ry="4" fill="#3a2a2a"/>
+    </g>
   </svg>`;
 }
 // lighten (amt>0) / darken (amt<0) a #rrggbb hex color
@@ -382,14 +487,94 @@ const HERD = [
     disciplines:["dressage","driving"], bio:"Tall, dark, and dramatic. My mane has its own fan club.", height:16.2, coat:"#26262b", mane:"#111114", marking:"none", stable:"Churchill Barn", distance:9, verified:true },
 ];
 
-// canned replies so matches feel alive
-const REPLIES = [
-  "Neigh way, that's so sweet! 🥰", "Hay there 👋 tell me more!",
-  "You had me at 'apples' 🍎", "Trotting over to your paddock now 😏",
-  "Stable relationship? I'm in. 💕", "That's un-bri-dled charm right there!",
-  "Foal-ing for you already 🐴", "Let's canter into the sunset 🌅",
-];
+// Every reply a match sends is profile-aware: it sprinkles in YOUR name,
+// age, discipline or temperament so the whole chat feels personal.
+function reply(horse) {
+  const p = S.profile || {};
+  const you = p.name || "cutie";
+  const disc = (p.disciplines && p.disciplines[0]) || "trail";
+  const shared = (p.disciplines || []).filter(d => horse.disciplines.includes(d))[0];
+  const age = p.age;
+  const temp = p.temperament;
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
+  // a pool where EVERY variant name-drops something of yours
+  const pool = [
+    `Neigh way ${you}, that's so sweet! 🥰`,
+    `Hay there ${you} 👋 tell me more!`,
+    `You had me at 'apples' ${you} 🍎`,
+    `Trotting over to your paddock now, ${you} 😏`,
+    `Stable relationship with you, ${you}? I'm in. 💕`,
+    `That's un-bri-dled charm, ${you} 😍`,
+    `Foal-ing for you already ${you} 🐴`,
+    `Let's canter into the sunset, ${you} 🌅`,
+    `A ${disc} horse like you is exactly my type, ${you} 💘`,
+    `Honestly ${you}, best swipe of my day 🐎`,
+  ];
+  if (shared) pool.push(`Can't stop thinking about that ${shared} date, ${you} 🥰`,
+                        `We're SO doing ${shared} this weekend, ${you} 🔥`);
+  if (age) pool.push(`${age} and this charming? ${you}, you're a rare breed 😌`,
+                     `They don't make ${age}-year-olds like you anymore, ${you} 💕`);
+  if (temp === "spirited") pool.push(`Keep up that fire, ${you}, and I'm yours 🔥`);
+  if (temp === "chill") pool.push(`Love how easygoing you are, ${you} 😌`);
+  if (temp === "playful") pool.push(`You're SO much fun, ${you} 🎉`);
+  if (temp === "stoic") pool.push(`Strong and mysterious, ${you}... I'm intrigued 🖤`);
+
+  return pick(pool);
+}
+
+
+// ---- personalized opener: the FIRST message a match sends you ----
+// Uses YOUR profile (name, disciplines, temperament, age) so it lands
+// like they actually read your bio. Always name-drops something of yours.
+function opener(horse) {
+  const p = S.profile || {};
+  const you = p.name || "stranger";
+  const myDisc = p.disciplines || [];
+  const shared = myDisc.filter(d => horse.disciplines.includes(d));
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+  // 1) shared hobby -> strongest hook
+  if (shared.length) {
+    return pick([
+      `Hey ${you}! 🐴 A fellow ${shared[0]} lover? I'm already smitten. When can we ${shared[0]} together?`,
+      `${you}, I saw you're into ${shared[0]} too — swipe destiny, clearly. Wanna hit the ${shared[0]} circuit sometime?`,
+      `No way ${you}, we BOTH do ${shared[0]}?! 😍 I've got the arena booked... care to join?`,
+    ]);
+  }
+  // 2) complement their discipline with mine
+  if (myDisc.length) {
+    return pick([
+      `Hi ${you}! You're a ${myDisc[0]} horse and I do ${horse.disciplines[0]} — opposites attract, right? 😏`,
+      `${you}! Teach me ${myDisc[0]} and I'll show you my ${horse.disciplines[0]} moves. Deal? 🐎`,
+      `Loved your profile ${you} — a ${myDisc[0]} enthusiast is exactly my type of trot.`,
+    ]);
+  }
+  // 3) lean on their temperament
+  const temp = p.temperament;
+  if (temp) {
+    const byTemp = {
+      playful: `${you}! You look like FUN 🎉 Race you to the water trough?`,
+      chill:   `Hey ${you} 😌 You seem like the graze-in-the-sun-together type. I approve.`,
+      spirited:`${you}! A spirited one, huh? 🔥 I like a horse who can keep pace with me.`,
+      stoic:   `${you}. Strong, silent, mysterious. I'm intrigued. 🖤`,
+    };
+    return byTemp[temp] || `Hi ${you}! Great to match with you 🐴`;
+  }
+  // 4) fallback still uses the name + age if we have it
+  return p.age
+    ? `Hey ${you}! Something about a ${p.age}-year-old with your energy... swipe well spent. 🐴💕`
+    : `Hey ${you}! So glad we matched 🐴💕`;
+}
+
+// Fire the horse's personalized opener into a fresh thread (only if empty).
+function sendOpener(horse) {
+  S.threads[horse.id] = S.threads[horse.id] || [];
+  if (S.threads[horse.id].length === 0) {
+    S.threads[horse.id].push({ from: "them", text: opener(horse) });
+    save();
+  }
+}
 // ---- persisted state ----
 const DEFAULT_STATE = () => ({
   profile: null,               // {name, age, height, temperament, disciplines}
@@ -533,6 +718,7 @@ function doSwipe(liked, superLike) {
   if (matched && !S.matched.includes(horse.id)) {
     S.matched.push(horse.id);
     S.threads[horse.id] = S.threads[horse.id] || [];
+    sendOpener(horse);                                      // they message first, personalized
     S.admirers = S.admirers.filter(id => id !== horse.id);  // no longer "pending"
   }
   save();
@@ -544,10 +730,14 @@ function doSwipe(liked, superLike) {
 }
 
 function rewind() {
-  if (S.lastPassed == null) { toast("Nothing to rewind 🤷"); return; }
+  if (S.lastPassed == null) { toast("Nothing to rewind"); return; }
   S.passed = S.passed.filter(id => id !== S.lastPassed);
   S.lastPassed = null;
-  save(); renderDeck(); toast("Rewound! ↩️");
+  save(); renderDeck();
+  // animate the restored card dropping back in from the top
+  const top = topCard();
+  if (top) { top.classList.add("rewind-in"); top.addEventListener("animationend", () => top.classList.remove("rewind-in"), { once: true }); }
+  toast("Rewound!");
 }
 
 // ---- drag ----
@@ -623,9 +813,9 @@ function sendMsg() {
   S.threads[chatWith.id].push({ from: "me", text });
   inp.value = "";
   save(); renderChat();
-  // canned reply after a beat
+  // profile-aware reply after a beat -- reply() sprinkles in your name/age/etc.
   setTimeout(() => {
-    S.threads[chatWith.id].push({ from: "them", text: REPLIES[Math.floor(Math.random()*REPLIES.length)] });
+    S.threads[chatWith.id].push({ from: "them", text: reply(chatWith) });
     save(); renderChat();
   }, 900 + Math.random()*800);
 }
@@ -672,8 +862,8 @@ function renderLikedYou() {
       <div><div class="who">${h.name} ${h.verified?'✓':''}</div>
            <div class="last">${h.breed} · ${h.distance}km away</div></div>
       <div class="likeback">
-        <button class="lb-nope" onclick="likeBack(${h.id}, false)">✕</button>
-        <button class="lb-yes" onclick="likeBack(${h.id}, true)">♥</button>
+        <button class="lb-nope" onclick="likeBack(${h.id}, false)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6 18 18M18 6 6 18"/></svg></button>
+        <button class="lb-yes" onclick="likeBack(${h.id}, true)"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 20.5 4.2 12.7a4.8 4.8 0 0 1 6.8-6.8l1 1 1-1a4.8 4.8 0 0 1 6.8 6.8Z"/></svg></button>
       </div>
     </div>`).join("");
 }
@@ -683,6 +873,7 @@ function likeBack(id, yes) {
   if (yes) {
     if (!S.liked.includes(id)) S.liked.push(id);
     if (!S.matched.includes(id)) { S.matched.push(id); S.threads[id] = S.threads[id] || []; }
+    sendOpener(horse);                                      // personalized first message
     S.admirers = S.admirers.filter(x => x !== id);
     save(); updateBadge(); renderLikedYou(); showMatch(horse);
   } else {
@@ -723,7 +914,7 @@ buildChips("ob-seek", GENDERS, obSeek, false);
 
 document.getElementById("ob-start").addEventListener("click", () => {
   S.profile = {
-    name: document.getElementById("ob-name").value || "My Horse",
+    name: document.getElementById("ob-name").value || "Neigh-oncé",
     age: +document.getElementById("ob-age").value || 5,
     height: +document.getElementById("ob-height").value || 15,
     temperament: document.getElementById("ob-temp").value,
@@ -771,13 +962,11 @@ document.querySelectorAll("#nav button").forEach(b => b.addEventListener("click"
 }));
 document.getElementById("like-btn").addEventListener("click", () => doSwipe(true, false));
 document.getElementById("nope-btn").addEventListener("click", () => doSwipe(false, false));
-document.getElementById("superlike-btn").addEventListener("click", () => doSwipe(true, true));
 document.getElementById("rewind-btn").addEventListener("click", rewind);
 document.addEventListener("keydown", e => {
   if (!document.getElementById("screen-swipe").classList.contains("active")) return;
   if (e.key === "ArrowRight") doSwipe(true, false);
   if (e.key === "ArrowLeft") doSwipe(false, false);
-  if (e.key === "ArrowUp") doSwipe(true, true);
 });
 
 // ---- boot ----
