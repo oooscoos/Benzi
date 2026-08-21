@@ -225,8 +225,9 @@
     from { transform: translateY(0) rotate(0); opacity: 1; }
     to   { transform: translateY(120vh) rotate(540deg); opacity: 0; }
   }
-  .info-btn { background: rgba(0,0,0,.06); border: none; color: #888; cursor: pointer;
-    font-size: 1rem; border-radius: 50%; width: 26px; height: 26px; float: right; }
+  .info-btn { background: var(--pink); border: none; color: #fff; cursor: pointer; float: right;
+    font-size: .78rem; font-weight: 700; border-radius: 999px; padding: 5px 12px; }
+  .info-btn:active { transform: scale(.94); }
   #profile-modal { position: absolute; inset: 0; background: rgba(0,0,0,.55); z-index: 22;
     display: none; align-items: center; justify-content: center; padding: 20px; }
   #profile-modal.open { display: flex; }
@@ -927,7 +928,7 @@ function renderDeck() {
       <div class="photo">${h.verified ? '<span class="verified">✓</span>' : ''}${horseSVG(h)}</div>
       <div class="info">
         <h2>${h.name} <span>${h.age}</span>
-          <button class="info-btn" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" onclick="event.stopPropagation(); openProfile(${h.id})">ⓘ</button>
+          <button class="info-btn" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" onclick="event.stopPropagation(); openProfile(${h.id})">View profile ›</button>
         </h2>
         <div class="status ${isOnline(h.id) ? 'on' : 'off'}"><span class="dot"></span>${isOnline(h.id) ? 'Active now' : lastSeenLabel(h.id)}</div>
         <div class="meta">${h.breed} · ${h.gender} · ${h.height} hands · ${h.distance}km away</div>
@@ -1144,7 +1145,7 @@ function closeMatch() { document.getElementById("match-modal").style.display = "
 // confetti + floating hearts burst over the match modal
 function celebrate() {
   const wrap = document.getElementById("match-modal");
-  const bits = "🎉💕✨🐴💖🎊💘".split("");
+  const bits = [..."🎉💕✨🐴💖🎊💘🧡"];   // spread splits by CODE POINT, not surrogate halves
   for (let i = 0; i < 28; i++) {
     const s = document.createElement("span");
     s.className = "confetti";
