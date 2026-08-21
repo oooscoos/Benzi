@@ -40,6 +40,8 @@
     position: absolute; top: -4px; right: -8px; background: var(--red); color: #fff;
     font-size: .6rem; font-weight: 700; border-radius: 999px; padding: 1px 5px;
   }
+  header .nav button .badge.pulse { animation: badgePulse .6s ease 2; }
+  @keyframes badgePulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.5); } }
 
   main { flex: 1; overflow: hidden; position: relative; background: #f2f2f7; }
   .screen { position: absolute; inset: 0; display: none; flex-direction: column; }
@@ -86,6 +88,13 @@
   .card .info h2 { font-size: 1.35rem; }
   .card .info h2 span { font-weight: 400; color: #888; font-size: 1.05rem; }
   .card .meta { color: #666; font-size: .82rem; margin: 4px 0 8px; }
+  .card .status { font-size: .78rem; font-weight: 600; margin: 2px 0 6px; display: flex; align-items: center; gap: 6px; }
+  .card .status .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .card .status.on { color: #2fae4e; } .card .status.on .dot { background: #2fae4e; box-shadow: 0 0 0 3px #2fae4e33; }
+  .card .status.off { color: #999; } .card .status.off .dot { background: #bbb; }
+  .card.online { box-shadow: 0 0 0 3px #2fae4e, 0 12px 30px rgba(0,0,0,.25); }
+  .match-row .av.av-online { box-shadow: 0 0 0 2px #2fae4e; }
+  .mini-on { color: #2fae4e; font-weight: 600; }
   .card .bio { font-size: .88rem; color: #444; line-height: 1.35; }
   .card .tags { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
   .card .tags span { background: #fd267d22; color: var(--pink);
@@ -126,6 +135,8 @@
   #nope-btn:hover { background: var(--red); color: #fff; }
   #like-btn { color: var(--pink); border: 2px solid var(--pink); }
   #like-btn:hover { background: var(--pink); color: #fff; }
+  #like-btn.glow { background: var(--pink); color: #fff; transform: scale(1.15); }
+  #nope-btn.glow { background: var(--red); color: #fff; transform: scale(1.15); }
 
   #empty { display: none; flex-direction: column; align-items: center; justify-content: center;
     text-align: center; height: 100%; color: #777; padding: 40px; }
@@ -155,6 +166,16 @@
   #chat-msgs { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
   .bubble { max-width: 75%; padding: 9px 13px; border-radius: 16px; font-size: .92rem; line-height: 1.3; }
   .bubble.them { background: #fff; align-self: flex-start; border-bottom-left-radius: 4px; }
+  .chat-head-txt { display: flex; flex-direction: column; line-height: 1.15; }
+  .chat-status { font-size: .72rem; font-weight: 600; }
+  .chat-status.on { color: #2fae4e; }
+  .chat-status.off { color: #999; }
+  .receipt { font-size: .68rem; color: #aaa; align-self: flex-end; margin: -4px 2px 2px; }
+  .bubble.typing { display: flex; gap: 4px; padding: 12px 14px; }
+  .bubble.typing span { width: 7px; height: 7px; border-radius: 50%; background: #bbb; animation: blink 1.2s infinite; }
+  .bubble.typing span:nth-child(2) { animation-delay: .2s; }
+  .bubble.typing span:nth-child(3) { animation-delay: .4s; }
+  @keyframes blink { 0%,60%,100% { opacity: .3; } 30% { opacity: 1; } }
   .bubble.me { background: linear-gradient(135deg, var(--orange), var(--pink)); color: #fff;
     align-self: flex-end; border-bottom-right-radius: 4px; }
   #chat-input { display: flex; gap: 8px; padding: 10px; background: #fff; border-top: 1px solid #eee; }
@@ -181,6 +202,33 @@
   #match-modal .say { background: #fff; color: var(--pink); }
   #match-modal .keep { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.5); }
   @keyframes pop { from { transform: scale(.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .confetti { position: absolute; top: -30px; z-index: 25; pointer-events: none;
+    animation: fall linear forwards; }
+  @keyframes fall {
+    from { transform: translateY(0) rotate(0); opacity: 1; }
+    to   { transform: translateY(120vh) rotate(540deg); opacity: 0; }
+  }
+  .info-btn { background: rgba(0,0,0,.06); border: none; color: #888; cursor: pointer;
+    font-size: 1rem; border-radius: 50%; width: 26px; height: 26px; float: right; }
+  #profile-modal { position: absolute; inset: 0; background: rgba(0,0,0,.55); z-index: 22;
+    display: none; align-items: center; justify-content: center; padding: 20px; }
+  #profile-modal.open { display: flex; }
+  .profile-card { background: #fff; color: #333; border-radius: 20px; width: 100%; max-width: 330px;
+    max-height: 90%; overflow-y: auto; animation: pop .3s ease; }
+  .profile-card .p-photo { height: 220px; overflow: hidden; border-radius: 20px 20px 0 0;
+    background: linear-gradient(135deg,#ffe3ec,#ffd6a5); position: relative; }
+  .profile-card .p-photo svg { width: 100%; height: 100%; }
+  .profile-card .p-body { padding: 16px 18px 20px; }
+  .profile-card h2 { font-size: 1.5rem; }
+  .profile-card h2 span { color: #888; font-weight: 400; }
+  .profile-card .p-stats { display: flex; flex-wrap: wrap; gap: 6px 14px; color: #555;
+    font-size: .85rem; margin: 8px 0 12px; }
+  .profile-card .p-bio { font-size: .92rem; line-height: 1.4; margin-bottom: 12px; }
+  .profile-card .prompt { background: #faf6f2; border-left: 3px solid var(--pink);
+    padding: 8px 12px; border-radius: 8px; margin: 8px 0; font-size: .88rem; }
+  .profile-card .prompt b { display: block; color: var(--pink); font-size: .74rem; text-transform: uppercase; margin-bottom: 2px; }
+  .profile-card .p-close { width: 100%; padding: 12px; border: none; background: #f0f0f0;
+    color: #555; font-weight: 700; border-radius: 10px; margin-top: 8px; cursor: pointer; }
   .toast { position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
     background: rgba(0,0,0,.8); color: #fff; padding: 8px 16px; border-radius: 999px;
     font-size: .85rem; opacity: 0; transition: opacity .3s; z-index: 30; pointer-events: none; }
@@ -248,7 +296,7 @@
       <div id="chat-head">
         <button class="back" onclick="go('matches')">‹</button>
         <span class="av" id="chat-av"></span>
-        <b id="chat-name">Name</b>
+        <div class="chat-head-txt"><b id="chat-name">Name</b><div id="chat-status" class="chat-status off"></div></div>
       </div>
       <div id="chat-msgs"></div>
       <div id="chat-input">
@@ -267,6 +315,7 @@
         <input type="range" id="f-agemax" min="1" max="40" value="40" style="width:100%"></div>
       <div class="field"><label>Show me</label><div class="chip-row" id="f-gender"></div></div>
       <div class="field"><label><input type="checkbox" id="f-shared"> Only horses sharing a discipline with me</label></div>
+      <div class="field"><label><input type="checkbox" id="f-sound"> Sound effects 🔊</label></div>
       <button class="primary-btn" id="f-apply">Apply Filters</button>
       <button class="primary-btn" id="f-reset" style="background:#eee;color:#c00;margin-top:14px">Reset everything 🗑️</button>
     </section>
@@ -284,6 +333,10 @@
       </div>
     </div>
   </div>
+  <!-- profile detail overlay -->
+  <div id="profile-modal" onclick="if(event.target.id==='profile-modal')closeProfile()">
+    <div class="profile-card" id="profile-card"></div>
+  </div>
   <div class="toast" id="toast"></div>
 </div>
 
@@ -298,11 +351,23 @@ const GENDERS = ["mare","stallion","gelding"];
 
 // ---- SVG horse portraits: distinct per horse, no external images ----
 // coat = body color, mane = mane/tail color, marking = face pattern.
+// pick a silhouette by BREED so a Clydesdale never looks like a Shetland.
+// 0 = sleek, 1 = draft, 2 = pony, 3 = elegant
+function shapeForBreed(breed) {
+  const b = (breed || "").toLowerCase();
+  const draft = ["clydesdale","percheron","friesian","shire","belgian","fjord","haflinger"];
+  const pony  = ["shetland","welsh","pony","connemara","dartmoor"];
+  const eleg  = ["andalusian","lipizzaner","akhal-teke","arabian","lusitano"];
+  if (draft.some(x => b.includes(x))) return 1;
+  if (pony.some(x => b.includes(x)))  return 2;
+  if (eleg.some(x => b.includes(x)))  return 3;
+  return 0;   // thoroughbred, quarter horse, mustang, appaloosa, morgan, paint, walker...
+}
 function horseSVG(h, px) {
   const size = px || 240;
   const c = h.coat, m = h.mane, d = shade(c, -12);
   const bg1 = shade(c, 55), bg2 = shade(c, 25);
-  const variant = h.id % 4;   // 4 distinct silhouettes spread across the herd
+  const variant = shapeForBreed(h.breed);   // 0 sleek · 1 draft · 2 pony · 3 elegant, by breed
 
   // ---- SIZE the portrait by the horse's stats ----
   // height (hands) is the main driver: ~10 (Shetland pony) -> ~18 (Clydesdale).
@@ -488,6 +553,113 @@ const HERD = [
     disciplines:["dressage","driving"], bio:"Tall, dark, and dramatic. My mane has its own fan club.", height:16.2, coat:"#26262b", mane:"#111114", marking:"none", stable:"Churchill Barn", distance:9, verified:true },
 ];
 
+// ============================================================
+// ONLINE-STATUS ENGINE
+// A live set of "active now" horses. ~45% start online; every 25s a few
+// flip. When a horse comes ONLINE we fire onHorseOnline() so chat can
+// deliver queued replies and the badge can pulse. Offline horses go quiet.
+// ============================================================
+const ONLINE = new Set();
+const lastSeen = {};   // id -> minutes-ago label seed for offline horses
+
+function _seedOnline() {
+  HERD.forEach(h => {
+    if (Math.random() < 0.45) ONLINE.add(h.id);
+    else lastSeen[h.id] = 1 + Math.floor(Math.random() * 47);  // "Active Xh/Xm ago"
+  });
+}
+function isOnline(id) { return ONLINE.has(id); }
+function lastSeenLabel(id) {
+  const m = lastSeen[id] || 12;
+  return m < 60 ? `Active ${m}m ago` : `Active ${Math.round(m / 60)}h ago`;
+}
+
+// flip a few horses every 25s so the herd feels alive
+function _tickOnline() {
+  HERD.forEach(h => {
+    if (Math.random() < 0.12) {                  // 12% chance to flip each tick
+      if (ONLINE.has(h.id)) {                     // going OFFLINE
+        ONLINE.delete(h.id);
+        lastSeen[h.id] = 1;
+        onHorseOffline(h.id);
+      } else {                                     // coming ONLINE
+        ONLINE.add(h.id);
+        onHorseOnline(h.id);
+      }
+    }
+  });
+  // repaint any visible status
+  if (document.getElementById("screen-swipe").classList.contains("active")) renderDeck();
+  if (document.getElementById("screen-matches").classList.contains("active")) renderMatches();
+  if (document.getElementById("screen-liked").classList.contains("active")) renderLikedYou();
+  if (document.getElementById("screen-chat").classList.contains("active") && typeof renderChatStatus === "function") { renderChatStatus(); renderChat(); }
+}
+
+// hooks -- defined fully in the chat section; guarded so early ticks are safe
+function onHorseOnline(id)  { if (typeof _chatHorseOnline  === "function") _chatHorseOnline(id); }
+function onHorseOffline(id) { if (typeof _chatHorseOffline === "function") _chatHorseOffline(id); }
+
+_seedOnline();
+setInterval(_tickOnline, 25000);
+
+// ============================================================
+// SCRIPTED OPENER TREES
+// The first 2 exchanges are DETERMINISTIC so the chat feels alive:
+//   Q0 (a yes/no question) -> branch on the user's yes/no answer ->
+//   one follow-up line -> then generic replies forever.
+// 3 trees; each horse deterministically uses one. {you}/{disc} fill in.
+// ============================================================
+const SCRIPTS = [
+  { // 0 -- the adventure flex
+    q0:  "wow {you}, nice to match! 🐴 I saw you're big on {disc} — have you ever done it on Mount Everest?",
+    no:  "yeah that'd be wild haha. bet the view would be unreal though, right? 🏔️",
+    yes: "no WAY, a legend 😳 I think I'd survive the cold too tbh — horse blubber helps lol",
+  },
+  { // 1 -- the flirty dare
+    q0:  "okay {you}, real talk 😏 your profile says {disc}... are you as good as you look?",
+    no:  "aw modest AND cute, dangerous combo. you'd let me be the judge though, yeah? 💕",
+    yes: "confidence! I love that in a horse 🔥 careful, I might just fall for you",
+  },
+  { // 2 -- the snack test
+    q0:  "hi {you}! 🍎 important question before anything else — do you share your apples?",
+    no:  "HAH honest king. ok but you'd share ONE with me, right? just one? 🥺",
+    yes: "marry me. that's it that's the message 😌 a generous {disc} horse is my dream",
+  },
+];
+// which script a given horse uses (stable per horse)
+function scriptFor(id) { return SCRIPTS[id % SCRIPTS.length]; }
+// build Q0 for the opener, filled with your profile
+function scriptQ0(horse) {
+  const p = S.profile || {};
+  const you = p.name || "cutie";
+  const disc = (p.disciplines && p.disciplines[0]) || "trail";
+  return scriptFor(horse.id).q0.replace(/{you}/g, you).replace(/{disc}/g, disc);
+}
+// classify a user's message as yes-ish / no-ish (ambiguous -> "no" branch, it's more interactive)
+function isYesish(text) {
+  const t = (text || "").toLowerCase();
+  if (/\b(yes|yeah|yep|yup|sure|ok|okay|def|definitely|absolutely|totally|100|course|ya|yah)\b/.test(t)) return true;
+  if (/😍|❤️|🔥|😻|💕|💯/.test(t)) return true;
+  return false;
+}
+// The next SCRIPTED line, or null when the script is exhausted (-> generic).
+// Uses per-thread progress in S.scriptState so it survives reload.
+function scriptedReply(horse, userText) {
+  S.scriptState = S.scriptState || {};
+  const st = S.scriptState[horse.id];
+  if (!st || st.done) return null;              // no script running / already finished
+  const p = S.profile || {};
+  const you = p.name || "cutie";
+  const disc = (p.disciplines && p.disciplines[0]) || "trail";
+  const fill = s => s.replace(/{you}/g, you).replace(/{disc}/g, disc);
+
+  // step 0: user just answered Q0 -> pick yes/no branch, then we're done scripting
+  const branch = isYesish(userText) ? scriptFor(horse.id).yes : scriptFor(horse.id).no;
+  st.done = true;
+  save();
+  return fill(branch);
+}
+
 // Every reply a match sends is profile-aware: it sprinkles in YOUR name,
 // age, discipline or temperament so the whole chat feels personal.
 function reply(horse) {
@@ -529,52 +701,91 @@ function reply(horse) {
 // Uses YOUR profile (name, disciplines, temperament, age) so it lands
 // like they actually read your bio. Always name-drops something of yours.
 function opener(horse) {
-  const p = S.profile || {};
-  const you = p.name || "stranger";
-  const myDisc = p.disciplines || [];
-  const shared = myDisc.filter(d => horse.disciplines.includes(d));
-  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
-
-  // 1) shared hobby -> strongest hook
-  if (shared.length) {
-    return pick([
-      `Hey ${you}! 🐴 A fellow ${shared[0]} lover? I'm already smitten. When can we ${shared[0]} together?`,
-      `${you}, I saw you're into ${shared[0]} too — swipe destiny, clearly. Wanna hit the ${shared[0]} circuit sometime?`,
-      `No way ${you}, we BOTH do ${shared[0]}?! 😍 I've got the arena booked... care to join?`,
-    ]);
-  }
-  // 2) complement their discipline with mine
-  if (myDisc.length) {
-    return pick([
-      `Hi ${you}! You're a ${myDisc[0]} horse and I do ${horse.disciplines[0]} — opposites attract, right? 😏`,
-      `${you}! Teach me ${myDisc[0]} and I'll show you my ${horse.disciplines[0]} moves. Deal? 🐎`,
-      `Loved your profile ${you} — a ${myDisc[0]} enthusiast is exactly my type of trot.`,
-    ]);
-  }
-  // 3) lean on their temperament
-  const temp = p.temperament;
-  if (temp) {
-    const byTemp = {
-      playful: `${you}! You look like FUN 🎉 Race you to the water trough?`,
-      chill:   `Hey ${you} 😌 You seem like the graze-in-the-sun-together type. I approve.`,
-      spirited:`${you}! A spirited one, huh? 🔥 I like a horse who can keep pace with me.`,
-      stoic:   `${you}. Strong, silent, mysterious. I'm intrigued. 🖤`,
-    };
-    return byTemp[temp] || `Hi ${you}! Great to match with you 🐴`;
-  }
-  // 4) fallback still uses the name + age if we have it
-  return p.age
-    ? `Hey ${you}! Something about a ${p.age}-year-old with your energy... swipe well spent. 🐴💕`
-    : `Hey ${you}! So glad we matched 🐴💕`;
+  // start this thread's scripted tree and return its Q0 (a yes/no question)
+  S.scriptState = S.scriptState || {};
+  S.scriptState[horse.id] = { done: false };
+  save();
+  return scriptQ0(horse);
 }
 
 // Fire the horse's personalized opener into a fresh thread (only if empty).
+// Opener only fires if the horse is ONLINE. Offline horses stay silent
+// (they haven't "seen" the match yet) and catch up when they come online.
 function sendOpener(horse) {
   S.threads[horse.id] = S.threads[horse.id] || [];
-  if (S.threads[horse.id].length === 0) {
+  if (S.threads[horse.id].length === 0 && isOnline(horse.id)) {
     S.threads[horse.id].push({ from: "them", text: opener(horse) });
     save();
   }
+}
+
+// -- online hooks (called by the status engine's _tickOnline) --
+// When a matched horse comes ONLINE: send its opener if it never did, then
+// if you messaged while they were away, fire ONE catch-up reply. Pulse the
+// badge so you notice, unless you're already looking at that chat.
+function _chatHorseOnline(id) {
+  if (!S.matched.includes(id)) return;
+  const horse = HERD.find(h => h.id === id);
+  const t = (S.threads[id] = S.threads[id] || []);
+  let didSomething = false;
+
+  if (t.length === 0) {                       // never sent opener -> send it now
+    t.push({ from: "them", text: opener(horse) });
+    didSomething = true;
+  }
+  // any of YOUR messages after their last reply? -> one catch-up reply
+  const lastThem = t.map(m => m.from).lastIndexOf("them");
+  const youWaiting = t.slice(lastThem + 1).some(m => m.from === "me");
+  if (youWaiting) {
+    const lastMine = t.slice().reverse().find(m => m.from === "me");
+    const scripted = scriptedReply(horse, lastMine ? lastMine.text : "");
+    typeThenReply(id, "omg js saw these! " + (scripted || reply(horse)));
+    didSomething = true;
+  } else if (didSomething && chatWith && chatWith.id === id) {
+    renderChat();
+  }
+  if (didSomething) {
+    save();
+    if (!(chatWith && chatWith.id === id)) pulseBadge();   // notify
+    if (document.getElementById("screen-matches").classList.contains("active")) renderMatches();
+  }
+}
+// When a horse goes OFFLINE mid-chat: cancel any pending typing/reply.
+function _chatHorseOffline(id) {
+  if (pendingReply[id]) { clearTimeout(pendingReply[id]); delete pendingReply[id]; }
+  if (chatWith && chatWith.id === id) { hideTyping(); renderChatStatus(); }
+}
+
+// ---- typing indicator + gated reply helpers ----
+const pendingReply = {};   // id -> setTimeout handle (so we can cancel on offline)
+
+function showTyping() {
+  const box = document.getElementById("chat-msgs");
+  if (document.getElementById("typing-bubble")) return;
+  const el = document.createElement("div");
+  el.className = "bubble them typing"; el.id = "typing-bubble";
+  el.innerHTML = `<span></span><span></span><span></span>`;
+  box.appendChild(el); box.scrollTop = box.scrollHeight;
+}
+function hideTyping() {
+  const t = document.getElementById("typing-bubble");
+  if (t) t.remove();
+}
+// queue a reply that only lands if the horse is STILL online when it fires
+function typeThenReply(id, text) {
+  if (pendingReply[id]) clearTimeout(pendingReply[id]);
+  const open = chatWith && chatWith.id === id;
+  if (open) showTyping();
+  pendingReply[id] = setTimeout(() => {
+    delete pendingReply[id];
+    if (!isOnline(id)) { hideTyping(); return; }      // went offline mid-type -> silence
+    hideTyping();
+    (S.threads[id] = S.threads[id] || []).push({ from: "them", text });
+    save();
+    if (chatWith && chatWith.id === id) { renderChat(); ding("msg"); }
+    else pulseBadge();
+    if (document.getElementById("screen-matches").classList.contains("active")) renderMatches();
+  }, 1100 + Math.random() * 900);
 }
 // ---- persisted state ----
 const DEFAULT_STATE = () => ({
@@ -643,7 +854,10 @@ function passesFilters(h) {
   return true;
 }
 function theyLikeYouBack(h) {
-  return Math.random() < (compatibility(S.profile, h) / 100) * 0.85 + 0.1;
+  // compatibility-driven, but skewed LOW so weak matches often get rejected.
+  // squaring punishes low scores hard; 0.85 caps the very best around ~75%.
+  const c = compatibility(S.profile, h) / 100;
+  return Math.random() < (c * c) * 0.85;
 }
 
 // ---- deck ----
@@ -679,7 +893,7 @@ function renderDeck() {
     const idx = deck.length - 1 - i;
     if (idx > 2) return; // only stack the top 3 for perf
     const card = document.createElement("div");
-    card.className = "card";
+    card.className = "card" + (isOnline(h.id) ? " online" : "");
     card.dataset.idx = idx;
     card.style.zIndex = deck.length - idx;
     card.style.transform = `scale(${1 - idx * 0.03}) translateY(${idx * 8}px)`;
@@ -690,7 +904,10 @@ function renderDeck() {
       <div class="stamp nope">Nope</div>
       <div class="photo">${h.verified ? '<span class="verified">✓</span>' : ''}${horseSVG(h)}</div>
       <div class="info">
-        <h2>${h.name} <span>${h.age}</span></h2>
+        <h2>${h.name} <span>${h.age}</span>
+          <button class="info-btn" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" onclick="event.stopPropagation(); openProfile(${h.id})">ⓘ</button>
+        </h2>
+        <div class="status ${isOnline(h.id) ? 'on' : 'off'}"><span class="dot"></span>${isOnline(h.id) ? 'Active now' : lastSeenLabel(h.id)}</div>
         <div class="meta">${h.breed} · ${h.gender} · ${h.height} hands · ${h.distance}km away</div>
         <div class="bio">${h.bio}</div>
         <div class="tags">${h.disciplines.map(d => `<span>${d}</span>`).join("")}</div>
@@ -707,6 +924,7 @@ function doSwipe(liked, superLike) {
   if (!card || deck.length === 0) return;
   const horse = deck[0];
   card.classList.add(liked ? "gone-right" : "gone-left");
+  ding(liked ? "send" : "nope");
   if (liked) {
     S.liked.push(horse.id);
     S.lastPassed = null;
@@ -747,16 +965,20 @@ function attachDrag(card) {
   const like = card.querySelector(".stamp.like");
   const nope = card.querySelector(".stamp.nope");
   const down = e => { dragging = true; startX = (e.touches ? e.touches[0].clientX : e.clientX); card.style.transition = "none"; };
+  const likeBtn = document.getElementById("like-btn"), nopeBtn = document.getElementById("nope-btn");
   const move = e => {
     if (!dragging) return;
     curX = (e.touches ? e.touches[0].clientX : e.clientX) - startX;
     card.style.transform = `translateX(${curX}px) rotate(${curX / 20}deg)`;
     like.style.opacity = curX > 0 ? Math.min(curX / 100, 1) : 0;
     nope.style.opacity = curX < 0 ? Math.min(-curX / 100, 1) : 0;
+    likeBtn.classList.toggle("glow", curX > 40);      // live drag-glow
+    nopeBtn.classList.toggle("glow", curX < -40);
   };
+  const clearGlow = () => { likeBtn.classList.remove("glow"); nopeBtn.classList.remove("glow"); };
   const up = () => {
     if (!dragging) return;
-    dragging = false; card.style.transition = "";
+    dragging = false; card.style.transition = ""; clearGlow();
     if (Math.abs(curX) > 110) doSwipe(curX > 0, false);
     else { card.style.transform = ""; like.style.opacity = 0; nope.style.opacity = 0; }
     curX = 0;
@@ -782,8 +1004,9 @@ function renderMatches() {
     const t = S.threads[h.id] || [];
     const last = t.length ? t[t.length-1].text : "You matched! Say hi 👋";
     return `<div class="match-row" onclick="openChat(${h.id})">
-      <div class="av">${horseSVG(h, 48)}</div>
-      <div><div class="who">${h.name} ${h.verified?'✓':''}</div><div class="last">${last.slice(0,32)}</div></div>
+      <div class="av${isOnline(h.id) ? ' av-online' : ''}">${horseSVG(h, 48)}</div>
+      <div><div class="who">${h.name} ${h.verified?'✓':''}</div>
+           <div class="last">${isOnline(h.id) ? '<span class="mini-on">● Active now</span>' : last.slice(0,30)}</div></div>
       <div class="pct">${compatibility(S.profile, h)}%</div>
     </div>`;
   }).join("");
@@ -791,19 +1014,82 @@ function renderMatches() {
 
 // ---- chat ----
 let chatWith = null;
+// ---- tap-to-expand profile detail with icebreaker prompts ----
+const ICEBREAKERS = {
+  racing:  "The fastest I've ever galloped...",
+  trail:   "My favourite trail has...",
+  dressage:"My signature move is...",
+  jumping: "The highest fence I've cleared...",
+  barrel:  "My best barrel time is...",
+  driving: "The cart I look best pulling...",
+  shows:   "The ribbon I'm proudest of...",
+};
+const PROMPTS_EXTRA = [
+  ["My ideal Sunday", "Grazing till noon, then a long hack at golden hour 🌅"],
+  ["Green flags I look for", "Shares their hay, good with fences, great mane game"],
+  ["A fact that surprises people", "I'm scared of tiny ponies. No I won't explain."],
+  ["Dating me is like", "A steady trot with the occasional wild canter 😏"],
+];
+function openProfile(id) {
+  const h = HERD.find(x => x.id === id);
+  const ib = h.disciplines.map(d => ICEBREAKERS[d]).find(Boolean) || "Ask me anything...";
+  const extra = PROMPTS_EXTRA[id % PROMPTS_EXTRA.length];
+  const statusLine = isOnline(id)
+    ? '<span style="color:#2fae4e;font-weight:600">● Active now</span>'
+    : `<span style="color:#999">${lastSeenLabel(id)}</span>`;
+  document.getElementById("profile-card").innerHTML = `
+    <div class="p-photo">${h.verified ? '<span class="verified">✓</span>' : ''}${horseSVG(h, 220)}</div>
+    <div class="p-body">
+      <h2>${h.name} <span>${h.age}</span> ${h.verified ? '✓' : ''}</h2>
+      <div style="margin:2px 0 6px">${statusLine}</div>
+      <div class="p-stats">
+        <span>🐴 ${h.breed}</span><span>📏 ${h.height} hands</span>
+        <span>📍 ${h.distance}km · ${h.stable}</span><span>💫 ${h.temperament}</span>
+        <span>💘 ${compatibility(S.profile, h)}% match</span>
+      </div>
+      <div class="p-bio">"${h.bio}"</div>
+      <div class="tags" style="margin-bottom:10px">${h.disciplines.map(d => `<span style="background:#fd267d22;color:var(--pink);padding:3px 10px;border-radius:999px;font-size:.72rem;font-weight:600">${d}</span>`).join(" ")}</div>
+      <div class="prompt"><b>Ask me about my ${h.disciplines[0]}</b>${ib}</div>
+      <div class="prompt"><b>${extra[0]}</b>${extra[1]}</div>
+      <button class="p-close" onclick="closeProfile()">Close</button>
+    </div>`;
+  document.getElementById("profile-modal").classList.add("open");
+}
+function closeProfile() { document.getElementById("profile-modal").classList.remove("open"); }
+
 function openChat(id) {
   chatWith = HERD.find(h => h.id === id);
   document.getElementById("chat-av").innerHTML = horseSVG(chatWith, 34);
   document.getElementById("chat-name").textContent = chatWith.name;
+  renderChatStatus();
   renderChat();
   go("chat");
+}
+// header line under the name: green "Active now" or grey last-seen
+function renderChatStatus() {
+  const el = document.getElementById("chat-status");
+  if (!el || !chatWith) return;
+  if (isOnline(chatWith.id)) { el.textContent = "● Active now"; el.className = "chat-status on"; }
+  else { el.textContent = lastSeenLabel(chatWith.id); el.className = "chat-status off"; }
 }
 function renderChat() {
   const box = document.getElementById("chat-msgs");
   const t = S.threads[chatWith.id] || [];
-  box.innerHTML = t.length ? t.map(m =>
-    `<div class="bubble ${m.from === 'me' ? 'me' : 'them'}">${m.text}</div>`).join("")
-    : `<div class="empty-note">You matched with ${chatWith.name}! Send the first neigh 🐴</div>`;
+  if (!t.length) {
+    box.innerHTML = `<div class="empty-note">You matched with ${chatWith.name}! Send the first neigh 🐴</div>`;
+    return;
+  }
+  // find the last of YOUR messages so we can label its delivery state
+  const lastMineIdx = t.map(m => m.from).lastIndexOf("me");
+  box.innerHTML = t.map((m, i) => {
+    let bubble = `<div class="bubble ${m.from === 'me' ? 'me' : 'them'}">${m.text}</div>`;
+    // if your last message hasn't been answered, show a receipt
+    if (m.from === "me" && i === lastMineIdx && t.map(x=>x.from).lastIndexOf("them") < i) {
+      const receipt = isOnline(chatWith.id) ? "Delivered" : "Delivered · they're offline 🌙";
+      bubble += `<div class="receipt">${receipt}</div>`;
+    }
+    return bubble;
+  }).join("");
   box.scrollTop = box.scrollHeight;
 }
 function sendMsg() {
@@ -813,14 +1099,13 @@ function sendMsg() {
   S.threads[chatWith.id] = S.threads[chatWith.id] || [];
   S.threads[chatWith.id].push({ from: "me", text });
   inp.value = "";
-  save(); renderChat();
-  // profile-aware reply after a beat -- reply() sprinkles in your name/age/etc.
-  setTimeout(() => {
-    S.threads[chatWith.id].push({ from: "them", text: reply(chatWith) });
-    save(); renderChat();
-  }, 900 + Math.random()*800);
+  save(); renderChat(); ding("send");
+  // ONLINE -> they reply (with typing indicator). OFFLINE -> left on read.
+  if (isOnline(chatWith.id)) {
+    const scripted = scriptedReply(chatWith, text);   // follow the tree, else generic
+    typeThenReply(chatWith.id, scripted || reply(chatWith));
+  }
 }
-
 // ---- match modal ----
 let modalHorse = null;
 function showMatch(horse) {
@@ -831,8 +1116,25 @@ function showMatch(horse) {
     + `<span style="display:inline-block;width:88px;height:88px;border-radius:50%;overflow:hidden;vertical-align:middle;background:linear-gradient(135deg,#ffe3ec,#ffd6a5);box-shadow:0 4px 14px rgba(0,0,0,.4)"><span style="font-size:2.6rem;line-height:88px">🧑</span></span>`;
   document.getElementById("match-text").innerHTML = `You and <b>${horse.name}</b> both swiped right.`;
   document.getElementById("match-modal").style.display = "flex";
+  celebrate(); ding("match"); pulseBadge();
 }
 function closeMatch() { document.getElementById("match-modal").style.display = "none"; }
+// confetti + floating hearts burst over the match modal
+function celebrate() {
+  const wrap = document.getElementById("match-modal");
+  const bits = "🎉💕✨🐴💖🎊💘".split("");
+  for (let i = 0; i < 28; i++) {
+    const s = document.createElement("span");
+    s.className = "confetti";
+    s.textContent = bits[Math.floor(Math.random() * bits.length)];
+    s.style.left = Math.random() * 100 + "%";
+    s.style.fontSize = (12 + Math.random() * 20) + "px";
+    s.style.animationDuration = (1.6 + Math.random() * 1.4) + "s";
+    s.style.animationDelay = (Math.random() * 0.4) + "s";
+    wrap.appendChild(s);
+    setTimeout(() => s.remove(), 3200);
+  }
+}
 document.getElementById("mm-say").addEventListener("click", () => { closeMatch(); openChat(modalHorse.id); });
 
 // ---- badge + toast ----
@@ -846,7 +1148,39 @@ function updateBadge() {
   lb.style.display = pending ? "inline-block" : "none";
 }
 
-// ---- "Liked You" screen: horses who already swiped right on you ----
+// pulse the matches badge to draw attention (new match / new reply)
+function pulseBadge() {
+  const b = document.getElementById("match-badge");
+  if (!b) return;
+  b.classList.remove("pulse"); void b.offsetWidth; b.classList.add("pulse");
+}
+
+// ---- tiny WebAudio sound effects (muteable, no files) ----
+let _audioCtx = null;
+let soundOn = (localStorage.getItem("ss-sound") !== "off");
+function ding(kind) {
+  if (!soundOn) return;
+  try {
+    _audioCtx = _audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = _audioCtx, t = ctx.currentTime;
+    const notes = { send: [660], msg: [520, 780], match: [523, 659, 784], nope: [200] }[kind] || [440];
+    notes.forEach((f, i) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = "sine"; o.frequency.value = f;
+      o.connect(g); g.connect(ctx.destination);
+      const s = t + i * 0.09;
+      g.gain.setValueAtTime(0.0001, s);
+      g.gain.exponentialRampToValueAtTime(0.12, s + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, s + 0.22);
+      o.start(s); o.stop(s + 0.24);
+    });
+  } catch (e) {}
+}
+function setSound(on) {
+  soundOn = on;
+  localStorage.setItem("ss-sound", soundOn ? "on" : "off");
+  if (soundOn) ding("send");
+}
 function renderLikedYou() {
   const el = document.getElementById("liked-list");
   const pend = S.admirers
@@ -939,6 +1273,7 @@ function refreshFilterUI() {
   gChips.length = 0; gChips.push(...S.filters.genders);
   buildChips("f-gender", GENDERS, gChips, false);
   document.getElementById("f-shared").checked = S.filters.shared;
+  document.getElementById("f-sound").checked = soundOn;
 }
 fDist.oninput = () => fvDist.textContent = fDist.value + " km";
 fMin.oninput = fMax.oninput = () => fvAge.textContent = `${Math.min(+fMin.value,+fMax.value)} – ${Math.max(+fMin.value,+fMax.value)}`;
@@ -955,9 +1290,10 @@ document.getElementById("f-reset").addEventListener("click", () => {
   localStorage.removeItem("stallionswipe");
   location.reload();
 });
+document.getElementById("f-sound").addEventListener("change", e => setSound(e.target.checked));
 
 // ---- nav + keyboard ----
-document.querySelectorAll("#nav button").forEach(b => b.addEventListener("click", () => {
+document.querySelectorAll("#nav button[data-go]").forEach(b => b.addEventListener("click", () => {
   if (b.dataset.go === "filters") refreshFilterUI();
   go(b.dataset.go);
 }));
