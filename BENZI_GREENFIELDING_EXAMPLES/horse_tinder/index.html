@@ -29,9 +29,10 @@
   header .logo { font-weight: 800; font-size: 1.25rem; }
   header .nav { display: flex; gap: 8px; }
   header .nav button {
-    background: none; border: none; cursor: pointer; font-size: 1.2rem;
+    background: none; border: none; cursor: pointer; color: var(--pink);
     opacity: .45; transition: opacity .15s, background .15s; position: relative;
-    width: 40px; height: 40px; border-radius: 10px; line-height: 1;
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
   }
   header .nav button:hover { opacity: .8; }
   header .nav button.active { opacity: 1; background: #fde3ee; }
@@ -191,10 +192,10 @@
   <header>
     <div class="logo">🐴 StallionSwipe</div>
     <div class="nav" id="nav" style="display:none">
-      <button data-go="swipe" class="active" title="Swipe">🔥</button>
-      <button data-go="liked" title="Liked You">⭐<span class="badge" id="liked-badge" style="display:none;background:#2196f3">0</span></button>
-      <button data-go="matches" title="Matches">💬<span class="badge" id="match-badge" style="display:none">0</span></button>
-      <button data-go="filters" title="Filters">⚙️</button>
+      <button data-go="swipe" class="active" title="Swipe"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s5 4 5 9a5 5 0 0 1-10 0c0-1.5.6-2.7 1.4-3.6C9 10 9.5 11 10 11.5 10 9 11 5 12 3Z"/></svg></button>
+      <button data-go="liked" title="Liked You"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20 4.5 12.5a4.5 4.5 0 0 1 6.4-6.3l1.1 1 1.1-1a4.5 4.5 0 0 1 6.4 6.3Z"/></svg><span class="badge" id="liked-badge" style="display:none">0</span></button>
+      <button data-go="matches" title="Matches"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.3 7.3L4 20l.7-5.7A8 8 0 1 1 21 12Z"/></svg><span class="badge" id="match-badge" style="display:none">0</span></button>
+      <button data-go="filters" title="Filters"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2" fill="#fff"/><circle cx="15" cy="12" r="2" fill="#fff"/><circle cx="8" cy="18" r="2" fill="#fff"/></svg></button>
     </div>
   </header>
 
