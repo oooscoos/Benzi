@@ -140,12 +140,14 @@
   }
 
   #controls { display: flex; gap: 22px; justify-content: center; padding: 4px 0 20px; }
-  #controls button {
+  #controls button, #controls a {
     width: 56px; height: 56px; border-radius: 50%; font-size: 1.4rem;
     cursor: pointer; background: transparent; transition: background .12s, color .12s;
     display: flex; align-items: center; justify-content: center; line-height: 1;
   }
-  #controls button:active { transform: scale(.92); }
+  #controls button:active, #controls a:active { transform: scale(.92); }
+  #about-btn { color: #9a8f8c; border: 2px solid var(--line); text-decoration: none; }
+  #about-btn:hover { background: #9a8f8c; color: #fff; }
   #rewind-btn { color: #ffb300; border: 2px solid #ffb300; }
   #rewind-btn:hover { background: #ffb300; color: #fff; }
   #nope-btn { color: var(--red); border: 2px solid var(--red); }
@@ -233,9 +235,22 @@
   #profile-modal.open { display: flex; }
   .profile-card { background: var(--surface); color: #4a3f3d; border-radius: 20px; width: 100%; max-width: 330px;
     max-height: 90%; overflow-y: auto; animation: pop .3s ease; }
-  .profile-card .p-photo { height: 220px; overflow: hidden; border-radius: 20px 20px 0 0;
-    background: linear-gradient(135deg,#ffe3ec,#ffd6a5); position: relative; }
-  .profile-card .p-photo svg { width: 100%; height: 100%; }
+  .profile-card .p-gallery-wrap { position: relative; }
+  .profile-card .p-gallery { height: 240px; display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+    cursor: grab;
+    border-radius: 20px 20px 0 0; scrollbar-width: none; }
+  .profile-card .p-gallery::-webkit-scrollbar { display: none; }
+  .profile-card .p-slide { flex: 0 0 100%; scroll-snap-align: start; overflow: hidden; }
+  .profile-card .p-nav { position: absolute; top: 50%; transform: translateY(-50%); z-index: 2;
+    width: 34px; height: 34px; border-radius: 50%; border: none; cursor: pointer;
+    background: rgba(0,0,0,.35); color: #fff; font-size: 1.3rem; line-height: 1;
+    display: flex; align-items: center; justify-content: center; }
+  .profile-card .p-nav.prev { left: 8px; }
+  .profile-card .p-nav.next { right: 8px; }
+  .profile-card .p-slide svg { width: 100%; height: 100%; display: block; }
+  .profile-card .p-dots { display: flex; gap: 6px; justify-content: center; padding: 8px 0 2px; }
+  .profile-card .p-dots span { width: 7px; height: 7px; border-radius: 50%; background: var(--line); transition: background .15s; }
+  .profile-card .p-dots span.on { background: var(--pink); }
   .profile-card .p-body { padding: 16px 18px 20px; }
   .profile-card h2 { font-size: 1.5rem; }
   .profile-card h2 span { color: #888; font-weight: 400; }
@@ -296,6 +311,7 @@
         <button id="rewind-btn" title="Rewind"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h11a5 5 0 0 1 0 10h-2"/><path d="M7 5 3 9l4 4"/></svg></button>
         <button id="nope-btn" title="Nope"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6 18 18M18 6 6 18"/></svg></button>
         <button id="like-btn" title="Like"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 20.5 4.2 12.7a4.8 4.8 0 0 1 6.8-6.8l1 1 1-1a4.8 4.8 0 0 1 6.8 6.8Z"/></svg></button>
+        <a id="about-btn" title="About" href="https://benzi.fly.dev/about" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg></a>
       </div>
     </section>
 
@@ -313,8 +329,8 @@
     <section class="screen" id="screen-chat">
       <div id="chat-head">
         <button class="back" onclick="go('matches')">‹</button>
-        <span class="av" id="chat-av"></span>
-        <div class="chat-head-txt"><b id="chat-name">Name</b><div id="chat-status" class="chat-status off"></div></div>
+        <span class="av" id="chat-av" onclick="if(chatWith)openProfile(chatWith.id)" style="cursor:pointer"></span>
+        <div class="chat-head-txt" onclick="if(chatWith)openProfile(chatWith.id)" style="cursor:pointer"><b id="chat-name">Name</b><div id="chat-status" class="chat-status off"></div></div>
       </div>
       <div id="chat-msgs"></div>
       <div id="chat-input">
@@ -381,21 +397,74 @@ function shapeForBreed(breed) {
   if (eleg.some(x => b.includes(x)))  return 3;
   return 0;   // thoroughbred, quarter horse, mustang, appaloosa, morgan, paint, walker...
 }
-function horseSVG(h, px) {
+// A shuffled background SCENE per horse: sunset, meadow, day-sky, night,
+// studio-blush, sunrise. Returns <defs> gradients + a full-frame <rect> +
+// a little scenery (sun, hills, stars). Stable per horse via id.
+function bgScene(h, seed) {
+  const sd = (seed == null) ? h.id : seed;
+  const scenes = ["sunset","meadow","daysky","night","studio","sunrise"];
+  const name = scenes[(sd * 7 + 2) % scenes.length];
+  const gid = "bg" + h.id + "_" + sd;   // unique per photo so gradients don't collide
+  const g = (c1, c2) => `<linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient>`;
+  const fill = `<rect width="240" height="240" fill="url(#${gid})"/>`;
+  // a few deterministic stars for the night scene
+  const stars = () => {
+    let s = "";
+    for (let i = 0; i < 14; i++) {
+      const x = (h.id * 37 + i * 53) % 240, y = (h.id * 19 + i * 29) % 120;
+      s += `<circle cx="${x}" cy="${y}" r="${i % 3 === 0 ? 1.6 : 1}" fill="#fff" opacity=".85"/>`;
+    }
+    return s;
+  };
+  switch (name) {
+    case "sunset":
+      return `<defs>${g("#ff9a6b", "#ff5f8f")}</defs>${fill}
+        <circle cx="120" cy="150" r="46" fill="#ffd98a" opacity=".9"/>
+        <path d="M0 175 Q60 150 120 172 T240 168 V240 H0 Z" fill="#c94f7c" opacity=".6"/>`;
+    case "meadow":
+      return `<defs>${g("#bfe3ff", "#eaf7d6")}</defs>${fill}
+        <circle cx="188" cy="52" r="24" fill="#fff6b8" opacity=".85"/>
+        <path d="M0 180 Q70 158 140 178 T240 172 V240 H0 Z" fill="#8fce6b"/>
+        <path d="M0 200 Q80 184 160 200 T240 196 V240 H0 Z" fill="#6fb84e"/>`;
+    case "daysky":
+      return `<defs>${g("#7ec8ff", "#cdeaff")}</defs>${fill}
+        <ellipse cx="70" cy="70" rx="34" ry="16" fill="#fff" opacity=".85"/>
+        <ellipse cx="170" cy="110" rx="40" ry="18" fill="#fff" opacity=".7"/>`;
+    case "night":
+      return `<defs>${g("#243b6b", "#0e1630")}</defs>${fill}${stars()}
+        <circle cx="184" cy="52" r="20" fill="#f4f0d0" opacity=".95"/>
+        <circle cx="176" cy="46" r="20" fill="url(#${gid})" opacity=".9"/>`;
+    case "sunrise":
+      return `<defs>${g("#ffe6a0", "#ffb1c9")}</defs>${fill}
+        <circle cx="120" cy="170" r="40" fill="#fff2c2"/>
+        <path d="M0 190 Q60 176 120 190 T240 186 V240 H0 Z" fill="#e58fae" opacity=".55"/>`;
+    default: // studio blush
+      return `<defs>${g("#ffe3ec", "#ffd6c0")}</defs>${fill}
+        <circle cx="120" cy="120" r="90" fill="#fff" opacity=".18"/>`;
+  }
+}
+function horseSVG(h, px, seed) {
   const size = px || 240;
+  const sd = (seed == null) ? h.id : seed;   // vary bg + expression per gallery photo
   const c = h.coat, m = h.mane, d = shade(c, -12);
   const bg1 = shade(c, 55), bg2 = shade(c, 25);
   const variant = shapeForBreed(h.breed);   // 0 sleek · 1 draft · 2 pony · 3 elegant, by breed
+  // some horses face LEFT, some RIGHT -- deterministic per horse for variety.
+  // flip horizontally around the 120 centre when facing left.
+  const facesLeft = (h.id % 2 === 1);
+  const flip = facesLeft ? "translate(240 0) scale(-1 1)" : "";
 
   // ---- SIZE the portrait by the horse's stats ----
   // height (hands) is the main driver: ~10 (Shetland pony) -> ~18 (Clydesdale).
   // age gives a small extra nudge (older reads as a bit bigger/sturdier).
   const hh = h.height || 15;
-  let scale = 0.72 + (hh - 10) / 8 * 0.43;          // 10h->0.72  18h->1.15
+  let scale = 0.72 + (hh - 10) / 8 * 0.43;          // 10h->0.72  18h->1.15 (original)
   scale += Math.min((h.age || 5) - 4, 8) * 0.012;   // up to +~0.1 with age
   scale = Math.max(0.68, Math.min(1.2, scale));
-  // anchor at bottom-centre (120,220) so bigger horses stand taller from the ground
-  const gx = 120 - 120 * scale, gy = 220 - 220 * scale;
+  // anchor at bottom-centre
+  // art's visual bottom is ~y=220; map THAT to the viewBox floor (240) so the
+  // horse sits grounded, then xMidYMax aligns it to the bottom of any box.
+  const gx = 120 - 120 * scale, gy = 240 - 220 * scale;
 
   // ---- shared face markings ----
   const blaze = h.marking === "blaze"
@@ -498,20 +567,22 @@ function horseSVG(h, px) {
   const bias = { playful:["excited","happy","derp"], spirited:["flirty","excited","cool"],
                  chill:["chill","happy"], stoic:["cool","chill","flirty"] }[h.temperament] || [];
   const bag = bias.concat(all);                 // biased picks appear more often
-  const face = faces[bag[h.id % bag.length]];   // stable per horse, still varied
+  const face = faces[bag[(sd * 5 + 1) % bag.length]];   // expression varies per photo seed
 
   return `
-  <svg viewBox="0 0 240 240" width="${size}" height="${size}" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-    <defs><linearGradient id="sky${h.id}" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="${bg1}"/><stop offset="1" stop-color="${bg2}"/>
-    </linearGradient></defs>
-    <rect width="240" height="240" fill="url(#sky${h.id})"/>
-    <g transform="translate(${gx.toFixed(1)} ${gy.toFixed(1)}) scale(${scale.toFixed(3)})">
-      ${s.body}
-      ${markings}
-      ${face}
-      <ellipse cx="${s.nose.x}" cy="${s.nose.y}" rx="3" ry="4" fill="#3a2a2a"/>
-      <ellipse cx="${s.nose.x + 12}" cy="${s.nose.y + 2}" rx="3" ry="4" fill="#3a2a2a"/>
+<svg viewBox="0 0 240 240" width="${size}" height="${size}" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+    ${bgScene(h, sd)}
+    <defs><filter id="sh${h.id}_${sd}" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000" flood-opacity="0.28"/>
+    </filter></defs>
+    <g filter="url(#sh${h.id}_${sd})" transform="translate(${gx.toFixed(1)} ${gy.toFixed(1)}) scale(${scale.toFixed(3)})">
+      <g transform="${flip}">
+        ${s.body}
+        ${markings}
+        ${face}
+        <ellipse cx="${s.nose.x}" cy="${s.nose.y}" rx="3" ry="4" fill="#3a2a2a"/>
+        <ellipse cx="${s.nose.x + 12}" cy="${s.nose.y + 2}" rx="3" ry="4" fill="#3a2a2a"/>
+      </g>
     </g>
   </svg>`;
 }
@@ -1053,6 +1124,60 @@ const PROMPTS_EXTRA = [
   ["A fact that surprises people", "I'm scared of tiny ponies. No I won't explain."],
   ["Dating me is like", "A steady trot with the occasional wild canter 😏"],
 ];
+// how many gallery photos this horse has (2-5, stable per horse)
+function galleryCount(h) { return 2 + (h.id % 4); }
+// the horizontal strip of photos: same horse, different bg + expression per seed
+function galleryPhotos(h) {
+  let out = "";
+  for (let i = 0; i < galleryCount(h); i++) {
+    const seed = h.id + i * 137;   // distinct seed -> different scene + expression
+    out += `<div class="p-slide">${horseSVG(h, 240, seed)}</div>`;
+  }
+  return out;   // arrows live OUTSIDE the strip so they don't scroll away
+}
+function galleryDots(h) {
+  let d = "";
+  for (let i = 0; i < galleryCount(h); i++) d += `<span onclick="galleryGo(${i})" class="${i === 0 ? 'on' : ''}"></span>`;
+  return d;
+}
+// jump to photo index i
+function galleryGo(i) {
+  const strip = document.getElementById("p-gallery");
+  if (strip) strip.scrollTo({ left: i * strip.clientWidth, behavior: "smooth" });
+}
+// step relative to the current photo (arrows)
+function galleryStep(dir) {
+  const strip = document.getElementById("p-gallery");
+  if (!strip) return;
+  const cur = Math.round(strip.scrollLeft / strip.clientWidth);
+  galleryGo(cur + dir);
+}
+// sync the dots to the scroll position of the strip
+function wireGallery() {
+  const strip = document.getElementById("p-gallery");
+  const dots = document.getElementById("p-dots");
+  if (!strip || !dots) return;
+  strip.onscroll = () => {
+    const i = Math.round(strip.scrollLeft / strip.clientWidth);
+    [...dots.children].forEach((dot, k) => dot.classList.toggle("on", k === i));
+  };
+  // mouse click-drag to swipe photos (touch/trackpad already scroll-snap natively)
+  let down = false, startX = 0, startScroll = 0, moved = false;
+  strip.onmousedown = e => { down = true; moved = false; startX = e.pageX; startScroll = strip.scrollLeft; strip.style.scrollSnapType = "none"; strip.style.cursor = "grabbing"; };
+  strip.onmousemove = e => {
+    if (!down) return;
+    const dx = e.pageX - startX;
+    if (Math.abs(dx) > 4) moved = true;
+    strip.scrollLeft = startScroll - dx;
+  };
+  const endDrag = () => {
+    if (!down) return;
+    down = false; strip.style.cursor = "grab"; strip.style.scrollSnapType = "x mandatory";
+    if (moved) galleryGo(Math.round(strip.scrollLeft / strip.clientWidth));  // snap to nearest
+  };
+  strip.onmouseup = endDrag;
+  strip.onmouseleave = endDrag;
+}
 function openProfile(id) {
   const h = HERD.find(x => x.id === id);
   const ib = h.disciplines.map(d => ICEBREAKERS[d]).find(Boolean) || "Ask me anything...";
@@ -1061,7 +1186,11 @@ function openProfile(id) {
     ? '<span style="color:#2fae4e;font-weight:600">● Active now</span>'
     : `<span style="color:#999">${lastSeenLabel(id)}</span>`;
   document.getElementById("profile-card").innerHTML = `
-    <div class="p-photo">${h.verified ? '<span class="verified">✓</span>' : ''}${horseSVG(h, 220)}</div>
+    <div class="p-gallery-wrap">
+      <div class="p-gallery" id="p-gallery">${galleryPhotos(h)}</div>
+      ${galleryCount(h) > 1 ? '<button class="p-nav prev" onclick="galleryStep(-1)">‹</button><button class="p-nav next" onclick="galleryStep(1)">›</button>' : ''}
+    </div>
+    <div class="p-dots" id="p-dots">${galleryDots(h)}</div>
     <div class="p-body">
       <h2>${h.name} <span>${h.age}</span> ${h.verified ? '✓' : ''}</h2>
       <div style="margin:2px 0 6px">${statusLine}</div>
@@ -1077,6 +1206,7 @@ function openProfile(id) {
       <button class="p-close" onclick="closeProfile()">Close</button>
     </div>`;
   document.getElementById("profile-modal").classList.add("open");
+  wireGallery();
 }
 function closeProfile() { document.getElementById("profile-modal").classList.remove("open"); }
 
