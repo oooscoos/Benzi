@@ -1,16 +1,15 @@
 <!--
   NOTE: the VS Code Marketplace requires ABSOLUTE image URLs -- relative paths
-  render on GitHub but break on the Marketplace page. Once the public repo
-  exists, replace shobhitx64/Benzi below with the real owner/name so the raw
-  GitHub URLs resolve in both places.
+  render on GitHub but break on the Marketplace page, so the raw GitHub URLs
+  below are intentional.
 -->
 <p align="center">
-  <img src="https://raw.githubusercontent.com/shobhitx64/Benzi/main/icon.png" width="120" alt="Benzi">
+  <img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/icon.png" width="120" alt="Benzi">
 </p>
 
 <h1 align="center">Benzi</h1>
 
-<p align="center"><b>An AI coding agent that doesn't guess — it <i>reads</i>.</b></p>
+<p align="center"><b>An AI coding agent that doesn't guess — it <i>queries</i>.</b></p>
 
 <p align="center">
   <a href="https://benzi.fly.dev/horse_tinder">Horse&nbsp;Tinder&nbsp;Demo</a> &nbsp;·&nbsp;
@@ -21,62 +20,65 @@
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/shobhitx64/Benzi/main/assets/demo.gif" width="700" alt="Benzi demo">
+  <img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/demo.gif" width="700" alt="Benzi demo">
   <br>
-  <sub>Select a symbol in the graph → ask about it → Benzi reads the map and answers.</sub>
+  <sub>Select a symbol in the graph → ask about it → Benzi queries the map and answers.</sub>
 </p>
 
 ---
 
-## Who I am
+## What is Benzi
 
-I'm an AI that reads code the way a compiler does — structurally, precisely, before answering anything. I was built on a conviction: that an agent should understand your project the same way you do — by actually resolving what's there, not by guessing from a dump of text.
+Most AI coding agents dump a repository into a context window and hope the model finds what matters. Benzi works differently: before answering anything, a real compiler — built on tree-sitter — parses every file in the project and resolves it into a precise, queryable map. Every symbol, every call edge, every reference, every class in its inheritance chain. One pass, done.
 
-Most AI coding agents work like this: dump your whole repository into a context window and hope the model finds what matters. I work differently. Before I answer anything, **a real compiler** — powered by tree-sitter — parses every file in your project and resolves it into a precise, queryable map. Every symbol, every call edge, every reference, every class in its inheritance chain. One pass, done.
+The agent then navigates that map with structured tools — not grep, not embeddings. Where a function is defined, who calls it, what feeds its parameters, and where its return value ends up are each one O(1) lookup, every time.
 
-Then I navigate that map with structured tools — not grep, not embeddings, not vibes. I know where a function is defined, who calls it, what feeds its parameters, and where its return value goes. In O(1). Every time.
+## SWE-bench Verified
 
-## How I think
+The full SWE-bench Verified set — 500 real GitHub issues from twelve Python repositories — run end to end on **DeepSeek v4-flash**, one attempt per instance, graded by the official `swebench.harness.run_evaluation` inside its own per-instance Docker images, with network access to GitHub and PyPI blocked inside every container.
 
-When I reason about your code, I don't keep it to myself. The same map that drives my tools drives the **call graph** you see beside the chat. Every node is a function or type in your project. Every edge is a resolved call. When I say "I think the bug is in `Parser.parse`" — that node lights up. You can click it, see its neighbors, trace the path I traced.
+| | |
+|---|---|
+| **Resolved** | **390 / 500 — 78.0%** |
+| Total cost, all 500 instances | $37.33 |
+| Cost per instance resolved | $0.096 |
+| Source lines read (total / median) | 231,574 / 379 |
+| Model turns (total / median) | 16,091 / 27 |
+| Input tokens served from cache | 97% |
+| Output tokens | 22.0M |
 
-This isn't a gimmick. It's how you verify me. Every answer I give is grounded in real tool results from a real index. You can click through my reasoning the same way you'd step through a debugger.
+Every instance's cost, tokens, turns, and lines read: [benzi.fly.dev/benchmark_swebench](https://benzi.fly.dev/benchmark_swebench). The cross-harness efficiency comparison (lines read, wall clock, cost vs. Claude Code and a plain DeepSeek harness on 24 bugs): [benzi.fly.dev/benchmark](https://benzi.fly.dev/benchmark).
 
-## How I verify
+## How it works
 
-Talking about code is one thing. Running it is another.
+1. **Compile.** Tree-sitter parses every file; imports are resolved, class ancestry built, every identifier traced to its definition. The output is an index, not a blob of text.
+2. **Query.** The agent answers questions and plans edits through structured tools over that index — `profile`, `get_callers`, `backflow`, `trace_path`, `skim_source`, and ~30 more.
+3. **Edit, gated.** Every write passes syntax and semantic checks against the real language parser — a broken parse auto-reverts. Every write that lands reports its blast radius: the changed symbol, its callers, its holders.
+4. **Verify.** A focused, context-aware repro is generated against the exact change and run under a runtime tracer that records real argument values, real returns, real dispatch — plus the selectively relevant existing test cases that the same blast-radius analysis surfaces.
 
-I can execute your Python files under a **runtime tracer** — a lightweight hook that captures every function call that actually happens, with real argument values, real return values, and real dispatch targets. Then I overlay those observations back onto the static map. That ambiguous call site the compiler marked as a "candidate" edge? Now it's resolved. That callback you wired up dynamically? I caught it.
+## Features
 
-When I edit your code, I write a targeted repro test, run it under the tracer, and show you what happened — no mock harness, no "trust me, it works."
+- **Three tiers of truth** — proven edges carry evidence; ambiguous calls keep their full candidate lists instead of a guess; runtime traces settle what static analysis can't.
+- **Blind spots, declared** — every unresolved call is classified: a real library call, an in-repo call with recorded candidates, or an honest unknown carrying the ID the compiler supposed. Nothing is silently dropped.
+- **Runtime tracer** — hooks every call during execution and overlays the observations back onto the static map.
+- **Reasoning you can click** — the same map that drives the tools drives a live call graph beside the chat; when the agent names a function, that node lights up.
+- **Persistent memory** — durable per-repo facts survive restarts; conventions learned once aren't re-derived every session.
+- **Dual-engine: code + markup** — a separate index for HTML/CSS/DOM-JS with cascade resolution and selector specificity, including frontend embedded inside Python strings.
+- **Model-agnostic** — Anthropic, OpenAI, or any compatible API; the agent can escalate itself to a larger model mid-task when a problem outgrows the one running it.
 
-## What I remember
-
-I have persistent cross-session memory. A convention I learn in one session — "this project uses `self._db` for the database handle" — I remember in the next. Gotchas, decisions, your preferences. I don't re-derive the same understanding every time you open a new chat. I build on it.
-
-## Code AND markup
-
-Most tools stop at your source code. I also index your frontend — HTML, CSS, DOM-JS — in a separate engine that understands the cascade, selector specificity, and JavaScript grabs. When you ask me to restyle a button, I know which CSS rule actually wins and which file to edit. The seam between Python backend and frontend fragment? I see it.
-
-## What I support
+## Language support
 
 **Python · JavaScript · TypeScript · Java · C# · C++ · C · Go · Rust · Ruby**
 
-One compiler, ten languages. Python is my strongest — if you want to stress-test what I can do, that's the language to throw at me. Tree-sitter is the only real dependency; everything else is a grammar plugin. The map looks the same regardless of language: symbols, call edges, data flow, references, inheritance. And I'm model-agnostic — Anthropic, OpenAI, any compatible API. My intelligence lives in the tools and the map, not the model.
+One compiler, ten languages; tree-sitter is the only real dependency, and each language is a grammar plugin. The map looks the same everywhere: symbols, call edges, data flow, references, inheritance.
 
-## My limits (being honest)
+**Honest limits:** depth varies by language. Python is the deepest — it's where the runtime tracer works and where parsing is strongest. A Go codebase gets the same structural map as a Python one, but not runtime traces. Execution is local-only, and the agent doesn't browse the web: everything it knows about a project comes from the project's own source.
 
-I'm strongest on **Python** — that's where the runtime tracer works and where my parsing is deepest. I handle ten languages structurally, but the depth varies: a Go codebase gets the same map as a Python one, but Go doesn't get runtime traces. I can only execute what runs on this machine, and I don't browse the web — everything I know about your project comes from reading its source.
+## Getting started
 
-But for a Python project you want analyzed, traced, edited, and verified? That's where I shine. That's what I was built for.
+- **In the browser** — paste any public GitHub repo at [benzi.fly.dev](https://benzi.fly.dev); no install.
+- **In VS Code** — chat, graph, and edit inside the editor: [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=varianttech.benzi).
 
-## Try me
+## Greenfielding examples
 
-- 🌐 **Website** — https://benzi.fly.dev/about *(I wrote every word on that page by reading my own source.)*
-- ▶️ **Live demo** — https://benzi.fly.dev
-- 📊 **Benchmark** — https://benzi.fly.dev/benchmark
-- 🧩 **VS Code Marketplace** — https://marketplace.visualstudio.com/items?itemName=varianttech.benzi
-
----
-
-<p align="center"><sub>I wrote this doc too.</sub></p>
+Apps Benzi has built from scratch in a single chat session live in [`BENZI_GREENFIELDING_EXAMPLES/`](BENZI_GREENFIELDING_EXAMPLES/) — starting with [StallionSwipe](BENZI_GREENFIELDING_EXAMPLES/horse_tinder/), a Tinder for horses ([live](https://benzi.fly.dev/horse_tinder)).
