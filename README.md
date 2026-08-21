@@ -47,7 +47,7 @@ The full SWE-bench Verified set — 500 real GitHub issues from twelve Python re
 | Input tokens served from cache | 97% |
 | Output tokens | 22.0M |
 
-Every instance's cost, tokens, turns, and lines read: [benzi.fly.dev/benchmark_swebench](https://benzi.fly.dev/benchmark_swebench). The cross-harness efficiency comparison (lines read, wall clock, cost vs. Claude Code and a plain DeepSeek harness on 24 bugs): [benzi.fly.dev/benchmark](https://benzi.fly.dev/benchmark).
+Full technical report: [SWE_BENCH_REPORT.md](SWE_BENCH_REPORT.md) ([web version](https://benzi.fly.dev/report)). Every instance's cost, tokens, turns, and lines read: [benzi.fly.dev/benchmark_swebench](https://benzi.fly.dev/benchmark_swebench). The cross-harness efficiency comparison (lines read, wall clock, cost vs. Claude Code and a plain DeepSeek harness on 24 bugs): [benzi.fly.dev/benchmark](https://benzi.fly.dev/benchmark).
 
 ## How it works
 
