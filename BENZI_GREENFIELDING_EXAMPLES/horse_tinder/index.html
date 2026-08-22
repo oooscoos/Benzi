@@ -402,17 +402,30 @@ function shapeForBreed(breed) {
   if (eleg.some(x => b.includes(x)))  return 3;
   return 0;   // thoroughbred, quarter horse, mustang, appaloosa, morgan, paint, walker...
 }
-// A shuffled background SCENE per horse: sunset, meadow, day-sky, night,
-// studio-blush, sunrise. Returns <defs> gradients + a full-frame <rect> +
-// a little scenery (sun, hills, stars). Stable per horse via id.
-function bgScene(h, seed) {
-  const sd = (seed == null) ? h.id : seed;
-  const scenes = ["sunset","meadow","daysky","night","studio","sunrise"];
-  const name = scenes[(sd * 7 + 2) % scenes.length];
-  const gid = "bg" + h.id + "_" + sd;   // unique per photo so gradients don't collide
-  const g = (c1, c2) => `<linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient>`;
-  const fill = `<rect width="240" height="240" fill="url(#${gid})"/>`;
-  // a few deterministic stars for the night scene
+// ---- BACKGROUND, split into two independent axes ----
+// SKY   = the gradient wash behind everything (6 options)
+// SCENE = the foreground scenery drawn on top (6 options)
+// They used to be fused; keeping them separate lets the shuffler mix
+// e.g. night sky + meadow hills. Default pairing reproduces the old
+// look exactly: sky[i] always came with scenery[i].
+const SKIES = ["sunset","meadow","daysky","night","studio","sunrise"];
+const SCENERY = ["sunset","meadow","daysky","night","studio","sunrise"];
+
+// the gradient stop pair for each sky
+function skyStops(name) {
+  switch (name) {
+    case "sunset":  return ["#ff9a6b", "#ff5f8f"];
+    case "meadow":  return ["#bfe3ff", "#eaf7d6"];
+    case "daysky":  return ["#7ec8ff", "#cdeaff"];
+    case "night":   return ["#243b6b", "#0e1630"];
+    case "sunrise": return ["#ffe6a0", "#ffb1c9"];
+    default:        return ["#ffe3ec", "#ffd6c0"];   // studio blush
+  }
+}
+
+// the scenery layer drawn over the sky. `gid` is the sky gradient id, needed
+// by the night moon's crescent cutout. `h` seeds the deterministic stars.
+function sceneryLayer(name, h, gid) {
   const stars = () => {
     let s = "";
     for (let i = 0; i < 14; i++) {
@@ -423,37 +436,75 @@ function bgScene(h, seed) {
   };
   switch (name) {
     case "sunset":
-      return `<defs>${g("#ff9a6b", "#ff5f8f")}</defs>${fill}
-        <circle cx="120" cy="150" r="46" fill="#ffd98a" opacity=".9"/>
+      return `<circle cx="120" cy="150" r="46" fill="#ffd98a" opacity=".9"/>
         <path d="M0 175 Q60 150 120 172 T240 168 V240 H0 Z" fill="#c94f7c" opacity=".6"/>`;
     case "meadow":
-      return `<defs>${g("#bfe3ff", "#eaf7d6")}</defs>${fill}
-        <circle cx="188" cy="52" r="24" fill="#fff6b8" opacity=".85"/>
+      return `<circle cx="188" cy="52" r="24" fill="#fff6b8" opacity=".85"/>
         <path d="M0 180 Q70 158 140 178 T240 172 V240 H0 Z" fill="#8fce6b"/>
         <path d="M0 200 Q80 184 160 200 T240 196 V240 H0 Z" fill="#6fb84e"/>`;
     case "daysky":
-      return `<defs>${g("#7ec8ff", "#cdeaff")}</defs>${fill}
-        <ellipse cx="70" cy="70" rx="34" ry="16" fill="#fff" opacity=".85"/>
+      return `<ellipse cx="70" cy="70" rx="34" ry="16" fill="#fff" opacity=".85"/>
         <ellipse cx="170" cy="110" rx="40" ry="18" fill="#fff" opacity=".7"/>`;
     case "night":
-      return `<defs>${g("#243b6b", "#0e1630")}</defs>${fill}${stars()}
+      return `${stars()}
         <circle cx="184" cy="52" r="20" fill="#f4f0d0" opacity=".95"/>
         <circle cx="176" cy="46" r="20" fill="url(#${gid})" opacity=".9"/>`;
     case "sunrise":
-      return `<defs>${g("#ffe6a0", "#ffb1c9")}</defs>${fill}
-        <circle cx="120" cy="170" r="40" fill="#fff2c2"/>
+      return `<circle cx="120" cy="170" r="40" fill="#fff2c2"/>
         <path d="M0 190 Q60 176 120 190 T240 186 V240 H0 Z" fill="#e58fae" opacity=".55"/>`;
     default: // studio blush
-      return `<defs>${g("#ffe3ec", "#ffd6c0")}</defs>${fill}
-        <circle cx="120" cy="120" r="90" fill="#fff" opacity=".18"/>`;
+      return `<circle cx="120" cy="120" r="90" fill="#fff" opacity=".18"/>`;
   }
 }
-function horseSVG(h, px, seed) {
+
+// Returns <defs> gradient + full-frame <rect> + scenery. Stable per horse via id.
+// opts.sky / opts.scene override either axis independently (names from
+// SKIES / SCENERY). Passing nothing reproduces the original fused behaviour.
+function bgScene(h, seed, opts) {
+  const o = opts || {};
+  const sd = (seed == null) ? h.id : seed;
+  const idx = (sd * 7 + 2) % SKIES.length;          // the original scene index
+  const sky   = o.sky   != null ? o.sky   : SKIES[idx];
+  const scene = o.scene != null ? o.scene : SCENERY[idx];
+  const gid = "bg" + h.id + "_" + sd;   // unique per photo so gradients don't collide
+  const [c1, c2] = skyStops(sky);
+  const grad = `<linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient>`;
+  const fill = `<rect width="240" height="240" fill="url(#${gid})"/>`;
+  return `<defs>${grad}</defs>${fill}${sceneryLayer(scene, h, gid)}`;
+}
+// The 4 body silhouettes and the 6 expressions, exposed for the shuffler.
+const VARIANTS = [0, 1, 2, 3];   // 0 sleek · 1 draft · 2 pony · 3 elegant
+const FACES = ["happy","flirty","chill","excited","cool"];
+const COATS = ["#c9915e","#d8d2c6","#2b2b30","#d68a3c","#9a9aa0","#b45f2e","#7a5230","#c9a24b","#e8c37a","#bfc4cc"];
+const MANES = ["#4a2f1a","#6b5b4a","#0f0f12","#f0e2c0","#5a5a60","#7a3a18","#3d2817","#8a6a2a","#7a5a2a","#7d838c"];
+
+// Roll a random override bag across all five axes. Pass the result as
+// horseSVG(h, px, seed, shuffleLook()). Give it a partial bag to pin axes:
+// shuffleLook({ variant: 2 }) shuffles everything EXCEPT the body.
+function shuffleLook(pin) {
+  const p = pin || {};
+  const r = a => a[Math.floor(Math.random() * a.length)];
+  return {
+    sky:     p.sky     != null ? p.sky     : r(SKIES),
+    scene:   p.scene   != null ? p.scene   : r(SCENERY),
+    variant: p.variant != null ? p.variant : r(VARIANTS),
+    coat:    p.coat    != null ? p.coat    : r(COATS),
+    mane:    p.mane    != null ? p.mane    : r(MANES),
+    face:    p.face    != null ? p.face    : r(FACES),
+  };
+}
+// Draw a horse. `opts` is an OPTIONAL override bag for the shuffler:
+//   { sky, scene, variant, coat, mane, face }
+// Anything omitted falls back to the horse's own data / the seed, so every
+// existing call site (which passes no opts) renders exactly as before.
+function horseSVG(h, px, seed, opts) {
+  const o = opts || {};
   const size = px || 240;
   const sd = (seed == null) ? h.id : seed;   // vary bg + expression per gallery photo
-  const c = h.coat, m = h.mane, d = shade(c, -12);
-  const bg1 = shade(c, 55), bg2 = shade(c, 25);
-  const variant = shapeForBreed(h.breed);   // 0 sleek · 1 draft · 2 pony · 3 elegant, by breed
+  const c = o.coat != null ? o.coat : h.coat;
+  const m = o.mane != null ? o.mane : h.mane;
+  const d = shade(c, -12);
+  const variant = o.variant != null ? o.variant : shapeForBreed(h.breed);
   // some horses face LEFT, some RIGHT -- deterministic per horse for variety.
   // flip horizontally around the 120 centre when facing left.
   const facesLeft = (h.id % 2 === 1);
@@ -562,21 +613,18 @@ function horseSVG(h, px, seed) {
       <path d="M${ex-6} ${ey} L${ex+6} ${ey}" stroke="#2b2b2b" stroke-width="3" stroke-linecap="round"/>
       <path d="M${ex-17} ${ey} L${ex-6} ${ey}" stroke="#2b2b2b" stroke-width="3" stroke-linecap="round"/>
       <path d="M${mx-8} ${my} Q${mx} ${my+2} ${mx+9} ${my-3}" stroke="#3a2a2a" stroke-width="2" fill="none" stroke-linecap="round"/>`,
-    derp: `
-      <circle cx="${ex}" cy="${ey-1}" r="6.5" fill="#2b2b2b"/><circle cx="${ex+2}" cy="${ey-3}" r="2" fill="#fff"/>
-      <circle cx="${ex-16}" cy="${ey+2}" r="6.5" fill="#2b2b2b"/><circle cx="${ex-14}" cy="${ey}" r="2" fill="#fff"/>
-      <path d="M${mx-7} ${my+2} Q${mx} ${my-2} ${mx+8} ${my+3}" stroke="#3a2a2a" stroke-width="2" fill="none" stroke-linecap="round"/>`,
   };
   // shuffle, but nudge by temperament so personality shows
-  const all = ["happy","flirty","chill","excited","cool","derp"];
-  const bias = { playful:["excited","happy","derp"], spirited:["flirty","excited","cool"],
+  const all = ["happy","flirty","chill","excited","cool"];
+  const bias = { playful:["excited","happy"], spirited:["flirty","excited","cool"],
                  chill:["chill","happy"], stoic:["cool","chill","flirty"] }[h.temperament] || [];
   const bag = bias.concat(all);                 // biased picks appear more often
-  const face = faces[bag[(sd * 5 + 1) % bag.length]];   // expression varies per photo seed
+  const faceName = o.face != null ? o.face : bag[(sd * 5 + 1) % bag.length];
+  const face = faces[faceName] || faces.happy;          // expression varies per photo seed
 
   return `
 <svg viewBox="0 0 240 240" width="${size}" height="${size}" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
-    ${bgScene(h, sd)}
+    ${bgScene(h, sd, o)}
     <defs><filter id="sh${h.id}_${sd}" x="-20%" y="-20%" width="140%" height="140%">
       <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000" flood-opacity="0.28"/>
     </filter></defs>
@@ -604,48 +652,49 @@ function shade(hex, amt) {
 const HERD = [
   // ---- mares (10) ----
   { id:1, name:"Bella", breed:"Arabian", age:5, gender:"mare", temperament:"playful",
-    disciplines:["dressage","trail"], bio:"Desert princess seeking a trail buddy. Must love apples. 🍎", height:14.3, coat:"#c9915e", mane:"#4a2f1a", marking:"blaze", stable:"Meadowbrook", distance:3, verified:true },
+    disciplines:["dressage","trail"], bio:"Desert bloodline, suburban lifestyle. I will spook at a leaf and then win a class. 🍎", height:14.3, coat:"#c9915e", mane:"#4a2f1a", marking:"blaze", stable:"Meadowbrook", distance:3, verified:true },
   { id:2, name:"Willow", breed:"Appaloosa", age:4, gender:"mare", temperament:"spirited",
-    disciplines:["barrel","racing"], bio:"Spotted and speedy. Swipe right if you can keep up.", height:15.0, coat:"#d8d2c6", mane:"#6b5b4a", marking:"spots", stable:"Meadowbrook", distance:3, verified:true },
+    disciplines:["barrel","racing"], bio:"Every spot is in a deliberate place. Keep up or admire from the rail.", height:15.0, coat:"#d8d2c6", mane:"#6b5b4a", marking:"spots", stable:"Meadowbrook", distance:3, verified:true },
   { id:3, name:"Daisy", breed:"Shetland Pony", age:9, gender:"mare", temperament:"playful",
-    disciplines:["shows","trail"], bio:"Small but mighty. Great personality, height is just a number.", height:10.1, coat:"#e8c37a", mane:"#7a5a2a", marking:"star", stable:"Meadowbrook", distance:3, verified:false },
+    disciplines:["shows","trail"], bio:"38 inches of unearned confidence. I've bitten a judge. He knows why.", height:10.1, coat:"#e8c37a", mane:"#7a5a2a", marking:"star", stable:"Meadowbrook", distance:3, verified:false },
   { id:4, name:"Luna", breed:"Friesian", age:5, gender:"mare", temperament:"chill",
-    disciplines:["dressage","driving"], bio:"All black, all heart. Long mane, longer walks at sunset. 🌅", height:16.1, coat:"#2b2b30", mane:"#0f0f12", marking:"none", stable:"Churchill Barn", distance:8, verified:true },
+    disciplines:["dressage","driving"], bio:"Yes the mane is real. No you may not touch it yet. Ask me at sunset. 🌅", height:16.1, coat:"#2b2b30", mane:"#0f0f12", marking:"none", stable:"Churchill Barn", distance:8, verified:true },
   { id:5, name:"Rosie", breed:"Haflinger", age:6, gender:"mare", temperament:"playful",
-    disciplines:["trail","shows"], bio:"Golden girl with a flaxen mane. Sunshine in horse form. ☀️", height:14.0, coat:"#d68a3c", mane:"#f0e2c0", marking:"blaze", stable:"Meadowbrook", distance:5, verified:true },
+    disciplines:["trail","shows"], bio:"Relentlessly cheerful. I have never had a bad day and it unnerves people. ☀️", height:14.0, coat:"#d68a3c", mane:"#f0e2c0", marking:"blaze", stable:"Meadowbrook", distance:5, verified:true },
   { id:6, name:"Pepper", breed:"Percheron", age:7, gender:"mare", temperament:"chill",
-    disciplines:["driving","trail"], bio:"Dapple-grey and drama-free. Looking for someone to share hay with.", height:16.3, coat:"#9a9aa0", mane:"#5a5a60", marking:"snip", stable:"Highland Stables", distance:18, verified:false },
+    disciplines:["driving","trail"], bio:"A tonne of horse, zero drama. I've never rushed anywhere and I'm not starting now.", height:16.3, coat:"#9a9aa0", mane:"#5a5a60", marking:"snip", stable:"Highland Stables", distance:18, verified:false },
   { id:7, name:"Ginger", breed:"Morgan", age:5, gender:"mare", temperament:"spirited",
-    disciplines:["dressage","jumping"], bio:"Fiery chestnut with a competitive streak. Bring your A-game.", height:15.1, coat:"#b45f2e", mane:"#7a3a18", marking:"star", stable:"Churchill Barn", distance:11, verified:true },
+    disciplines:["dressage","jumping"], bio:"Chestnut mare. You've heard the rumours. Most of them are true.", height:15.1, coat:"#b45f2e", mane:"#7a3a18", marking:"star", stable:"Churchill Barn", distance:11, verified:true },
   { id:8, name:"Misty", breed:"Connemara", age:8, gender:"mare", temperament:"chill",
-    disciplines:["jumping","trail"], bio:"Silver-grey and serene. Foggy mornings are my aesthetic.", height:14.2, coat:"#bfc4cc", mane:"#7d838c", marking:"none", stable:"Seaside Paddock", distance:31, verified:false },
+    disciplines:["jumping","trail"], bio:"Sea fog and stone walls. I jump what's in front of me and think about it later.", height:14.2, coat:"#bfc4cc", mane:"#7d838c", marking:"none", stable:"Seaside Paddock", distance:31, verified:false },
   { id:9, name:"Clover", breed:"Welsh Pony", age:4, gender:"mare", temperament:"playful",
-    disciplines:["shows","barrel"], bio:"Lucky in hooves, hopeful in love. Four-leaf energy only. 🍀", height:12.2, coat:"#7a5230", mane:"#3d2817", marking:"snip", stable:"Meadowbrook", distance:3, verified:false },
+    disciplines:["shows","barrel"], bio:"Small, fast, and fully aware of it. I have escaped four fields this year. 🍀", height:12.2, coat:"#7a5230", mane:"#3d2817", marking:"snip", stable:"Meadowbrook", distance:3, verified:false },
   { id:10, name:"Aurora", breed:"Akhal-Teke", age:6, gender:"mare", temperament:"stoic",
-    disciplines:["dressage","racing"], bio:"Metallic sheen, mysterious vibe. Rare breed, rarer heart. ✨", height:15.2, coat:"#c9a24b", mane:"#8a6a2a", marking:"blaze", stable:"Highland Stables", distance:22, verified:true },
+    disciplines:["dressage","racing"], bio:"My coat is genuinely metallic. I know. I've stopped explaining it to people. ✨", height:15.2, coat:"#c9a24b", mane:"#8a6a2a", marking:"blaze", stable:"Highland Stables", distance:22, verified:true },
 
   // ---- stallions & geldings (10) ----
   { id:11, name:"Seabiscuit", breed:"Thoroughbred", age:6, gender:"stallion", temperament:"spirited",
-    disciplines:["racing","trail"], bio:"Fast on the track, faster to your heart. Hay is my love language.", height:15.2, coat:"#8a5a34", mane:"#3d2513", marking:"star", stable:"Churchill Barn", distance:8, verified:true },
+    disciplines:["racing","trail"], bio:"Named after a legend, currently living up to about 60% of it. Working on the rest.", height:15.2, coat:"#8a5a34", mane:"#3d2513", marking:"star", stable:"Churchill Barn", distance:8, verified:true },
   { id:12, name:"Duke", breed:"Clydesdale", age:8, gender:"gelding", temperament:"chill",
-    disciplines:["driving","shows"], bio:"Big guy, bigger heart. Gentle giant vibes only.", height:18.0, coat:"#5a3a24", mane:"#2a1a10", marking:"blaze", stable:"Highland Stables", distance:22, verified:false },
+    disciplines:["driving","shows"], bio:"18 hands and terrified of the wheelbarrow. We all have our things.", height:18.0, coat:"#5a3a24", mane:"#2a1a10", marking:"blaze", stable:"Highland Stables", distance:22, verified:false },
   { id:13, name:"Comet", breed:"Mustang", age:7, gender:"stallion", temperament:"spirited",
-    disciplines:["trail","racing"], bio:"Wild at heart, free to a good pasture. No fences on my feelings.", height:14.2, coat:"#7d5b3a", mane:"#4a3520", marking:"snip", stable:"Open Range", distance:45, verified:false },
+    disciplines:["trail","racing"], bio:"Born wild, now have a rug and strong feelings about dinner time. Growth.", height:14.2, coat:"#7d5b3a", mane:"#4a3520", marking:"snip", stable:"Open Range", distance:45, verified:false },
   { id:14, name:"Apollo", breed:"Andalusian", age:6, gender:"stallion", temperament:"stoic",
-    disciplines:["dressage","shows"], bio:"Classically trained, effortlessly elegant. Seeking my dance partner.", height:16.0, coat:"#e6e6ea", mane:"#c4c4cc", marking:"none", stable:"Highland Stables", distance:22, verified:true },
+    disciplines:["dressage","shows"], bio:"Classically trained. Devastatingly aware of it. Seeking someone unimpressed by me.", height:16.0, coat:"#e6e6ea", mane:"#c4c4cc", marking:"none", stable:"Highland Stables", distance:22, verified:true },
   { id:15, name:"Rocky", breed:"Quarter Horse", age:10, gender:"gelding", temperament:"chill",
-    disciplines:["trail","barrel"], bio:"Retired rodeo star. Just here for the good hay and better company.", height:15.1, coat:"#9a6a3a", mane:"#5a3a1a", marking:"star", stable:"Open Range", distance:45, verified:false },
+    disciplines:["trail","barrel"], bio:"Retired from the rodeo. Ask me about it and I'll talk for an hour. Please ask.", height:15.1, coat:"#9a6a3a", mane:"#5a3a1a", marking:"star", stable:"Open Range", distance:45, verified:false },
   { id:16, name:"Thor", breed:"Norwegian Fjord", age:5, gender:"stallion", temperament:"playful",
-    disciplines:["driving","trail"], bio:"Viking hair, big smile. My mane stands up on its own, no gel.", height:14.1, coat:"#c2a878", mane:"#4a4038", marking:"none", stable:"Seaside Paddock", distance:31, verified:true },
+    disciplines:["driving","trail"], bio:"The mane is cut like that on purpose. It's traditional. Stop laughing.", height:14.1, coat:"#c2a878", mane:"#4a4038", marking:"none", stable:"Seaside Paddock", distance:31, verified:true },
   { id:17, name:"Blaze", breed:"Tennessee Walker", age:7, gender:"gelding", temperament:"chill",
-    disciplines:["trail","shows"], bio:"Smoothest gait in the county. I'll sweep you off all four feet.", height:15.3, coat:"#7a3020", mane:"#e8d8b0", marking:"blaze", stable:"Meadowbrook", distance:6, verified:false },
+    disciplines:["trail","shows"], bio:"Smoothest gait in three counties. You could carry a full cup of tea. People have.", height:15.3, coat:"#7a3020", mane:"#e8d8b0", marking:"blaze", stable:"Meadowbrook", distance:6, verified:false },
   { id:18, name:"Zephyr", breed:"Lipizzaner", age:6, gender:"stallion", temperament:"stoic",
-    disciplines:["dressage","jumping"], bio:"Born dark, turned brilliant white. Airs above the ground, feelings below.", height:15.2, coat:"#f0f0f4", mane:"#d0d0d8", marking:"none", stable:"Highland Stables", distance:20, verified:true },
+    disciplines:["dressage","jumping"], bio:"Born black, turned white, still figuring out who that makes me. Deep for a horse.", height:15.2, coat:"#f0f0f4", mane:"#d0d0d8", marking:"none", stable:"Highland Stables", distance:20, verified:true },
   { id:19, name:"Bandit", breed:"Paint Horse", age:5, gender:"stallion", temperament:"spirited",
-    disciplines:["barrel","racing"], bio:"Two-toned troublemaker with a heart of gold. Steal your feed, steal your heart.", height:15.0, coat:"#6a4a30", mane:"#e8e0d0", marking:"spots", stable:"Open Range", distance:40, verified:false },
+    disciplines:["barrel","racing"], bio:"I have opened your feed bin. I am in your feed bin. I regret nothing.", height:15.0, coat:"#6a4a30", mane:"#e8e0d0", marking:"spots", stable:"Open Range", distance:40, verified:false },
   { id:20, name:"Shadow", breed:"Friesian", age:8, gender:"gelding", temperament:"stoic",
-    disciplines:["dressage","driving"], bio:"Tall, dark, and dramatic. My mane has its own fan club.", height:16.2, coat:"#26262b", mane:"#111114", marking:"none", stable:"Churchill Barn", distance:9, verified:true },
+    disciplines:["dressage","driving"], bio:"Tall, dark, and quietly theatrical. I do everything in slow motion on purpose.", height:16.2, coat:"#26262b", mane:"#111114", marking:"none", stable:"Churchill Barn", distance:9, verified:true },
 ];
+
 
 // ============================================================
 // ONLINE-STATUS ENGINE
@@ -715,6 +764,18 @@ const OPENERS = [
   "hi {you} 🌾 be honest — best trail you've ever been on?",
   "well hello {you} 😌 what made you swipe right on me?",
   "hey {you}! 🐎 {disc} horse huh? what's the story there?",
+  "{you} hi 🌸 controversial opinion incoming — carrots are overrated. defend apples.",
+  "oh good, {you} swiped back 😌 so what's the most reckless thing you've done at a canter?",
+  "hey {you} 🍂 {disc} is such a vibe. what got you started?",
+  "{you}!! 🐴 quick — describe your ideal pasture in three words.",
+  "hi {you} 😄 I've been told I'm intimidatingly tall. are you brave?",
+  "well {you}, this is promising 🌙 what's your idea of a perfect evening?",
+  "hey {you} 🏇 be honest, are you a morning gallop horse or a lazy afternoon grazer?",
+  "{you} hello 🌾 tell me your worst horse-show story, I'll go first if you want",
+  "hi {you}! 🎀 what's something you're weirdly competitive about?",
+  "okay {you} 😏 you look like you have opinions about hay quality. am I right?",
+  "hey {you} 💫 if we went on a hack tomorrow, where are you taking me?",
+  "{you}! 🧡 what's the one thing your profile doesn't say about you?",
 ];
 
 const pickFrom = arr => arr[Math.floor(Math.random() * arr.length)];
@@ -739,7 +800,7 @@ function horseMessages(horse) {
     `Your temperament is ${horse.temperament}. You are into ${theirDiscs}.`,
     `Your dating bio reads: "${horse.bio || ""}".`,
     `You are flirting with ${you}, a ${p.age || "?"}-year-old ${p.gender || "horse"} whose temperament is ${p.temperament || "unknown"} and who is into ${yourDiscs}.`,
-    `Reply with ONE short flirty text message, max 20 words, all lowercase.`,
+    `Reply with ONE short flirty text message, max 30 words, all lowercase.`,
     `Use horse puns sparingly. At most one emoji. Never mention being an AI or a model.`,
   ].join(" ");
 
@@ -1144,20 +1205,46 @@ function renderMatches() {
 // ---- chat ----
 let chatWith = null;
 // ---- tap-to-expand profile detail with icebreaker prompts ----
+// Prompt -> the horse's ANSWER to it. These are profile prompts like
+// PROMPTS_EXTRA below, so the second half must be a finished sentence,
+// not a trailing "..." stub the reader has to complete themselves.
 const ICEBREAKERS = {
-  racing:  "The fastest I've ever galloped...",
-  trail:   "My favourite trail has...",
-  dressage:"My signature move is...",
-  jumping: "The highest fence I've cleared...",
-  barrel:  "My best barrel time is...",
-  driving: "The cart I look best pulling...",
-  shows:   "The ribbon I'm proudest of...",
+  racing:  "40mph down the back straight, ears flat, absolutely no notes.",
+  trail:   "Anything with a river crossing. Bonus points if I get muddy.",
+  dressage:"A flying change so clean the judges sat up. I peaked, honestly.",
+  jumping: "1.40m. I looked at it, thought 'sure', and somehow cleared it.",
+  barrel:  "15.8 seconds. Yes I'm bringing it up on the first date.",
+  driving: "A little green cart with brass fittings. Devastating, frankly.",
+  shows:   "Reserve champion twice. Robbed both times, but who's counting.",
+};
+// Headings that actually read as English -- "Ask me about my barrel" doesn't,
+// because the discipline names are bare nouns. One label per discipline.
+const DISCIPLINE_PROMPT = {
+  racing:  "My fastest gallop",
+  trail:   "My favourite trail",
+  dressage:"My signature move",
+  jumping: "The highest fence I've cleared",
+  barrel:  "My best barrel time",
+  driving: "The cart I look best pulling",
+  shows:   "The ribbon I'm proudest of",
 };
 const PROMPTS_EXTRA = [
   ["My ideal Sunday", "Grazing till noon, then a long hack at golden hour 🌅"],
   ["Green flags I look for", "Shares their hay, good with fences, great mane game"],
   ["A fact that surprises people", "I'm scared of tiny ponies. No I won't explain."],
   ["Dating me is like", "A steady trot with the occasional wild canter 😏"],
+  ["My most irrational fear", "Plastic bags. I know. I've made peace with knowing."],
+  ["The quickest way to my heart", "Show up with a carrot and no agenda. That's it. That's the list."],
+  ["I'm looking for", "Someone who doesn't spook when I do. We can be dramatic together."],
+  ["My simple pleasures", "A fresh bale, a good roll in the dirt, and absolutely nowhere to be."],
+  ["Two truths and a lie", "I've won a ribbon, I've thrown a rider, I'm scared of puddles. Guess. 🎀"],
+  ["My love language", "Standing suspiciously close to you until you acknowledge it."],
+  ["Unusual skill", "I can open every gate at my yard. Management is aware. 🚪"],
+  ["Worst habit", "I lean. Constantly. On fences, on people, on you eventually."],
+  ["We'll get along if", "You think 6am is a reasonable hour to be enthusiastic."],
+  ["My hidden talent", "Finding the one muddy patch in an otherwise pristine field."],
+  ["Best travel story", "Got loaded in the wrong trailer once. Made three friends. No regrets."],
+  ["The hill I'll die on", "Turnout beats a stable every single time. I don't make the rules."],
 ];
 // how many gallery photos this horse has (2-5, stable per horse)
 function galleryCount(h) { return 2 + (h.id % 4); }
@@ -1215,7 +1302,12 @@ function wireGallery() {
 }
 function openProfile(id) {
   const h = HERD.find(x => x.id === id);
-  const ib = h.disciplines.map(d => ICEBREAKERS[d]).find(Boolean) || "Ask me anything...";
+  // pick ONE discipline and use it for BOTH the heading and the line below,
+  // so they can't disagree (they used to: heading took [0], text took the
+  // first that happened to have an icebreaker).
+  const ibDisc = h.disciplines.find(d => ICEBREAKERS[d]);
+  const ibTitle = ibDisc ? DISCIPLINE_PROMPT[ibDisc] : "The way to my heart";
+  const ib = ibDisc ? ICEBREAKERS[ibDisc] : "Apples, long hacks, and someone who laughs at my jokes 🍎";
   const extra = PROMPTS_EXTRA[id % PROMPTS_EXTRA.length];
   const statusLine = isOnline(id)
     ? '<span style="color:#2fae4e;font-weight:600">● Active now</span>'
@@ -1236,7 +1328,7 @@ function openProfile(id) {
       </div>
       <div class="p-bio">"${h.bio}"</div>
       <div class="tags" style="margin-bottom:10px">${h.disciplines.map(d => `<span style="background:#fd267d22;color:var(--pink);padding:3px 10px;border-radius:999px;font-size:.72rem;font-weight:600">${d}</span>`).join(" ")}</div>
-      <div class="prompt"><b>Ask me about my ${h.disciplines[0]}</b>${ib}</div>
+      <div class="prompt"><b>${ibTitle}</b>${ib}</div>
       <div class="prompt"><b>${extra[0]}</b>${extra[1]}</div>
       <button class="p-close" onclick="closeProfile()">Close</button>
     </div>`;
