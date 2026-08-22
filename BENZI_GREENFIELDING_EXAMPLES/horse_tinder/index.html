@@ -702,250 +702,77 @@ _seedOnline();
 setInterval(_tickOnline, 25000);
 
 // ============================================================
-// SCRIPTED OPENER TREES
-// The first 2 exchanges are DETERMINISTIC so the chat feels alive:
-//   Q0 (a yes/no question) -> branch on the user's yes/no answer ->
-//   one follow-up line -> then generic replies forever.
-// 3 trees; each horse deterministically uses one. {you}/{disc} fill in.
+// OPENERS -- the FIRST message a match sends you.
+// Deliberately open-ended (not yes/no questions), so an LLM backend can
+// take the conversation anywhere from here. {you}/{disc} fill from profile.
 // ============================================================
-// Each node: { say, yes, no } -- `say` is the line they send, and yes/no are
-// the child nodes taken from your NEXT message. Depth 5; the leaves have no
-// children, so the thread falls through to generic replies after that.
-const SCRIPTS = [
-  { // 0 -- the adventure flex
-    say: "wow {you}, nice to match! 🐴 I saw you're big on {disc} — have you ever done it on Mount Everest?",
-    yes: {
-      say: "no WAY, a legend 😳 ok so you're properly fearless then. would you do it again in a blizzard?",
-      yes: { say: "certified maniac and I'm into it 🔥 be honest — were you scared even once?",
-             yes: { say: "see, admitting that is the hot part 😌 what got you through it?",
-                    yes: { say: "spoken like someone I'd follow up a mountain, {you} 🏔️" },
-                    no:  { say: "pure stubbornness. yeah that tracks for a {disc} horse 😅" } },
-             no:  { say: "not even ONCE? {you} you're built different 😳",
-                    yes: { say: "ok now you're just showing off (keep going) 💅" },
-                    no:  { say: "alright alright, humble legend. noted 📝" } } },
-      no:  { say: "fair, once is enough for a lifetime 😅 what's the wildest place you'd still say yes to?",
-             yes: { say: "adding that to our someday list, {you} 🗺️",
-                    yes: { say: "it's a date then. I'm bringing the snacks 🍎" },
-                    no:  { say: "no pressure. the list stays open 😌" } },
-             no:  { say: "cozy pasture it is. honestly? better idea 🌾",
-                    yes: { say: "you and me and zero altitude. perfect 💕" },
-                    no:  { say: "ok you're impossible to pin down and I like that 😏" } } },
-    },
-    no: {
-      say: "yeah that'd be wild haha. bet the view would be unreal though 🏔️ do you even like the cold?",
-      yes: { say: "a cold-weather horse! ok so a snowy {disc} trail — you in?",
-             yes: { say: "YES. I'm picturing it already ❄️ you'd have to keep up with me though",
-                    yes: { say: "confident. dangerous. I'm intrigued, {you} 😍" },
-                    no:  { say: "we'll go slow. I don't mind waiting 😌" } },
-             no:  { say: "too far? ok, what's your ideal weather then ☀️",
-                    yes: { say: "sunshine horse. that explains the energy 🌞" },
-                    no:  { say: "mysterious. fine, I'll figure you out eventually 🕵️" } } },
-      no:  { say: "same honestly, I'm a warm-barn creature 😌 what's your perfect lazy day look like?",
-             yes: { say: "that sounds unreasonably nice. room for one more? 🥺",
-                    yes: { say: "best news I've had all week, {you} 💕" },
-                    no:  { say: "rude. I'll win you over eventually 😤" } },
-             no:  { say: "ok so you're a doer, not a lounger. respect 💪",
-                    yes: { say: "I'll keep up. probably. no promises 😅" },
-                    no:  { say: "somehow you've told me nothing and I'm more curious 👀" } } },
-    },
-  },
-  { // 1 -- the flirty dare
-    say: "okay {you}, real talk 😏 your profile says {disc}... are you as good as you look?",
-    yes: {
-      say: "confidence! I love that in a horse 🔥 careful though — would you prove it?",
-      yes: { say: "oh it's ON. name the place, {you} 📍",
-             yes: { say: "bold choice. I'm already nervous in a good way 😳",
-                    yes: { say: "then it's settled. don't be late 😌" },
-                    no:  { say: "second thoughts already? cute 😏" } },
-             no:  { say: "you'll let ME pick? risky move 😈",
-                    yes: { say: "somewhere with a view. and apples 🍎" },
-                    no:  { say: "fine, we'll decide together. compromise 💕" } } },
-      no:  { say: "all talk then! 😂 I respect the bit though. what ARE you good at?",
-             yes: { say: "ok that's genuinely impressive, {you} 👏",
-                    yes: { say: "showing off suits you, keep going 💅" },
-                    no:  { say: "modest again! you're doing this on purpose 😤" } },
-             no:  { say: "a horse of mystery. I'll allow it 🕶️",
-                    yes: { say: "there it is. knew you'd crack 😌" },
-                    no:  { say: "you're going to make me work for this, huh 👀" } } },
-    },
-    no: {
-      say: "aw modest AND cute, dangerous combo 💕 but you'd let me be the judge, yeah?",
-      yes: { say: "perfect. first test: {disc} with me, no excuses. deal?",
-             yes: { say: "DEAL. you just made my whole week, {you} 🔥",
-                    yes: { say: "I'm counting down already ⏳" },
-                    no:  { say: "playing hard to get after saying yes? evil 😏" } },
-             no:  { say: "backing out already?? 😭 what would you rather do?",
-                    yes: { say: "ok that's a much better plan, I'll admit it 😌" },
-                    no:  { say: "you're lucky you're charming, {you} 💕" } } },
-      no:  { say: "denied! brutal 😩 ok what would it take to impress you then?",
-             yes: { say: "noted. I'm taking this VERY seriously now 📝",
-                    yes: { say: "watch me exceed expectations, {you} 😎" },
-                    no:  { say: "low bar? good. those I can clear 😅" } },
-             no:  { say: "nothing at all? tough crowd 🥲",
-                    yes: { say: "there's the smile. I saw that 😏" },
-                    no:  { say: "I'll keep trying. I'm stubborn like that 🐴" } } },
-    },
-  },
-  { // 2 -- the snack test
-    say: "hi {you}! 🍎 important question before anything else — do you share your apples?",
-    yes: {
-      say: "marry me. that's it that's the message 😌 would you share the LAST one though?",
-      yes: { say: "a saint. genuinely 🥹 what else are you too generous with?",
-             yes: { say: "you're making the rest of the herd look bad, {you} 😂",
-                    yes: { say: "ok I'm officially spoiled now. no going back 💕" },
-                    no:  { say: "keeping some mystery. smart 😏" } },
-             no:  { say: "so apples only. very specific. I respect the boundary 📏",
-                    yes: { say: "boundaries AND snacks. dream horse 😌" },
-                    no:  { say: "you contain multitudes, {you} 🍎" } } },
-      no:  { say: "HAH there it is 😂 the last apple is sacred, I get it",
-             yes: { say: "at least you're honest about it 🥰",
-                    yes: { say: "honesty is weirdly attractive on you 😳" },
-                    no:  { say: "wait now I don't know what to believe 👀" } },
-             no:  { say: "protective over snacks. noted for later 📝",
-                    yes: { say: "I'll bring my own. problem solved 🍏" },
-                    no:  { say: "we'll negotiate. I'm patient 😌" } } },
-    },
-    no: {
-      say: "HAH honest king 😂 ok but you'd share ONE with me, right? just one? 🥺",
-      yes: { say: "I KNEW you had a soft side 🥹 what's your snack of choice then?",
-             yes: { say: "excellent taste. we're snack-compatible, {you} 🍎",
-                    yes: { say: "snack dates every weekend. it's decided 💕" },
-                    no:  { say: "picky eater! more for me then 😌" } },
-             no:  { say: "no favourites? you'll eat anything? bold 😅",
-                    yes: { say: "a horse of the people. love that 🙌" },
-                    no:  { say: "ok you're impossible and I'm invested 👀" } } },
-      no:  { say: "not even ONE?! 😭 {you} I'm wounded. would you at least share a paddock?",
-             yes: { say: "phew. I'll take what I can get 😌",
-                    yes: { say: "starting small and building up. classic 💕" },
-                    no:  { say: "wait you're taking it back?? cruel 😩" } },
-             no:  { say: "wow. cold. I kind of love it though 😏",
-                    yes: { say: "knew the ice would crack eventually 🔥" },
-                    no:  { say: "a proper challenge. good, I was getting bored 😈" } } },
-    },
-  },
+const OPENERS = [
+  "wow {you}, nice to match! 🐴 I saw you're big on {disc} — how'd you get into it?",
+  "hi {you}! 🍎 ok important question before anything else — what's your snack of choice?",
+  "okay {you}, real talk 😏 your profile says {disc}... how long have you been at it?",
+  "hey {you} 👋 you seem like trouble in the best way. tell me something about yourself?",
+  "{you}! finally someone with taste 💅 what's your ideal day look like?",
+  "hi {you} 🌾 be honest — best trail you've ever been on?",
+  "well hello {you} 😌 what made you swipe right on me?",
+  "hey {you}! 🐎 {disc} horse huh? what's the story there?",
 ];
-// which script a given horse uses (stable per horse)
-function scriptFor(id) { return SCRIPTS[id % SCRIPTS.length]; }
-// build Q0 for the opener, filled with your profile
-function scriptQ0(horse) {
-  const p = S.profile || {};
-  const you = p.name || "cutie";
-  const disc = (p.disciplines && p.disciplines[0]) || "trail";
-  return scriptFor(horse.id).say.replace(/{you}/g, you).replace(/{disc}/g, disc);
-}
-// Classify a user's message as yes-ish / no-ish. Used at EVERY level of the
-// scripted tree, so the same reasoning applies all the way down.
-// Order matters: NEGATION is checked first, so "i have not" / "i'm not" /
-// "no i have" land on the "no" branch even though they contain yes-words.
-// Ambiguous -> "no" branch (it's the more interactive side).
-function isYesish(text) {
-  const t = (text || "").toLowerCase().replace(/[’']/g, "'");
 
-  // -- 1. explicit negation anywhere -> no --
-  // n't (haven't/don't/isn't/can't...), "not", and bare no-words
-  if (/\bn'?t\b|\w+n't\b/.test(t)) return false;
-  if (/\bnot\b|\bnever\b|\bnope\b|\bnah\b|\bnowhere\b|\bneither\b|\bnope+\b/.test(t)) return false;
-  if (/\bno\b|\bnegative\b|\bpass\b|\bnvm\b/.test(t)) return false;
-  if (/🚫|❌|🙅|😬|😅|🥲/.test(t)) return false;
-
-  // -- 2. affirmative phrases: "i have", "i am", "i do", "i did", "i would"... --
-  if (/\bi(?:'| a|'?ve| ha|'?m| d|'?ll| w)?\b\s*(have|has|had|am|m|do|does|did|will|would|could|can|was|were|is)\b/.test(t)) return true;
-  if (/\bi'(ve|m|ll|d)\b/.test(t)) return true;
-  if (/\b(have|has|had|am|do|does|did|will|would|could|can|was|were|is|sure)\s+(so|too|also|indeed)\b/.test(t)) return true;
-
-  // -- 3. classic yes-words --
-  if (/\b(yes|yeah|yep|yup|yah|ya|ye|yesss+|sure|ok|okay|k|def|definitely|absolutely|totally|100|course|obviously|always|affirmative|correct|right|true|indeed|fr|frfr|deadass)\b/.test(t)) return true;
-
-  // -- 4. enthusiastic emoji --
-  if (/😍|❤️|🔥|😻|💕|💯|😏|🥰|👍|✅|🙌/.test(t)) return true;
-
-  return false;
-}
-
-// Same reading, but says what it could TELL: "yes" | "no" | "maybe" | null.
-//   "maybe" = a deliberate dodge ("maybe", "idk", "we'll see", "depends")
-//   null    = no yes/no signal at all ("lol", "banana") -> caller coin-flips
-// MAYBE is tested FIRST so "not sure" / "idk" read as a dodge, not a no.
-function readAnswer(text) {
-  const t = (text || "").toLowerCase().replace(/[’']/g, "'");
-  const MAYBE = /\bmaybe\b|\bperhaps\b|\bpossibly\b|\bidk\b|\bdunno\b|\bunsure\b|\bnot sure\b|\bno idea\b|\bwe'?ll see\b|\bdepends\b|\bit depends\b|\bkinda\b|\bsorta\b|\bsort of\b|\bkind of\b|\bmeh\b|\bhmm+\b|\bwho knows\b|\bcould go either way\b|\bi guess\b|\bmight\b|\bsomewhat\b|\bon the fence\b|🤷|🫤|😐|🤔|🙃/;
-  const NEG = /\bn'?t\b|\w+n't\b|\bnot\b|\bnever\b|\bnope\b|\bnah\b|\bnowhere\b|\bneither\b|\bno\b|\bnegative\b|\bpass\b|\bnvm\b|🚫|❌|🙅|😬|😅|🥲/;
-  const POS = /\bi(?:'| a|'?ve| ha|'?m| d|'?ll| w)?\b\s*(have|has|had|am|m|do|does|did|will|would|could|can|was|were|is)\b|\bi'(ve|m|ll|d)\b|\b(yes|yeah|yep|yup|yah|ya|ye|yesss+|sure|ok|okay|k|def|definitely|absolutely|totally|100|course|obviously|always|affirmative|correct|true|indeed|right|fr|frfr|deadass)\b|😍|❤️|🔥|😻|💕|💯|😏|🥰|👍|✅|🙌/;
-  if (MAYBE.test(t)) return "maybe";            // dodging on purpose
-  if (NEG.test(t)) return "no";
-  if (POS.test(t)) return "yes";
-  return null;                                  // genuinely can't tell
-}
-
-// When we had to guess, own it out loud before carrying on with the line
-// we'd have said anyway.
 const pickFrom = arr => arr[Math.floor(Math.random() * arr.length)];
-const COINFLIP_PREFIX = {
-  yes: [
-    "I'm gonna take that as a yes 😏 ",
-    "choosing to read that as a yes 💕 ",
-    "that's a yes in my book ✨ ",
-    "I'll pretend that means yes 😌 ",
-  ],
-  no: [
-    "I'm gonna take that as a no 🥲 ",
-    "reading that as a no, sorry 😅 ",
-    "that's a no then? ok ok 😩 ",
-    "I'll count that as a no 🙃 ",
-  ],
-};
-// A deliberate dodge ("maybe", "idk", "we'll see") gets teased first, THEN we
-// coin-flip a branch and carry on with the line we'd have said anyway.
-const MAYBE_TEASE = [
-  "mysterious horsy huh? 🐴 ",
-  "ooh cryptic. I like that 😏 ",
-  "mysterious horsy huh? ok, keeping me guessing 👀 ",
-  "not giving me anything! fine, I'll decide 😌 ",
-  "playing it coy, I see 🕶️ ",
-  "a maybe from a {disc} horse... intriguing 🤔 ",
-  "hedging your bets! noted 📝 ",
-  "so mysterious. I'm even more curious now 💭 ",
-];
-// The next SCRIPTED line, or null when the script is exhausted (-> generic).
-// Uses per-thread progress in S.scriptState so it survives reload.
-function scriptedReply(horse, userText) {
-  S.scriptState = S.scriptState || {};
-  const st = S.scriptState[horse.id];
-  if (!st || st.done) return null;              // no script running / already finished
+
+// ============================================================
+// LIVE LLM REPLIES via the backend at POST /horse_chat (same origin).
+// The server holds the DeepSeek key -- nothing secret lives in this page.
+// We only build the messages array (the personas live here) and read
+// { reply } back. Any failure falls back to the local reply() pool below,
+// so the chat never breaks.
+// ============================================================
+
+// Build the OpenAI-style messages array for ONE horse: persona + history.
+function horseMessages(horse) {
   const p = S.profile || {};
   const you = p.name || "cutie";
-  const disc = (p.disciplines && p.disciplines[0]) || "trail";
-  const fill = s => s.replace(/{you}/g, you).replace(/{disc}/g, disc);
+  const yourDiscs = (p.disciplines || []).join(", ") || "trail";
+  const theirDiscs = (horse.disciplines || []).join(", ") || "trail";
 
-  // Walk down to the node we're currently sitting on. st.path is the list of
-  // yes/no turns taken so far ([] = we're at the root, which already spoke).
-  st.path = st.path || [];
-  let node = scriptFor(horse.id);
-  for (const step of st.path) {
-    node = node && node[step];
-    if (!node) { st.done = true; save(); return null; }   // path broke -> generic
+  const persona = [
+    `You are ${horse.name}, a ${horse.age}-year-old ${horse.gender} ${horse.breed || "horse"} on a horse dating app.`,
+    `Your temperament is ${horse.temperament}. You are into ${theirDiscs}.`,
+    `Your dating bio reads: "${horse.bio || ""}".`,
+    `You are flirting with ${you}, a ${p.age || "?"}-year-old ${p.gender || "horse"} whose temperament is ${p.temperament || "unknown"} and who is into ${yourDiscs}.`,
+    `Reply with ONE short flirty text message, max 20 words, all lowercase.`,
+    `Use horse puns sparingly. At most one emoji. Never mention being an AI or a model.`,
+  ].join(" ");
+
+  // from:"them" -> assistant (the horse's OWN lines, incl. its opener)
+  // from:"me"   -> user      (you)
+  const history = (S.threads[horse.id] || []).map(m => ({
+    role: m.from === "them" ? "assistant" : "user",
+    content: m.text,
+  }));
+
+  return [{ role: "system", content: persona }, ...history];
+}
+
+// Ask the backend for this horse's next line. Always resolves to a usable
+// string -- falls back to the local pool on any failure or a null reply.
+async function horseReply(horse) {
+  try {
+    const res = await fetch("/horse_chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: horseMessages(horse) }),
+    });
+    if (!res.ok) {
+      console.warn("[horse_chat]", res.status, await res.text().catch(() => ""));
+      return reply(horse);
+    }
+    const data = await res.json();
+    const out = (data && data.reply != null) ? String(data.reply).trim() : "";
+    return out || reply(horse);
+  } catch (e) {
+    console.warn("[horse_chat] failed, using local reply:", e);
+    return reply(horse);
   }
-
-  // This message is the answer to `node`. If we can read it, follow that
-  // branch. If it makes no sense, coin-flip 50/50 and SAY so, then carry on
-  // with whatever that branch would have said anyway.
-  const verdict = readAnswer(userText);
-  const dodged  = verdict === "maybe";                    // deliberate "maybe"
-  const guessed = verdict === null;                       // unreadable entirely
-  const step = (dodged || guessed) ? (Math.random() < 0.5 ? "yes" : "no") : verdict;
-
-  const next = node[step];
-  if (!next) { st.done = true; save(); return null; }     // leaf reached -> generic
-
-  st.path.push(step);
-  if (!next.yes && !next.no) st.done = true;              // that child is a leaf
-  save();
-
-  // tease the dodge / own the guess, then carry on with that branch's line
-  const prefix = dodged  ? pickFrom(MAYBE_TEASE)
-               : guessed ? pickFrom(COINFLIP_PREFIX[step])
-               : "";
-  return fill(prefix) + fill(next.say);
 }
 
 // Every reply a match sends is profile-aware: it sprinkles in YOUR name,
@@ -997,11 +824,10 @@ function reply(horse) {
 // Uses YOUR profile (name, disciplines, temperament, age) so it lands
 // like they actually read your bio. Always name-drops something of yours.
 function opener(horse) {
-  // start this thread's scripted tree and return its Q0 (a yes/no question)
-  S.scriptState = S.scriptState || {};
-  S.scriptState[horse.id] = { done: false, path: [] };
-  save();
-  return scriptQ0(horse);
+  const p = S.profile || {};
+  const you = p.name || "cutie";
+  const disc = (p.disciplines && p.disciplines[0]) || "trail";
+  return pickFrom(OPENERS).replace(/{you}/g, you).replace(/{disc}/g, disc);
 }
 
 // Fire the horse's personalized opener into a fresh thread (only if empty).
@@ -1033,9 +859,7 @@ function _chatHorseOnline(id) {
   const lastThem = t.map(m => m.from).lastIndexOf("them");
   const youWaiting = t.slice(lastThem + 1).some(m => m.from === "me");
   if (youWaiting) {
-    const lastMine = t.slice().reverse().find(m => m.from === "me");
-    const scripted = scriptedReply(horse, lastMine ? lastMine.text : "");
-    typeThenReply(id, "omg js saw these! " + (scripted || reply(horse)));
+    horseReply(horse).then(t => typeThenReply(id, t));
     didSomething = true;
   } else if (didSomething && chatWith && chatWith.id === id) {
     renderChat();
@@ -1457,8 +1281,8 @@ function sendMsg() {
   save(); renderChat(); ding("send");
   // ONLINE -> they reply (with typing indicator). OFFLINE -> left on read.
   if (isOnline(chatWith.id)) {
-    const scripted = scriptedReply(chatWith, text);   // follow the tree, else generic
-    typeThenReply(chatWith.id, scripted || reply(chatWith));
+    const who = chatWith;                             // pin it: async resolve
+    horseReply(who).then(t => typeThenReply(who.id, t));
   }
 }
 // ---- match modal ----
