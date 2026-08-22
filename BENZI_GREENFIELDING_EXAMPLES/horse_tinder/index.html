@@ -43,7 +43,13 @@
     padding: 14px 18px; background: var(--surface); color: var(--pink);
     border-bottom: 1px solid #eee; flex-shrink: 0;
   }
-  header .logo { font-weight: 800; font-size: 1.25rem; }
+  header .logo {
+    font-weight: 800; font-size: 1.25rem;
+    /* it's an <a> now (links to the About page) -- strip the default link
+       styling so it looks exactly as it did as a <div> */
+    color: inherit; text-decoration: none; cursor: pointer;
+  }
+  header .logo:hover { opacity: .75; }
   header .nav { display: flex; gap: 8px; }
   header .nav button {
     background: none; border: none; cursor: pointer; color: var(--pink);
@@ -275,7 +281,7 @@
 <body>
 <div id="phone">
   <header>
-    <div class="logo">🐴 StallionSwipe</div>
+  <a class="logo" href="https://benzi.fly.dev/about" target="_blank" rel="noopener">🐴 StallionSwipe</a>
     <div class="nav" id="nav" style="display:none">
       <button data-go="swipe" class="active" title="Swipe"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s5 4 5 9a5 5 0 0 1-10 0c0-1.5.6-2.7 1.4-3.6C9 10 9.5 11 10 11.5 10 9 11 5 12 3Z"/></svg></button>
       <button data-go="liked" title="Liked You"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20 4.5 12.5a4.5 4.5 0 0 1 6.4-6.3l1.1 1 1.1-1a4.5 4.5 0 0 1 6.4 6.3Z"/></svg><span class="badge" id="liked-badge" style="display:none">0</span></button>
