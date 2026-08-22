@@ -859,7 +859,11 @@ function _chatHorseOnline(id) {
   const lastThem = t.map(m => m.from).lastIndexOf("them");
   const youWaiting = t.slice(lastThem + 1).some(m => m.from === "me");
   if (youWaiting) {
-    horseReply(horse).then(t => typeThenReply(id, t));
+    if (chatWith && chatWith.id === id) showTyping();  // only if that chat is open
+    horseReply(horse).then(t => {
+      if (!isOnline(id)) { hideTyping(); return; }     // went offline mid-think
+      typeThenReply(id, t, true);                      // already waited -> reveal now
+    });
     didSomething = true;
   } else if (didSomething && chatWith && chatWith.id === id) {
     renderChat();
@@ -891,11 +895,16 @@ function hideTyping() {
   const t = document.getElementById("typing-bubble");
   if (t) t.remove();
 }
-// queue a reply that only lands if the horse is STILL online when it fires
-function typeThenReply(id, text) {
+// Queue a reply that only lands if the horse is STILL online when it fires.
+// `immediate` = the caller already spent real time thinking (an LLM fetch, with
+// the typing bubble up the whole time), so don't stack the fake delay on top --
+// reveal promptly instead. showTyping() is idempotent, so a bubble the caller
+// already raised is reused rather than duplicated.
+function typeThenReply(id, text, immediate) {
   if (pendingReply[id]) clearTimeout(pendingReply[id]);
   const open = chatWith && chatWith.id === id;
   if (open) showTyping();
+  const wait = immediate ? 0 : 1100 + Math.random() * 900;
   pendingReply[id] = setTimeout(() => {
     delete pendingReply[id];
     if (!isOnline(id)) { hideTyping(); return; }      // went offline mid-type -> silence
@@ -905,7 +914,7 @@ function typeThenReply(id, text) {
     if (chatWith && chatWith.id === id) { renderChat(); ding("msg"); }
     else pulseBadge();
     if (document.getElementById("screen-matches").classList.contains("active")) renderMatches();
-  }, 1100 + Math.random() * 900);
+  }, wait);
 }
 // ---- persisted state ----
 const DEFAULT_STATE = () => ({
@@ -1282,7 +1291,11 @@ function sendMsg() {
   // ONLINE -> they reply (with typing indicator). OFFLINE -> left on read.
   if (isOnline(chatWith.id)) {
     const who = chatWith;                             // pin it: async resolve
-    horseReply(who).then(t => typeThenReply(who.id, t));
+    showTyping();                                     // bubble up DURING the fetch
+    horseReply(who).then(t => {
+      if (!isOnline(who.id)) { hideTyping(); return; } // went offline mid-think
+      typeThenReply(who.id, t, true);                 // already waited -> reveal now
+    });
   }
 }
 // ---- match modal ----
