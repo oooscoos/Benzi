@@ -1249,7 +1249,8 @@ function showTyping() {
   const el = document.createElement("div");
   el.className = "bubble them typing"; el.id = "typing-bubble";
   el.innerHTML = `<span></span><span></span><span></span>`;
-  box.appendChild(el); box.scrollTop = box.scrollHeight;
+  box.appendChild(el);
+  if (nearBottom(box)) box.scrollTop = box.scrollHeight;
 }
 function hideTyping() {
   const t = document.getElementById("typing-bubble");
@@ -1730,7 +1731,7 @@ function openChat(id) {
   document.getElementById("chat-av").innerHTML = horseSVG(chatWith, 34);
   document.getElementById("chat-name").textContent = chatWith.name;
   renderChatStatus();
-  renderChat();
+  renderChat(true);
   go("chat");
 }
 // header line under the name: green "Active now" or grey last-seen
@@ -1743,9 +1744,14 @@ function renderChatStatus() {
 function fmtTime(ts) {
   return new Date(ts).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 }
-function renderChat() {
+function nearBottom(box) {
+  return box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+}
+function renderChat(force) {
   const box = document.getElementById("chat-msgs");
   const t = S.threads[chatWith.id] || [];
+  const stick = force || nearBottom(box);
+  const prevTop = box.scrollTop;
   if (!t.length) {
     box.innerHTML = `<div class="empty-note">You matched with ${chatWith.name}! Send the first neigh 🐴</div>`;
     return;
@@ -1767,7 +1773,8 @@ function renderChat() {
   S.read[chatWith.id] = t.length;   // you're looking at this thread now -> it's read
   save();
   updateBadge();                      // unread count just dropped
-  box.scrollTop = box.scrollHeight;
+  if (stick) box.scrollTop = box.scrollHeight;
+  else box.scrollTop = prevTop;
 }
 function sendMsg() {
   const inp = document.getElementById("chat-text");
