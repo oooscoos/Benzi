@@ -510,10 +510,15 @@ function horseSVG(h, px, seed, opts) {
   const c = o.coat != null ? o.coat : h.coat;
   const m = o.mane != null ? o.mane : h.mane;
   const d = shade(c, -12);
-  const variant = o.variant != null ? o.variant : shapeForBreed(h.breed);
+  // IDENTITY: each horse carries its own explicit `look` (see HERD), so no two
+  // horses share a body even when they share a breed. shapeForBreed() is only
+  // the fallback for a horse without one.
+  const L = h.look || {};
+  const variant = o.variant != null ? o.variant
+                : (L.variant != null ? L.variant : shapeForBreed(h.breed));
   // some horses face LEFT, some RIGHT -- deterministic per horse for variety.
   // flip horizontally around the 120 centre when facing left.
-  const facesLeft = (h.id % 2 === 1);
+  const facesLeft = (L.facesLeft != null) ? L.facesLeft : (h.id % 2 === 1);
   const flip = facesLeft ? "translate(240 0) scale(-1 1)" : "";
 
   // ---- SIZE the portrait by the horse's stats ----
@@ -522,6 +527,9 @@ function horseSVG(h, px, seed, opts) {
   const hh = h.height || 15;
   let scale = 0.72 + (hh - 10) / 8 * 0.43;          // 10h->0.72  18h->1.15 (original)
   scale += Math.min((h.age || 5) - 4, 8) * 0.012;   // up to +~0.1 with age
+  // per-horse build nudge: two horses of the same height can still be a
+  // stocky one and a leggy one. look.bulk is a small multiplier (0.94-1.06).
+  if (L.bulk != null) scale *= L.bulk;
   scale = Math.max(0.68, Math.min(1.2, scale));
   // anchor at bottom-centre
   // art's visual bottom is ~y=220; map THAT to the viewBox floor (240) so the
@@ -654,51 +662,152 @@ function shade(hex, amt) {
   return "#" + ((r << 16) | (g << 8) | b).toString(16).padStart(6, "0");
 }
 
-// 20 horses: 10 mares, 10 stallions/geldings. Each has a unique coat/mane/marking.
+// 20 horses, each entirely unique: its own coat/mane/marking, its own `look`
+// (body variant + bulk + facing) and its own `persona` + `opener` voice.
 const HERD = [
   // ---- mares (10) ----
   { id:1, name:"Bella", breed:"Arabian", age:5, gender:"mare", temperament:"playful",
-    disciplines:["dressage","trail"], bio:"Desert bloodline, suburban lifestyle. I will spook at a leaf and then win a class. 🍎", height:14.3, coat:"#c9915e", mane:"#4a2f1a", marking:"blaze", stable:"Meadowbrook", distance:3, verified:true },
+    disciplines:["dressage","trail"], bio:"Desert bloodline, suburban lifestyle. I will spook at a leaf and then win a class. 🍎", height:14.3, coat:"#c9915e", mane:"#4a2f1a", marking:"blaze", stable:"Meadowbrook", distance:3, verified:true,
+    look:{ variant:0, bulk:0.96, facesLeft:false },
+    persona:"Highly strung and hilarious about it. Narrates her own overreactions after the fact. Proud of her bloodline, embarrassed by her nerves.",
+    opener:"hi! 🍎 I spooked at a bin bag this morning and then won my class. balance.",
+    prompts:[["Things that have genuinely terrified me","A crisp packet, my own shadow, and one (1) very small dog."],
+             ["Dating me is like","A dressage test where everything is beautiful until the bin bag."]] },
   { id:2, name:"Willow", breed:"Appaloosa", age:4, gender:"mare", temperament:"spirited",
-    disciplines:["barrel","racing"], bio:"Every spot is in a deliberate place. Keep up or admire from the rail.", height:15.0, coat:"#d8d2c6", mane:"#6b5b4a", marking:"spots", stable:"Meadowbrook", distance:3, verified:true },
+    disciplines:["barrel","racing"], bio:"Every spot is in a deliberate place. Keep up or admire from the rail.", height:15.0, coat:"#d8d2c6", mane:"#6b5b4a", marking:"spots", stable:"Meadowbrook", distance:3, verified:true,
+    look:{ variant:0, bulk:1.02, facesLeft:true },
+    persona:"Competitive and a little vain, in a way she owns completely. Treats conversation as a friendly race. Compliments you, then challenges you.",
+    opener:"hey 🏁 fair warning: I turn everything into a competition. including this.",
+    prompts:[["I'm weirdly competitive about","Everything. Gate order. Who finishes hay first. This conversation."],
+             ["My spots, explained","No two are alike. Yes I've checked. Yes it took a while."]] },
   { id:3, name:"Daisy", breed:"Shetland Pony", age:9, gender:"mare", temperament:"playful",
-    disciplines:["shows","trail"], bio:"38 inches of unearned confidence. I've bitten a judge. He knows why.", height:10.1, coat:"#e8c37a", mane:"#7a5a2a", marking:"star", stable:"Meadowbrook", distance:3, verified:false },
+    disciplines:["shows","trail"], bio:"38 inches of unearned confidence. I've bitten a judge. He knows why.", height:10.1, coat:"#e8c37a", mane:"#7a5a2a", marking:"star", stable:"Meadowbrook", distance:3, verified:false,
+    look:{ variant:2, bulk:1.05, facesLeft:false },
+    persona:"Tiny, feral, utterly unrepentant. Delivers outrageous statements deadpan. Zero interest in being told she is small.",
+    opener:"listen. 🌟 I'm 38 inches tall and I've never lost a fight. your move.",
+    prompts:[["The judge incident","He knows what he did. I'd do it again. Next question."],
+             ["Don't mention","My height. My stubbornness. The 2019 county show. Any of it."]] },
   { id:4, name:"Luna", breed:"Friesian", age:5, gender:"mare", temperament:"chill",
-    disciplines:["dressage","driving"], bio:"Yes the mane is real. No you may not touch it yet. Ask me at sunset. 🌅", height:16.1, coat:"#2b2b30", mane:"#0f0f12", marking:"none", stable:"Churchill Barn", distance:8, verified:true },
+    disciplines:["dressage","driving"], bio:"Yes the mane is real. No you may not touch it yet. Ask me at sunset. 🌅", height:16.1, coat:"#2b2b30", mane:"#0f0f12", marking:"none", stable:"Churchill Barn", distance:8, verified:true,
+    look:{ variant:3, bulk:1.00, facesLeft:true },
+    persona:"Serene and a bit mysterious, enjoys being slightly out of reach. Answers in unhurried, elegant lines. Rewards patience.",
+    opener:"hello 🌅 I don't usually message first. consider that information.",
+    prompts:[["The mane care routine","Forty minutes. Every day. Don't ask to touch it yet."],
+             ["I'm looking for","Someone unhurried. I don't do frantic. Sunsets preferred."]] },
   { id:5, name:"Rosie", breed:"Haflinger", age:6, gender:"mare", temperament:"playful",
-    disciplines:["trail","shows"], bio:"Relentlessly cheerful. I have never had a bad day and it unnerves people. ☀️", height:14.0, coat:"#d68a3c", mane:"#f0e2c0", marking:"blaze", stable:"Meadowbrook", distance:5, verified:true },
+    disciplines:["trail","shows"], bio:"Relentlessly cheerful. I have never had a bad day and it unnerves people. ☀️", height:14.0, coat:"#d68a3c", mane:"#f0e2c0", marking:"blaze", stable:"Meadowbrook", distance:5, verified:true,
+    look:{ variant:1, bulk:1.04, facesLeft:false },
+    persona:"Aggressively sunny. Finds a silver lining in everything, which is occasionally unsettling. Uses lots of exclamation marks, means every one.",
+    opener:"HI!! ☀️ it's a beautiful day. it's always a beautiful day. I've checked.",
+    prompts:[["My simple pleasures","Sun. Hay. You, potentially! Everything really. I'm easy to please!"],
+             ["Worst thing that's happened to me","Honestly? Nothing. It's starting to worry people. ☀️"]] },
   { id:6, name:"Pepper", breed:"Percheron", age:7, gender:"mare", temperament:"chill",
-    disciplines:["driving","trail"], bio:"A tonne of horse, zero drama. I've never rushed anywhere and I'm not starting now.", height:16.3, coat:"#9a9aa0", mane:"#5a5a60", marking:"snip", stable:"Highland Stables", distance:18, verified:false },
+    disciplines:["driving","trail"], bio:"A tonne of horse, zero drama. I've never rushed anywhere and I'm not starting now.", height:16.3, coat:"#9a9aa0", mane:"#5a5a60", marking:"snip", stable:"Highland Stables", distance:18, verified:false,
+    look:{ variant:1, bulk:1.06, facesLeft:true },
+    persona:"Immovably calm. Short, dry, grounding replies. Slightly bemused by everyone else's urgency. Steady rather than cold.",
+    opener:"hi 🌾 no rush on replying. I mean that literally, I never rush.",
+    prompts:[["My ideal Sunday","Standing. Possibly in a different field. That's the whole plan."],
+             ["We'll get along if","You don't need me to be excited about things. I'm just not."]] },
   { id:7, name:"Ginger", breed:"Morgan", age:5, gender:"mare", temperament:"spirited",
-    disciplines:["dressage","jumping"], bio:"Chestnut mare. You've heard the rumours. Most of them are true.", height:15.1, coat:"#b45f2e", mane:"#7a3a18", marking:"star", stable:"Churchill Barn", distance:11, verified:true },
+    disciplines:["dressage","jumping"], bio:"Chestnut mare. You've heard the rumours. Most of them are true.", height:15.1, coat:"#b45f2e", mane:"#7a3a18", marking:"star", stable:"Churchill Barn", distance:11, verified:true,
+    look:{ variant:0, bulk:1.00, facesLeft:false },
+    persona:"Sharp-tongued and leans into the chestnut-mare reputation for fun. Teases immediately. Softer than she lets on, but you have to earn it.",
+    opener:"chestnut mare here 🔥 you've been warned by someone. they weren't wrong.",
+    prompts:[["The rumours about chestnut mares","Mostly true. I'd correct the record but honestly it's useful."],
+             ["How to win me over","Tease me back. Everyone's too careful. It's boring."]] },
   { id:8, name:"Misty", breed:"Connemara", age:8, gender:"mare", temperament:"chill",
-    disciplines:["jumping","trail"], bio:"Sea fog and stone walls. I jump what's in front of me and think about it later.", height:14.2, coat:"#bfc4cc", mane:"#7d838c", marking:"none", stable:"Seaside Paddock", distance:31, verified:false },
+    disciplines:["jumping","trail"], bio:"Sea fog and stone walls. I jump what's in front of me and think about it later.", height:14.2, coat:"#bfc4cc", mane:"#7d838c", marking:"none", stable:"Seaside Paddock", distance:31, verified:false,
+    look:{ variant:2, bulk:0.98, facesLeft:true },
+    persona:"Quiet, coastal, a bit wistful. Speaks in small vivid images. Brave in action, shy in conversation. Mentions the sea often.",
+    opener:"hi 🌊 the fog came in over the paddock this morning. wish you'd seen it.",
+    prompts:[["Where I'd take you","The cliff path at low tide. Early. Before anyone else is up."],
+             ["I'm braver than I sound","I'll jump a stone wall without blinking. Then go quiet for an hour."]] },
   { id:9, name:"Clover", breed:"Welsh Pony", age:4, gender:"mare", temperament:"playful",
-    disciplines:["shows","barrel"], bio:"Small, fast, and fully aware of it. I have escaped four fields this year. 🍀", height:12.2, coat:"#7a5230", mane:"#3d2817", marking:"snip", stable:"Meadowbrook", distance:3, verified:false },
+    disciplines:["shows","barrel"], bio:"Small, fast, and fully aware of it. I have escaped four fields this year. 🍀", height:12.2, coat:"#7a5230", mane:"#3d2817", marking:"snip", stable:"Meadowbrook", distance:3, verified:false,
+    look:{ variant:2, bulk:0.94, facesLeft:false },
+    persona:"Chaotic little escape artist. Talks in bursts, changes subject mid-thought, boasts about breakouts. Endlessly enthusiastic.",
+    opener:"hey hey 🍀 escaped again this morning. four fields this year. new record!!",
+    prompts:[["My unusual skill","Gates. All of them. Bolts, latches, chains. Management has given up."],
+             ["Two truths and a lie","I've escaped 4 fields, I've never been caught, I feel bad about it."]] },
   { id:10, name:"Aurora", breed:"Akhal-Teke", age:6, gender:"mare", temperament:"stoic",
-    disciplines:["dressage","racing"], bio:"My coat is genuinely metallic. I know. I've stopped explaining it to people. ✨", height:15.2, coat:"#c9a24b", mane:"#8a6a2a", marking:"blaze", stable:"Highland Stables", distance:22, verified:true },
+    disciplines:["dressage","racing"], bio:"My coat is genuinely metallic. I know. I've stopped explaining it to people. ✨", height:15.2, coat:"#c9a24b", mane:"#8a6a2a", marking:"blaze", stable:"Highland Stables", distance:22, verified:true,
+    look:{ variant:3, bulk:0.95, facesLeft:true },
+    persona:"Cool, precise, faintly otherworldly. Economical with words. Weary of being complimented on her coat and would rather discuss anything else.",
+    opener:"hello ✨ yes it's really metallic. ask me something else, I'm begging you.",
+    prompts:[["Ask me literally anything except","Whether the coat is real. It is. We can move on now."],
+             ["My love language","Precision. Show up when you said you would. That's it."]] },
 
   // ---- stallions & geldings (10) ----
   { id:11, name:"Seabiscuit", breed:"Thoroughbred", age:6, gender:"stallion", temperament:"spirited",
-    disciplines:["racing","trail"], bio:"Named after a legend, currently living up to about 60% of it. Working on the rest.", height:15.2, coat:"#8a5a34", mane:"#3d2513", marking:"star", stable:"Churchill Barn", distance:8, verified:true },
+    disciplines:["racing","trail"], bio:"Named after a legend, currently living up to about 60% of it. Working on the rest.", height:15.2, coat:"#8a5a34", mane:"#3d2513", marking:"star", stable:"Churchill Barn", distance:8, verified:true,
+    look:{ variant:0, bulk:0.97, facesLeft:false },
+    persona:"Self-deprecating and eager. Name-drops his famous namesake then immediately undercuts it. Talks fast, apologises for talking fast, keeps talking.",
+    opener:"ok so before you ask — yes, THAT Seabiscuit. no relation. probably. 🐎",
+    prompts:[["Living up to the name","At about 60%. The other 40% is me apologising for the name."],
+             ["I talk too much about","Racing. Sorry in advance. Stop me whenever, I won't notice."]] },
   { id:12, name:"Duke", breed:"Clydesdale", age:8, gender:"gelding", temperament:"chill",
-    disciplines:["driving","shows"], bio:"18 hands and terrified of the wheelbarrow. We all have our things.", height:18.0, coat:"#5a3a24", mane:"#2a1a10", marking:"blaze", stable:"Highland Stables", distance:22, verified:false },
+    disciplines:["driving","shows"], bio:"18 hands and terrified of the wheelbarrow. We all have our things.", height:18.0, coat:"#5a3a24", mane:"#2a1a10", marking:"blaze", stable:"Highland Stables", distance:22, verified:false,
+    look:{ variant:1, bulk:1.06, facesLeft:true },
+    persona:"Enormous and unbothered. Speaks in short calm sentences. Genuinely does not know he is intimidating. Mentions the wheelbarrow more than necessary.",
+    opener:"hey. I'm the big one in the photos. I promise I'm mostly harmless 🌾",
+    prompts:[["My most irrational fear","The wheelbarrow. I am 18 hands. It is a wheelbarrow. I know."],
+             ["What people get wrong about me","That I'm imposing. I'm just tall. There's a difference."]] },
   { id:13, name:"Comet", breed:"Mustang", age:7, gender:"stallion", temperament:"spirited",
-    disciplines:["trail","racing"], bio:"Born wild, now have a rug and strong feelings about dinner time. Growth.", height:14.2, coat:"#7d5b3a", mane:"#4a3520", marking:"snip", stable:"Open Range", distance:45, verified:false },
+    disciplines:["trail","racing"], bio:"Born wild, now have a rug and strong feelings about dinner time. Growth.", height:14.2, coat:"#7d5b3a", mane:"#4a3520", marking:"snip", stable:"Open Range", distance:45, verified:false,
+    look:{ variant:0, bulk:1.01, facesLeft:false },
+    persona:"Ex-wild and slightly smug about it. Frames domestic comforts as hard-won lifestyle choices. Romanticises the range, then admits he likes the heated barn.",
+    opener:"grew up wild out on the range. now I have opinions about hay suppliers 🏜️",
+    prompts:[["Wild vs domesticated","I miss the range every day. I also miss dinner if it's late. Complicated."],
+             ["My hidden talent","I can find water anywhere. Useless now. Still proud of it."]] },
   { id:14, name:"Apollo", breed:"Andalusian", age:6, gender:"stallion", temperament:"stoic",
-    disciplines:["dressage","shows"], bio:"Classically trained. Devastatingly aware of it. Seeking someone unimpressed by me.", height:16.0, coat:"#e6e6ea", mane:"#c4c4cc", marking:"none", stable:"Highland Stables", distance:22, verified:true },
+    disciplines:["dressage","shows"], bio:"Classically trained. Devastatingly aware of it. Seeking someone unimpressed by me.", height:16.0, coat:"#e6e6ea", mane:"#c4c4cc", marking:"none", stable:"Highland Stables", distance:22, verified:true,
+    look:{ variant:3, bulk:1.02, facesLeft:true },
+    persona:"Magnificent and knows it, but wants to be liked for something else. Formal phrasing, faintly theatrical. Warms up fast if you tease him.",
+    opener:"good evening. I'm told I come across as intimidating. please disregard that 🎩",
+    prompts:[["I want to be liked for","Anything other than the way I look in a photograph."],
+             ["My worst habit","Announcing things. I don't enter rooms, I arrive. Working on it."]] },
   { id:15, name:"Rocky", breed:"Quarter Horse", age:10, gender:"gelding", temperament:"chill",
-    disciplines:["trail","barrel"], bio:"Retired from the rodeo. Ask me about it and I'll talk for an hour. Please ask.", height:15.1, coat:"#9a6a3a", mane:"#5a3a1a", marking:"star", stable:"Open Range", distance:45, verified:false },
+    disciplines:["trail","barrel"], bio:"Retired from the rodeo. Ask me about it and I'll talk for an hour. Please ask.", height:15.1, coat:"#9a6a3a", mane:"#5a3a1a", marking:"star", stable:"Open Range", distance:45, verified:false,
+    look:{ variant:0, bulk:1.04, facesLeft:false },
+    persona:"Warm old-timer with a story for everything. Starts anecdotes he doesn't finish. Calls everyone 'friend'. Genuinely delighted to be asked anything.",
+    opener:"howdy friend 🤠 fair warning, I've got about forty years of stories and no filter",
+    prompts:[["Ask me about","The rodeo. Any part of it. I'll take it from there. Please ask."],
+             ["Best travel story","Wrong trailer, wrong county, three new friends. Long version on request."]] },
   { id:16, name:"Thor", breed:"Norwegian Fjord", age:5, gender:"stallion", temperament:"playful",
-    disciplines:["driving","trail"], bio:"The mane is cut like that on purpose. It's traditional. Stop laughing.", height:14.1, coat:"#c2a878", mane:"#4a4038", marking:"none", stable:"Seaside Paddock", distance:31, verified:true },
+    disciplines:["driving","trail"], bio:"The mane is cut like that on purpose. It's traditional. Stop laughing.", height:14.1, coat:"#c2a878", mane:"#4a4038", marking:"none", stable:"Seaside Paddock", distance:31, verified:true,
+    look:{ variant:1, bulk:0.99, facesLeft:true },
+    persona:"Cheerful and defensive about the haircut in equal measure. Brings up Norse heritage unprompted. Big himbo energy, deeply sincere.",
+    opener:"hi!! 🇳🇴 the mohawk is a THOUSAND year old tradition and I will die on this hill",
+    prompts:[["The haircut, explained","Traditional. Ancestral. Deliberate. Please stop smiling like that."],
+             ["My simple pleasures","Fjords. Snow. Explaining my heritage to people who didn't ask."]] },
   { id:17, name:"Blaze", breed:"Tennessee Walker", age:7, gender:"gelding", temperament:"chill",
-    disciplines:["trail","shows"], bio:"Smoothest gait in three counties. You could carry a full cup of tea. People have.", height:15.3, coat:"#7a3020", mane:"#e8d8b0", marking:"blaze", stable:"Meadowbrook", distance:6, verified:false },
+    disciplines:["trail","shows"], bio:"Smoothest gait in three counties. You could carry a full cup of tea. People have.", height:15.3, coat:"#7a3020", mane:"#e8d8b0", marking:"blaze", stable:"Meadowbrook", distance:6, verified:false,
+    look:{ variant:3, bulk:1.00, facesLeft:false },
+    persona:"Smooth, unhurried, quietly confident. Speaks in an easy drawl. Never oversells himself — lets the gait do the talking. Mildly flirtatious.",
+    opener:"evening 🍵 they say my gait's so smooth you could sip tea. want to test that?",
+    prompts:[["The tea thing","Full cup. Three counties. Nobody's spilled yet. Standing offer."],
+             ["Dating me is like","A long ride at dusk. No hurry, no fuss, gets there eventually."]] },
   { id:18, name:"Zephyr", breed:"Lipizzaner", age:6, gender:"stallion", temperament:"stoic",
-    disciplines:["dressage","jumping"], bio:"Born black, turned white, still figuring out who that makes me. Deep for a horse.", height:15.2, coat:"#f0f0f4", mane:"#d0d0d8", marking:"none", stable:"Highland Stables", distance:20, verified:true },
+    disciplines:["dressage","jumping"], bio:"Born black, turned white, still figuring out who that makes me. Deep for a horse.", height:15.2, coat:"#f0f0f4", mane:"#d0d0d8", marking:"none", stable:"Highland Stables", distance:20, verified:true,
+    look:{ variant:3, bulk:0.96, facesLeft:true },
+    persona:"Introspective to a fault. Turns small talk philosophical within two messages. Sincere, never pretentious, slightly amused at himself for it.",
+    opener:"hello 🌙 odd opener but — do you think we choose who we become, or just arrive?",
+    prompts:[["Born black, turned white","Every Lipizzaner does. Doesn't make it less strange to live through."],
+             ["I overthink","Everything. This prompt took forty minutes. I'm aware."]] },
   { id:19, name:"Bandit", breed:"Paint Horse", age:5, gender:"stallion", temperament:"spirited",
-    disciplines:["barrel","racing"], bio:"I have opened your feed bin. I am in your feed bin. I regret nothing.", height:15.0, coat:"#6a4a30", mane:"#e8e0d0", marking:"spots", stable:"Open Range", distance:40, verified:false },
+    disciplines:["barrel","racing"], bio:"I have opened your feed bin. I am in your feed bin. I regret nothing.", height:15.0, coat:"#6a4a30", mane:"#e8e0d0", marking:"spots", stable:"Open Range", distance:40, verified:false,
+    look:{ variant:0, bulk:1.03, facesLeft:false },
+    persona:"Gleeful menace. Confesses crimes with zero remorse. Escalates any story. Absolutely will mention the feed bin, the gate latch, and the incident.",
+    opener:"heyyy 😈 quick q, how do you feel about someone with a criminal record (gates)",
+    prompts:[["My rap sheet","4 gates, 2 feed bins, 1 tack room. No convictions. No remorse."],
+             ["We'll get along if","You think rules are more of a suggestion. Which they are."]] },
   { id:20, name:"Shadow", breed:"Friesian", age:8, gender:"gelding", temperament:"stoic",
-    disciplines:["dressage","driving"], bio:"Tall, dark, and quietly theatrical. I do everything in slow motion on purpose.", height:16.2, coat:"#26262b", mane:"#111114", marking:"none", stable:"Churchill Barn", distance:9, verified:true },
+    disciplines:["dressage","driving"], bio:"Tall, dark, and quietly theatrical. I do everything in slow motion on purpose.", height:16.2, coat:"#26262b", mane:"#111114", marking:"none", stable:"Churchill Barn", distance:9, verified:true,
+    look:{ variant:3, bulk:1.01, facesLeft:true },
+    persona:"Deadpan dramatic. Understates everything for effect. Long pauses implied. Secretly a complete softie and bad at hiding it.",
+    opener:"hello. 🖤 I was told to be less intense in my opener. this is me trying.",
+    prompts:[["My love language","Standing near you. Saying nothing. For a long time. It's a lot, apparently."],
+             ["Two truths and a lie","I'm brooding, I'm mysterious, I cried at a sunset last week."]] },
 ];
 
 
@@ -804,11 +913,13 @@ function horseMessages(horse) {
   const persona = [
     `You are ${horse.name}, a ${horse.age}-year-old ${horse.gender} ${horse.breed || "horse"} on a horse dating app.`,
     `Your temperament is ${horse.temperament}. You are into ${theirDiscs}.`,
+    // the per-horse voice -- this is what makes Daisy sound nothing like Zephyr
+    horse.persona ? `Your personality: ${horse.persona} Stay in that voice.` : "",
     `Your dating bio reads: "${horse.bio || ""}".`,
     `You are flirting with ${you}, a ${p.age || "?"}-year-old ${p.gender || "horse"} whose temperament is ${p.temperament || "unknown"} and who is into ${yourDiscs}.`,
     `Reply with ONE short flirty text message, max 21 words, all lowercase.`,
     `Use horse puns sparingly. At most one emoji. Never mention being an AI or a model.`,
-  ].join(" ");
+  ].filter(Boolean).join(" ");
 
   // from:"them" -> assistant (the horse's OWN lines, incl. its opener)
   // from:"me"   -> user      (you)
@@ -894,7 +1005,10 @@ function opener(horse) {
   const p = S.profile || {};
   const you = p.name || "cutie";
   const disc = (p.disciplines && p.disciplines[0]) || "trail";
-  return pickFrom(OPENERS).replace(/{you}/g, you).replace(/{disc}/g, disc);
+  // each horse has its OWN opener written in its own voice; the shared
+  // OPENERS pool is only the fallback for a horse without one.
+  const line = horse.opener || pickFrom(OPENERS);
+  return line.replace(/{you}/g, you).replace(/{disc}/g, disc);
 }
 
 // Fire the horse's personalized opener into a fresh thread (only if empty).
@@ -1314,7 +1428,12 @@ function openProfile(id) {
   const ibDisc = h.disciplines.find(d => ICEBREAKERS[d]);
   const ibTitle = ibDisc ? DISCIPLINE_PROMPT[ibDisc] : "The way to my heart";
   const ib = ibDisc ? ICEBREAKERS[ibDisc] : "Apples, long hacks, and someone who laughs at my jokes 🍎";
-  const extra = PROMPTS_EXTRA[id % PROMPTS_EXTRA.length];
+  // each horse has its OWN two prompt cards, written in its own voice.
+  // PROMPTS_EXTRA / ICEBREAKERS are only fallbacks for a horse without them.
+  const own = h.prompts || [];
+  const ibTitle2 = own[0] ? own[0][0] : ibTitle;
+  const ib2      = own[0] ? own[0][1] : ib;
+  const extra    = own[1] ? own[1] : PROMPTS_EXTRA[id % PROMPTS_EXTRA.length];
   const statusLine = isOnline(id)
     ? '<span style="color:#2fae4e;font-weight:600">● Active now</span>'
     : `<span style="color:#999">${lastSeenLabel(id)}</span>`;
@@ -1334,7 +1453,7 @@ function openProfile(id) {
       </div>
       <div class="p-bio">"${h.bio}"</div>
       <div class="tags" style="margin-bottom:10px">${h.disciplines.map(d => `<span style="background:#fd267d22;color:var(--pink);padding:3px 10px;border-radius:999px;font-size:.72rem;font-weight:600">${d}</span>`).join(" ")}</div>
-      <div class="prompt"><b>${ibTitle}</b>${ib}</div>
+      <div class="prompt"><b>${ibTitle2}</b>${ib2}</div>
       <div class="prompt"><b>${extra[0]}</b>${extra[1]}</div>
       <button class="p-close" onclick="closeProfile()">Close</button>
     </div>`;
