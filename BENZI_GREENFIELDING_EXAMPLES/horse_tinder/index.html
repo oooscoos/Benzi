@@ -205,6 +205,7 @@
   #chat-head .av svg { width: 100%; height: 100%; }
   .match-row .who { font-weight: 700; }
   .match-row .last { color: #999; font-size: .82rem; }
+  .match-row .last.unread { color: #4a3f3d; font-weight: 700; }
   .match-row .pct { margin-left: auto; color: var(--pink); font-weight: 700; font-size: .85rem; }
   .empty-note { text-align: center; color: #999; padding: 40px 20px; }
 
@@ -222,6 +223,8 @@
   .chat-status.on { color: #2fae4e; }
   .chat-status.off { color: #999; }
   .receipt { font-size: .68rem; color: #aaa; align-self: flex-end; margin: -4px 2px 2px; }
+  .receipt.read { color: #2fae4e; }
+  .bubble .time { font-size: .62rem; opacity: .55; margin-top: 4px; text-align: right; }
   .bubble.typing { display: flex; gap: 4px; padding: 12px 14px; }
   .bubble.typing span { width: 7px; height: 7px; border-radius: 50%; background: #bbb; animation: blink 1.2s infinite; }
   .bubble.typing span:nth-child(2) { animation-delay: .2s; }
@@ -302,6 +305,40 @@
     background: rgba(0,0,0,.8); color: #fff; padding: 8px 16px; border-radius: 999px;
     font-size: .85rem; opacity: 0; transition: opacity .3s; z-index: 30; pointer-events: none; }
   .toast.show { opacity: 1; }
+
+  /* ---- dark mode ---- */
+  body.dark {
+    --surface:#26262b;
+    --surface-2:#1c1c21;
+    --bubble:#3a3a42;
+    --line:#3d3d46;
+    background: linear-gradient(160deg, #3a1f2e 0%, #241a2e 100%);
+  }
+  body.dark #screen-onboard, body.dark #screen-filters,
+  body.dark #screen-chat, body.dark .profile-card { color: #e8e4e2; }
+  body.dark .card { color: #e8e4e2; }
+  body.dark .card .bio { color: #c9c4c2; }
+  body.dark .card .meta { color: #a9a3a1; }
+  body.dark .card .info h2 span, body.dark .profile-card h2 span,
+  body.dark .list h3 { color: #8f8987; }
+  body.dark .card .status.off, body.dark .chat-status.off { color: #8f8987; }
+  body.dark .list { color: #e8e4e2; }
+  body.dark .match-row .last { color: #a9a3a1; }
+  body.dark .match-row .last.unread { color: #fff; }
+  body.dark .match-row:active { background: #2f2f36; }
+  body.dark .empty-note { color: #a9a3a1; }
+  body.dark .field label { color: #b5afad; }
+  body.dark .field input, body.dark .field select,
+  body.dark #chat-input input {
+    background: #3a3a42; color: #e8e4e2; border-color: var(--line);
+  }
+  body.dark #screen-onboard p.sub { color: #8f8987; }
+  body.dark #empty h2 { color: #e8e4e2; }
+  body.dark #empty { color: #a9a3a1; }
+  body.dark .profile-card .p-stats { color: #b5afad; }
+  body.dark .profile-card .prompt { background: #2f2f36; }
+  body.dark .profile-card .p-close { background: #3a3a42; color: #e8e4e2; }
+  body.dark header .nav button.active { background: #3a2030; }
 </style>
 </head>
 <body>
@@ -327,11 +364,11 @@
       <div class="field"><label>Temperament</label>
         <select id="ob-temp"><option>playful</option><option>chill</option><option>spirited</option><option>stoic</option></select>
       </div>
+      <div class="field"><label>Your gender</label>
+        <select id="ob-gender"><option>mare</option><option>stallion</option><option>gelding</option></select>
+      </div>
       <div class="field"><label>Disciplines (pick a few)</label>
         <div class="chip-row" id="ob-disc"></div>
-      </div>
-      <div class="field"><label>Looking for</label>
-        <div class="chip-row" id="ob-seek"></div>
       </div>
       <button class="primary-btn" id="ob-start">Start Swiping 🔥</button>
     </section>
@@ -377,15 +414,20 @@
 
     <!-- FILTERS -->
     <section class="screen" id="screen-filters">
+      <h2>App Settings</h2>
+      <div class="field"><label><input type="checkbox" id="f-shared"> Only horses sharing a discipline with me</label></div>
+      <div class="field"><label><input type="checkbox" id="f-sound"> Sound effects 🔊</label></div>
+      <div class="field"><label><input type="checkbox" id="f-dark"> Dark mode 🌙</label></div>
       <h2>Discovery Filters</h2>
       <div class="field"><label>Max distance <span class="range-val" id="fv-dist">500 km</span></label>
         <input type="range" id="f-dist" min="5" max="500" value="500" style="width:100%"></div>
       <div class="field"><label>Age range <span class="range-val" id="fv-age">1 – 40</span></label>
-        <input type="range" id="f-agemin" min="1" max="40" value="1" style="width:100%">
-        <input type="range" id="f-agemax" min="1" max="40" value="40" style="width:100%"></div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <select id="f-agemin" style="flex:1"></select>
+          <span style="color:#888">to</span>
+          <select id="f-agemax" style="flex:1"></select>
+        </div></div>
       <div class="field"><label>Show me</label><div class="chip-row" id="f-gender"></div></div>
-      <div class="field"><label><input type="checkbox" id="f-shared"> Only horses sharing a discipline with me</label></div>
-      <div class="field"><label><input type="checkbox" id="f-sound"> Sound effects 🔊</label></div>
       <button class="primary-btn" id="f-apply">Apply Filters</button>
       <button class="primary-btn" id="f-reset" style="background:#eee;color:#c00;margin-top:14px">Reset everything 🗑️</button>
       <a class="about-link" id="about-link" href="https://benzi.fly.dev/about" target="_blank" rel="noopener">About this app</a>
@@ -729,6 +771,7 @@ const HERD = [
     look:{ variant:0, bulk:0.96, facesLeft:false, orn:"flower", ornHue:0 },
     persona:"Highly strung and hilarious about it. Narrates her own overreactions after the fact. Proud of her bloodline, embarrassed by her nerves.",
     opener:"hi! 🍎 I spooked at a bin bag this morning and then won my class. balance.",
+    opener2:"hey 🍎 desert bloodline, suburban nerves. I rehearsed this message four times. worth it?",
     prompts:[["Things that have genuinely terrified me","A crisp packet, my own shadow, and one (1) very small dog."],
              ["Dating me is like","A dressage test where everything is beautiful until the bin bag."]] },
   { id:2, name:"Willa", breed:"Appaloosa", age:4, gender:"mare", temperament:"spirited",
@@ -736,6 +779,7 @@ const HERD = [
     look:{ variant:0, bulk:1.02, facesLeft:true, orn:"ribbon", ornHue:20 },
     persona:"Competitive and a little vain, in a way she owns completely. Treats conversation as a friendly race. Compliments you, then challenges you.",
     opener:"hey 🏁 fair warning: I turn everything into a competition. including this.",
+    opener2:"hey 🏁 you've already won my attention, which is embarrassing for me. don't get used to it.",
     prompts:[["I'm weirdly competitive about","Everything. Gate order. Who finishes hay first. This conversation."],
              ["My spots, explained","No two are alike. Yes I've checked. Yes it took a while."]] },
   { id:3, name:"Daisy", breed:"Shetland Pony", age:9, gender:"mare", temperament:"playful",
@@ -743,6 +787,7 @@ const HERD = [
     look:{ variant:2, bulk:1.05, facesLeft:false, orn:"daisy", ornHue:0 },
     persona:"Tiny, feral, utterly unrepentant. Delivers outrageous statements deadpan. Zero interest in being told she is small.",
     opener:"listen. 🌟 I'm 38 inches tall and I've never lost a fight. your move.",
+    opener2:"hello 🌟 I've reviewed your profile. acceptable. you may now attempt to impress me.",
     prompts:[["The judge incident","He knows what he did. I'd do it again. Next question."],
              ["Don't mention","My height. My stubbornness. The 2019 county show. Any of it."]] },
   { id:4, name:"Luna", breed:"Friesian", age:5, gender:"mare", temperament:"chill",
@@ -750,6 +795,7 @@ const HERD = [
     look:{ variant:3, bulk:1.00, facesLeft:true, orn:"earnet", ornHue:0 },
     persona:"Serene and a bit mysterious, enjoys being slightly out of reach. Answers in unhurried, elegant lines. Rewards patience.",
     opener:"hello 🌅 I don't usually message first. consider that information.",
+    opener2:"good evening 🌅 I broke my own rule to message first. it felt right at sunset. don't make me regret it.",
     prompts:[["The mane care routine","Forty minutes. Every day. Don't ask to touch it yet."],
              ["I'm looking for","Someone unhurried. I don't do frantic. Sunsets preferred."]] },
   { id:5, name:"Rosie", breed:"Haflinger", age:6, gender:"mare", temperament:"playful",
@@ -757,6 +803,7 @@ const HERD = [
     look:{ variant:1, bulk:1.04, facesLeft:false, orn:"flower", ornHue:60 },
     persona:"Aggressively sunny. Finds a silver lining in everything, which is occasionally unsettling. Uses lots of exclamation marks, means every one.",
     opener:"HI!! ☀️ it's a beautiful day. it's always a beautiful day. I've checked.",
+    opener2:"HELLO!! ☀️ we matched and I've already told three friends. they're thrilled. I'm thrilled. everything is thrilling!!",
     prompts:[["My simple pleasures","Sun. Hay. You, potentially! Everything really. I'm easy to please!"],
              ["Worst thing that's happened to me","Honestly? Nothing. It's starting to worry people. ☀️"]] },
   { id:6, name:"Primrose", breed:"Percheron", age:7, gender:"mare", temperament:"chill",
@@ -764,6 +811,7 @@ const HERD = [
     look:{ variant:1, bulk:1.06, facesLeft:true, orn:"bandana", ornHue:150 },
     persona:"Immovably calm. Short, dry, grounding replies. Slightly bemused by everyone else's urgency. Steady rather than cold.",
     opener:"hi 🌾 no rush on replying. I mean that literally, I never rush.",
+    opener2:"hello 🌾 I noticed we matched. that's nice. I'll be over here, standing. whenever you're ready.",
     prompts:[["My ideal Sunday","Standing. Possibly in a different field. That's the whole plan."],
              ["We'll get along if","You don't need me to be excited about things. I'm just not."]] },
   { id:7, name:"Ginger", breed:"Morgan", age:5, gender:"mare", temperament:"spirited",
@@ -771,6 +819,7 @@ const HERD = [
     look:{ variant:0, bulk:1.00, facesLeft:false, orn:"ribbon", ornHue:140 },
     persona:"Sharp-tongued and leans into the chestnut-mare reputation for fun. Teases immediately. Softer than she lets on, but you have to earn it.",
     opener:"chestnut mare here 🔥 you've been warned by someone. they weren't wrong.",
+    opener2:"so you swiped right on a chestnut mare 🔥 bold. I respect it. try to keep up.",
     prompts:[["The rumours about chestnut mares","Mostly true. I'd correct the record but honestly it's useful."],
              ["How to win me over","Tease me back. Everyone's too careful. It's boring."]] },
   { id:8, name:"Maisie", breed:"Connemara", age:8, gender:"mare", temperament:"chill",
@@ -778,6 +827,7 @@ const HERD = [
     look:{ variant:2, bulk:0.98, facesLeft:true, orn:"none", ornHue:0 },
     persona:"Quiet, coastal, a bit wistful. Speaks in small vivid images. Brave in action, shy in conversation. Mentions the sea often.",
     opener:"hi 🌊 the fog came in over the paddock this morning. wish you'd seen it.",
+    opener2:"evening 🌊 the tide's gone out and the gulls are loud. I thought you might like that.",
     prompts:[["Where I'd take you","The cliff path at low tide. Early. Before anyone else is up."],
              ["I'm braver than I sound","I'll jump a stone wall without blinking. Then go quiet for an hour."]] },
   { id:9, name:"Clementine", breed:"Welsh Pony", age:4, gender:"mare", temperament:"playful",
@@ -785,6 +835,7 @@ const HERD = [
     look:{ variant:2, bulk:0.94, facesLeft:false, orn:"daisy", ornHue:0 },
     persona:"Chaotic little escape artist. Talks in bursts, changes subject mid-thought, boasts about breakouts. Endlessly enthusiastic.",
     opener:"hey hey 🍀 escaped again this morning. four fields this year. new record!!",
+    opener2:"HI 🍀 quick, do you want to hear about my latest breakout, or should I just show you the hole in the fence",
     prompts:[["My unusual skill","Gates. All of them. Bolts, latches, chains. Management has given up."],
              ["Two truths and a lie","I've escaped 4 fields, I've never been caught, I feel bad about it."]] },
   { id:10, name:"Aurora", breed:"Akhal-Teke", age:6, gender:"mare", temperament:"stoic",
@@ -792,6 +843,7 @@ const HERD = [
     look:{ variant:3, bulk:0.95, facesLeft:true, orn:"browband", ornHue:0 },
     persona:"Cool, precise, faintly otherworldly. Economical with words. Weary of being complimented on her coat and would rather discuss anything else.",
     opener:"hello ✨ yes it's really metallic. ask me something else, I'm begging you.",
+    opener2:"hi ✨ not about the coat, if you don't mind. I contain more than shimmer. most days.",
     prompts:[["Ask me literally anything except","Whether the coat is real. It is. We can move on now."],
              ["My love language","Precision. Show up when you said you would. That's it."]] },
 
@@ -801,6 +853,7 @@ const HERD = [
     look:{ variant:0, bulk:0.97, facesLeft:false, orn:"browband", ornHue:180 },
     persona:"Self-deprecating and eager. Name-drops his famous namesake then immediately undercuts it. Talks fast, apologises for talking fast, keeps talking.",
     opener:"ok so before you ask — yes, THAT Seabiscuit. no relation. probably. 🐎",
+    opener2:"hey 🐎 okay you're going to ask about the name. go on. I'll pretend to be annoyed but I love it.",
     prompts:[["Living up to the name","At about 60%. The other 40% is me apologising for the name."],
              ["I talk too much about","Racing. Sorry in advance. Stop me whenever, I won't notice."]] },
   { id:12, name:"Duke", breed:"Clydesdale", age:8, gender:"gelding", temperament:"chill",
@@ -808,6 +861,7 @@ const HERD = [
     look:{ variant:1, bulk:1.06, facesLeft:true, orn:"bandana", ornHue:60 },
     persona:"Enormous and unbothered. Speaks in short calm sentences. Genuinely does not know he is intimidating. Mentions the wheelbarrow more than necessary.",
     opener:"hey. I'm the big one in the photos. I promise I'm mostly harmless 🌾",
+    opener2:"hi 🌾 heads up, the wheelbarrow thing is real. I'm working on it. it is going poorly.",
     prompts:[["My most irrational fear","The wheelbarrow. I am 18 hands. It is a wheelbarrow. I know."],
              ["What people get wrong about me","That I'm imposing. I'm just tall. There's a difference."]] },
   { id:13, name:"Maverick", breed:"Mustang", age:7, gender:"stallion", temperament:"spirited",
@@ -815,6 +869,7 @@ const HERD = [
     look:{ variant:0, bulk:1.01, facesLeft:false, orn:"none", ornHue:0 },
     persona:"Ex-wild and slightly smug about it. Frames domestic comforts as hard-won lifestyle choices. Romanticises the range, then admits he likes the heated barn.",
     opener:"grew up wild out on the range. now I have opinions about hay suppliers 🏜️",
+    opener2:"howdy 🏜️ out there I could find water with my eyes shut. now I panic if dinner's five minutes late.",
     prompts:[["Wild vs domesticated","I miss the range every day. I also miss dinner if it's late. Complicated."],
              ["My hidden talent","I can find water anywhere. Useless now. Still proud of it."]] },
   { id:14, name:"Apollo", breed:"Andalusian", age:6, gender:"stallion", temperament:"stoic",
@@ -822,6 +877,7 @@ const HERD = [
     look:{ variant:3, bulk:1.02, facesLeft:true, orn:"browband", ornHue:300 },
     persona:"Magnificent and knows it, but wants to be liked for something else. Formal phrasing, faintly theatrical. Warms up fast if you tease him.",
     opener:"good evening. I'm told I come across as intimidating. please disregard that 🎩",
+    opener2:"greetings 🎩 they call me impressive. I'd far rather you tell me something impressive about yourself.",
     prompts:[["I want to be liked for","Anything other than the way I look in a photograph."],
              ["My worst habit","Announcing things. I don't enter rooms, I arrive. Working on it."]] },
   { id:15, name:"Rocky", breed:"Quarter Horse", age:10, gender:"gelding", temperament:"chill",
@@ -829,6 +885,7 @@ const HERD = [
     look:{ variant:0, bulk:1.04, facesLeft:false, orn:"bandana", ornHue:0 },
     persona:"Warm old-timer with a story for everything. Starts anecdotes he doesn't finish. Calls everyone 'friend'. Genuinely delighted to be asked anything.",
     opener:"howdy friend 🤠 fair warning, I've got about forty years of stories and no filter",
+    opener2:"well hey there friend 🤠 pull up some hay. I got a story about a rodeo, a storm, and a very lost goat.",
     prompts:[["Ask me about","The rodeo. Any part of it. I'll take it from there. Please ask."],
              ["Best travel story","Wrong trailer, wrong county, three new friends. Long version on request."]] },
   { id:16, name:"Thor", breed:"Norwegian Fjord", age:5, gender:"stallion", temperament:"playful",
@@ -836,6 +893,7 @@ const HERD = [
     look:{ variant:1, bulk:0.99, facesLeft:true, orn:"ribbon", ornHue:0 },
     persona:"Cheerful and defensive about the haircut in equal measure. Brings up Norse heritage unprompted. Big himbo energy, deeply sincere.",
     opener:"hi!! 🇳🇴 the mohawk is a THOUSAND year old tradition and I will die on this hill",
+    opener2:"hello!! 🇳🇴 before you say anything — yes, the mane is deliberate. it's heritage. it's history. it's... okay, laugh.",
     prompts:[["The haircut, explained","Traditional. Ancestral. Deliberate. Please stop smiling like that."],
              ["My simple pleasures","Fjords. Snow. Explaining my heritage to people who didn't ask."]] },
   { id:17, name:"Blaze", breed:"Tennessee Walker", age:7, gender:"gelding", temperament:"chill",
@@ -843,6 +901,7 @@ const HERD = [
     look:{ variant:3, bulk:1.00, facesLeft:false, orn:"halter", ornHue:200 },
     persona:"Smooth, unhurried, quietly confident. Speaks in an easy drawl. Never oversells himself — lets the gait do the talking. Mildly flirtatious.",
     opener:"evening 🍵 they say my gait's so smooth you could sip tea. want to test that?",
+    opener2:"well now 🍵 matched already. guess I didn't even need the smooth gait to win you over. but it helps.",
     prompts:[["The tea thing","Full cup. Three counties. Nobody's spilled yet. Standing offer."],
              ["Dating me is like","A long ride at dusk. No hurry, no fuss, gets there eventually."]] },
   { id:18, name:"Zephyrus", breed:"Lipizzaner", age:6, gender:"stallion", temperament:"stoic",
@@ -850,6 +909,7 @@ const HERD = [
     look:{ variant:3, bulk:0.96, facesLeft:true, orn:"earnet", ornHue:60 },
     persona:"Introspective to a fault. Turns small talk philosophical within two messages. Sincere, never pretentious, slightly amused at himself for it.",
     opener:"hello 🌙 odd opener but — do you think we choose who we become, or just arrive?",
+    opener2:"evening 🌙 I spent a while deciding what to say. apparently the answer was just 'hi.' so, hi.",
     prompts:[["Born black, turned white","Every Lipizzaner does. Doesn't make it less strange to live through."],
              ["I overthink","Everything. This prompt took forty minutes. I'm aware."]] },
   { id:19, name:"Bandit", breed:"Paint Horse", age:5, gender:"stallion", temperament:"spirited",
@@ -857,6 +917,7 @@ const HERD = [
     look:{ variant:0, bulk:1.03, facesLeft:false, orn:"forelockTie", ornHue:20 },
     persona:"Gleeful menace. Confesses crimes with zero remorse. Escalates any story. Absolutely will mention the feed bin, the gate latch, and the incident.",
     opener:"heyyy 😈 quick q, how do you feel about someone with a criminal record (gates)",
+    opener2:"hi 😈 full disclosure: your feed bin isn't safe around me. neither is your heart, probably. worth it though.",
     prompts:[["My rap sheet","4 gates, 2 feed bins, 1 tack room. No convictions. No remorse."],
              ["We'll get along if","You think rules are more of a suggestion. Which they are."]] },
   { id:20, name:"Shadow", breed:"Friesian", age:8, gender:"gelding", temperament:"stoic",
@@ -864,6 +925,7 @@ const HERD = [
     look:{ variant:3, bulk:1.01, facesLeft:true, orn:"ribbon", ornHue:280 },
     persona:"Deadpan dramatic. Understates everything for effect. Long pauses implied. Secretly a complete softie and bad at hiding it.",
     opener:"hello. 🖤 I was told to be less intense in my opener. this is me trying.",
+    opener2:"evening 🖤 I wrote twelve openers and deleted them all. this is what remains. I hope it's enough.",
     prompts:[["My love language","Standing near you. Saying nothing. For a long time. It's a lot, apparently."],
              ["Two truths and a lie","I'm brooding, I'm mysterious, I cried at a sunset last week."]] },
 ];
@@ -879,10 +941,25 @@ const HERD = [
 const ONLINE = new Set();
 const lastSeen = {};   // id -> minutes-ago label seed for offline horses
 
+// ---- STALLIONSWIPE TIME -------------------------------------------------
+// An offline horse stays away for a FIXED stretch: 5-12 seconds of real time,
+// which the app presents as 5-12 "minutes". One real second = one in-app
+// minute, so the away-duration the user reads matches what the LLM is told.
+const AWAY_MIN_S = 5, AWAY_MAX_S = 12;
+const offlineUntil = {};   // id -> timestamp (ms) when they come back
+const awayMins     = {};   // id -> how many in-app minutes this absence lasts
+
+function _awayFor(id) {
+  const secs = AWAY_MIN_S + Math.random() * (AWAY_MAX_S - AWAY_MIN_S);
+  offlineUntil[id] = Date.now() + secs * 1000;
+  awayMins[id] = Math.round(secs);      // 1 real second == 1 in-app minute
+  lastSeen[id] = 1;
+}
+
 function _seedOnline() {
   HERD.forEach(h => {
     if (Math.random() < 0.75) ONLINE.add(h.id);
-    else lastSeen[h.id] = 1 + Math.floor(Math.random() * 47);  // "Active Xh/Xm ago"
+    else _awayFor(h.id);
   });
 }
 function isOnline(id) { return ONLINE.has(id); }
@@ -891,19 +968,25 @@ function lastSeenLabel(id) {
   return m < 60 ? `Active ${m}m ago` : `Active ${Math.round(m / 60)}h ago`;
 }
 
-// flip a few horses every 25s so the herd feels alive
+// Ticks fast (every 2s) because an absence only lasts 5-12s -- a 25s tick
+// would overshoot every one of them. Going offline is still a small random
+// chance; coming BACK is not random at all, it happens when the horse's
+// fixed away-window expires.
 function _tickOnline() {
+  const now = Date.now();
   HERD.forEach(h => {
-    const flip = ONLINE.has(h.id) ? 0.05 : 0.25;   // rarely go offline, readily come online
-    if (Math.random() < flip) {
-      if (ONLINE.has(h.id)) {                     // going OFFLINE
+    if (ONLINE.has(h.id)) {
+      if (Math.random() < 0.02) {                  // going OFFLINE
         ONLINE.delete(h.id);
-        lastSeen[h.id] = 1;
+        _awayFor(h.id);                            // fixes how long they're gone
         onHorseOffline(h.id);
-      } else {                                     // coming ONLINE
-        ONLINE.add(h.id);
-        onHorseOnline(h.id);
       }
+    } else if (now >= (offlineUntil[h.id] || 0)) { // their window is up -> BACK
+      ONLINE.add(h.id);
+      onHorseOnline(h.id);
+    } else {
+      // still away -- age the "Active Xm ago" label in app-minutes
+      lastSeen[h.id] = Math.max(1, Math.round((now - (offlineUntil[h.id] - awayMins[h.id] * 1000)) / 1000));
     }
   });
   // repaint any visible status
@@ -921,7 +1004,7 @@ function onHorseOnline(id)  { if (typeof _chatHorseOnline  === "function") _chat
 function onHorseOffline(id) { if (typeof _chatHorseOffline === "function") _chatHorseOffline(id); }
 
 _seedOnline();
-setInterval(_tickOnline, 25000);
+setInterval(_tickOnline, 2000);   // fast: absences are only 5-12s long
 
 // ============================================================
 // OPENERS -- the FIRST message a match sends you.
@@ -962,7 +1045,7 @@ const pickFrom = arr => arr[Math.floor(Math.random() * arr.length)];
 // ============================================================
 
 // Build the OpenAI-style messages array for ONE horse: persona + history.
-function horseMessages(horse) {
+function horseMessages(horse, awayFor) {
   const p = S.profile || {};
   const you = p.name || "cutie";
   const yourDiscs = (p.disciplines || []).join(", ") || "trail";
@@ -975,7 +1058,12 @@ function horseMessages(horse) {
     horse.persona ? `Your personality: ${horse.persona} Stay in that voice.` : "",
     `Your dating bio reads: "${horse.bio || ""}".`,
     `You are flirting with ${you}, a ${p.age || "?"}-year-old ${p.gender || "horse"} whose temperament is ${p.temperament || "unknown"} and who is into ${yourDiscs}.`,
-`Reply with ONE short flirty text message, max 24 words, all lowercase.`,
+    // coming back after an absence: acknowledge it IN CHARACTER, not generically
+    awayFor ? `You have just come back online after being away for about ${awayFor} minutes. `
+            + `They messaged you while you were gone. Briefly acknowledge that you were away -- `
+            + `give a reason that fits YOUR personality and life as described above, in your own `
+            + `voice (never say "I was offline" or mention the app) -- then reply to what they said.` : "",
+    `Reply with ONE short flirty text message, max 24 words, all lowercase.`,
     `Use horse puns sparingly. At most one emoji. Never mention being an AI or a model.`,
   ].filter(Boolean).join(" ");
 
@@ -991,12 +1079,12 @@ function horseMessages(horse) {
 
 // Ask the backend for this horse's next line. Always resolves to a usable
 // string -- falls back to the local pool on any failure or a null reply.
-async function horseReply(horse) {
+async function horseReply(horse, awayFor) {
   try {
     const res = await fetch("/horse_chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: horseMessages(horse) }),
+      body: JSON.stringify({ messages: horseMessages(horse, awayFor) }),
     });
     if (!res.ok) {
       console.warn("[horse_chat]", res.status, await res.text().catch(() => ""));
@@ -1065,7 +1153,8 @@ function opener(horse) {
   const disc = (p.disciplines && p.disciplines[0]) || "trail";
   // each horse has its OWN opener written in its own voice; the shared
   // OPENERS pool is only the fallback for a horse without one.
-  const line = horse.opener || pickFrom(OPENERS);
+  const own = horse.opener ? [horse.opener, horse.opener2].filter(Boolean) : [];
+  const line = pickFrom(own.length ? own : OPENERS);
   return line.replace(/{you}/g, you).replace(/{disc}/g, disc);
 }
 
@@ -1075,7 +1164,7 @@ function opener(horse) {
 function sendOpener(horse) {
   S.threads[horse.id] = S.threads[horse.id] || [];
   if (S.threads[horse.id].length === 0 && isOnline(horse.id)) {
-    S.threads[horse.id].push({ from: "them", text: opener(horse) });
+S.threads[horse.id].push({ from: "them", text: opener(horse), ts: Date.now() });
     save();
   }
 }
@@ -1090,18 +1179,28 @@ function _chatHorseOnline(id) {
   const t = (S.threads[id] = S.threads[id] || []);
   let didSomething = false;
 
-  if (t.length === 0) {                       // never sent opener -> send it now
-    t.push({ from: "them", text: opener(horse) });
-    didSomething = true;
-  }
-  // any of YOUR messages after their last reply? -> one catch-up reply
+  // Work out whether you're waiting BEFORE pushing the opener. Otherwise the
+  // opener becomes "their last message" and suppresses the catch-up -- so a
+  // horse who was offline at match time, and who you then messaged, would
+  // send only a cheery opener and ignore everything you actually said.
   const lastThem = t.map(m => m.from).lastIndexOf("them");
   const youWaiting = t.slice(lastThem + 1).some(m => m.from === "me");
+
+  if (t.length === 0) {                       // never sent opener -> send it now
+t.push({ from: "them", text: opener(horse), ts: Date.now() });
+    didSomething = true;
+    if (!isChatOpen(id)) notifyMessage(id);   // came online -> their first text
+  }
   if (youWaiting) {
+    markSeen(id);                                   // they read what you sent while away
     if (chatWith && chatWith.id === id) showTyping();  // only if that chat is open
-    horseReply(horse).then(t => {
+    const awayFor = awayMins[id] || null;   // in-app minutes they were gone
+    delete awayMins[id];                    // consume it: only the FIRST reply back mentions it
+    // NB: param renamed to `txt` -- it used to be `t`, which shadowed the
+    // thread array `t` declared above. Worked, but a trap for the next edit.
+    horseReply(horse, awayFor).then(txt => {
       if (!isOnline(id)) { hideTyping(); return; }     // went offline mid-think
-      typeThenReply(id, t, true);                      // already waited -> reveal now
+      typeThenReply(id, txt, true);                    // already waited -> reveal now
     });
     didSomething = true;
   } else if (didSomething && chatWith && chatWith.id === id) {
@@ -1117,6 +1216,28 @@ function _chatHorseOnline(id) {
 function _chatHorseOffline(id) {
   if (pendingReply[id]) { clearTimeout(pendingReply[id]); delete pendingReply[id]; }
   if (chatWith && chatWith.id === id) { hideTyping(); renderChatStatus(); }
+}
+// Is this horse's chat currently on screen? (Not merely the last one opened --
+// `go()` keeps chatWith set after you navigate back to the deck/inbox.)
+function isChatOpen(id) {
+  return chatWith && chatWith.id === id
+    && document.getElementById("screen-chat").classList.contains("active");
+}
+// The horse reads your messages (up to the latest "me"): bump seen + refresh.
+function markSeen(id) {
+  const mine = (S.threads[id] || []).filter(m => m.from === "me").length;
+  if ((S.seen[id] || 0) >= mine) return;
+  S.seen[id] = mine;
+  save();
+  if (isChatOpen(id)) renderChat();
+}
+// A "them" message landed while their chat was closed: ding + toast + badge pulse.
+function notifyMessage(id) {
+  const horse = HERD.find(h => h.id === id);
+  if (horse) toast(horse.name + " messages you");
+  ding("msg");
+  pulseBadge();
+  updateBadge();                      // unread count just went up
 }
 
 // ---- typing indicator + gated reply helpers ----
@@ -1148,10 +1269,10 @@ function typeThenReply(id, text, immediate) {
     delete pendingReply[id];
     if (!isOnline(id)) { hideTyping(); return; }      // went offline mid-type -> silence
     hideTyping();
-    (S.threads[id] = S.threads[id] || []).push({ from: "them", text });
+(S.threads[id] = S.threads[id] || []).push({ from: "them", text, ts: Date.now() });
     save();
-    if (chatWith && chatWith.id === id) { renderChat(); ding("msg"); }
-    else pulseBadge();
+    if (isChatOpen(id)) { renderChat(); ding("msg"); }
+    else notifyMessage(id);
     if (document.getElementById("screen-matches").classList.contains("active")) renderMatches();
   }, wait);
 }
@@ -1164,6 +1285,8 @@ const DEFAULT_STATE = () => ({
   matched: [],                 // horse ids that matched back
   admirers: [],                // horse ids that already liked YOU (secret admirers)
   threads: {},                 // { horseId: [{from:'me'|'them', text}] }
+  read: {},                    // { horseId: number of messages you've viewed }
+  seen: {},                    // { horseId: number of YOUR messages the horse has read }
   lastPassed: null,
 });
 let S = load();
@@ -1182,6 +1305,8 @@ function load() {
       for (const k of ["liked","passed","matched","admirers"])
         if (!Array.isArray(merged[k])) merged[k] = [];
       if (!merged.threads || typeof merged.threads !== "object") merged.threads = {};
+      if (!merged.read || typeof merged.read !== "object") merged.read = {};
+      if (!merged.seen || typeof merged.seen !== "object") merged.seen = {};
       return merged;
     }
   } catch (e) { console.warn("load failed, resetting", e); }
@@ -1407,11 +1532,12 @@ function renderMatches() {
   }
   el.innerHTML = `<h3>${ms.length} Match${ms.length>1?"es":""}</h3>` + ms.map(h => {
     const t = S.threads[h.id] || [];
+    const unread = t.length > (S.read[h.id] || 0);
     const last = t.length ? t[t.length-1].text : "You matched! Say hi 👋";
     return `<div class="match-row" onclick="openChat(${h.id})">
       <div class="av${isOnline(h.id) ? ' av-online' : ''}">${horseSVG(h, 48)}</div>
       <div><div class="who">${h.name} ${h.verified?'✓':''}</div>
-           <div class="last">${isOnline(h.id) ? '<span class="mini-on">● Active now</span>' : last.slice(0,30)}</div></div>
+           <div class="last${unread ? ' unread' : ''}">${t.length ? last.slice(0,30) : (isOnline(h.id) ? '<span class="mini-on">● Active now</span>' : last)}</div></div>
       <div class="pct">${compatibility(S.profile, h)}%</div>
     </div>`;
   }).join("");
@@ -1614,6 +1740,9 @@ function renderChatStatus() {
   if (isOnline(chatWith.id)) { el.textContent = "● Active now"; el.className = "chat-status on"; }
   else { el.textContent = lastSeenLabel(chatWith.id); el.className = "chat-status off"; }
 }
+function fmtTime(ts) {
+  return new Date(ts).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+}
 function renderChat() {
   const box = document.getElementById("chat-msgs");
   const t = S.threads[chatWith.id] || [];
@@ -1623,15 +1752,21 @@ function renderChat() {
   }
   // find the last of YOUR messages so we can label its delivery state
   const lastMineIdx = t.map(m => m.from).lastIndexOf("me");
+  const mineCount = t.filter(m => m.from === "me").length;
   box.innerHTML = t.map((m, i) => {
-    let bubble = `<div class="bubble ${m.from === 'me' ? 'me' : 'them'}">${m.text}</div>`;
+    const when = m.ts ? `<div class="time">${fmtTime(m.ts)}</div>` : "";
+    let bubble = `<div class="bubble ${m.from === 'me' ? 'me' : 'them'}">${m.text}${when}</div>`;
     // if your last message hasn't been answered, show a receipt
     if (m.from === "me" && i === lastMineIdx && t.map(x=>x.from).lastIndexOf("them") < i) {
-      const receipt = isOnline(chatWith.id) ? "Delivered" : "Delivered · they're offline 🌙";
-      bubble += `<div class="receipt">${receipt}</div>`;
+      const read = (S.seen[chatWith.id] || 0) >= mineCount;
+      const receipt = read ? "Read" : (isOnline(chatWith.id) ? "Delivered" : "Delivered \u00b7 they're offline \ud83c\udf19");
+      bubble += `<div class="receipt${read ? ' read' : ''}">${receipt}</div>`;
     }
     return bubble;
   }).join("");
+  S.read[chatWith.id] = t.length;   // you're looking at this thread now -> it's read
+  save();
+  updateBadge();                      // unread count just dropped
   box.scrollTop = box.scrollHeight;
 }
 function sendMsg() {
@@ -1639,12 +1774,14 @@ function sendMsg() {
   const text = inp.value.trim();
   if (!text || !chatWith) return;
   S.threads[chatWith.id] = S.threads[chatWith.id] || [];
-  S.threads[chatWith.id].push({ from: "me", text });
+S.threads[chatWith.id].push({ from: "me", text, ts: Date.now() });
   inp.value = "";
   save(); renderChat(); ding("send");
   // ONLINE -> they reply (with typing indicator). OFFLINE -> left on read.
   if (isOnline(chatWith.id)) {
     const who = chatWith;                             // pin it: async resolve
+    // they glance at it shortly after you send -> "Delivered" flips to "Read"
+    setTimeout(() => { if (isOnline(who.id)) markSeen(who.id); }, 700 + Math.random() * 600);
     showTyping();                                     // bubble up DURING the fetch
     horseReply(who).then(t => {
       if (!isOnline(who.id)) { hideTyping(); return; } // went offline mid-think
@@ -1686,8 +1823,9 @@ document.getElementById("mm-say").addEventListener("click", () => { closeMatch()
 // ---- badge + toast ----
 function updateBadge() {
   const b = document.getElementById("match-badge");
-  b.textContent = S.matched.length;
-  b.style.display = S.matched.length ? "inline-block" : "none";
+  const unread = S.matched.filter(id => (S.threads[id] || []).length > (S.read[id] || 0)).length;
+  b.textContent = unread;
+  b.style.display = unread ? "inline-block" : "none";
   const lb = document.getElementById("liked-badge");
   const pending = S.admirers.filter(id => !S.liked.includes(id) && !S.passed.includes(id)).length;
   lb.textContent = pending;
@@ -1704,6 +1842,8 @@ function pulseBadge() {
 // ---- tiny WebAudio sound effects (muteable, no files) ----
 let _audioCtx = null;
 let soundOn = (localStorage.getItem("ss-sound") !== "off");
+let darkOn = (localStorage.getItem("ss-dark") !== "off");   // dark by default
+document.body.classList.toggle("dark", darkOn);
 function ding(kind) {
   if (!soundOn) return;
   try {
@@ -1726,6 +1866,11 @@ function setSound(on) {
   soundOn = on;
   localStorage.setItem("ss-sound", soundOn ? "on" : "off");
   if (soundOn) ding("send");
+}
+function setDark(on) {
+  darkOn = on;
+  document.body.classList.toggle("dark", on);
+  localStorage.setItem("ss-dark", on ? "on" : "off");
 }
 function renderLikedYou() {
   const el = document.getElementById("liked-list");
@@ -1790,9 +1935,7 @@ function buildChips(containerId, values, selected, single) {
   });
 }
 const obDisc = ["trail","dressage"];
-const obSeek = [...GENDERS];
 buildChips("ob-disc", DISCIPLINES, obDisc, false);
-buildChips("ob-seek", GENDERS, obSeek, false);
 
 document.getElementById("ob-start").addEventListener("click", () => {
   S.profile = {
@@ -1800,10 +1943,10 @@ document.getElementById("ob-start").addEventListener("click", () => {
     age: +document.getElementById("ob-age").value || 5,
     height: +document.getElementById("ob-height").value || 15,
     temperament: document.getElementById("ob-temp").value,
+    gender: document.getElementById("ob-gender").value,
     disciplines: obDisc.length ? [...obDisc] : ["trail"],
     photo: "🐴",
   };
-  S.filters.genders = obSeek.length ? [...obSeek] : [...GENDERS];
   save();
   document.getElementById("nav").style.display = "flex";
   go("swipe");
@@ -1813,6 +1956,14 @@ document.getElementById("ob-start").addEventListener("click", () => {
 const fDist = document.getElementById("f-dist"), fvDist = document.getElementById("fv-dist");
 const fMin = document.getElementById("f-agemin"), fMax = document.getElementById("f-agemax"), fvAge = document.getElementById("fv-age");
 const gChips = [];
+// populate the two age dropdowns (1–40) once
+for (const sel of [fMin, fMax]) {
+  for (let a = 1; a <= 40; a++) {
+    const o = document.createElement("option");
+    o.value = a; o.textContent = a + (a === 1 ? " yr" : " yrs");
+    sel.appendChild(o);
+  }
+}
 function refreshFilterUI() {
   fDist.value = S.filters.dist; fvDist.textContent = S.filters.dist + " km";
   fMin.value = S.filters.ageMin; fMax.value = S.filters.ageMax;
@@ -1821,9 +1972,11 @@ function refreshFilterUI() {
   buildChips("f-gender", GENDERS, gChips, false);
   document.getElementById("f-shared").checked = S.filters.shared;
   document.getElementById("f-sound").checked = soundOn;
+document.getElementById("f-dark").checked = darkOn;
 }
 fDist.oninput = () => fvDist.textContent = fDist.value + " km";
-fMin.oninput = fMax.oninput = () => fvAge.textContent = `${Math.min(+fMin.value,+fMax.value)} – ${Math.max(+fMin.value,+fMax.value)}`;
+const ageLabel = () => fvAge.textContent = `${Math.min(+fMin.value,+fMax.value)} – ${Math.max(+fMin.value,+fMax.value)}`;
+fMin.onchange = fMax.onchange = ageLabel;
 document.getElementById("f-apply").addEventListener("click", () => {
   S.filters.dist = +fDist.value;
   S.filters.ageMin = Math.min(+fMin.value, +fMax.value);
@@ -1838,6 +1991,7 @@ document.getElementById("f-reset").addEventListener("click", () => {
   location.reload();
 });
 document.getElementById("f-sound").addEventListener("change", e => setSound(e.target.checked));
+document.getElementById("f-dark").addEventListener("change", e => setDark(e.target.checked));
 
 // ---- nav + keyboard ----
 document.querySelectorAll("#nav button[data-go]").forEach(b => b.addEventListener("click", () => {
