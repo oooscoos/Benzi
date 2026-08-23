@@ -1483,8 +1483,9 @@ function renderLikedYou() {
   }
   el.innerHTML = `<h3>${pend.length} horse${pend.length>1?"s":""} liked you</h3>` + pend.map(h =>
     `<div class="match-row">
-      <div class="av">${horseSVG(h, 48)}</div>
-      <div><div class="who">${h.name} ${h.verified?'✓':''}</div>
+      <div class="av" onclick="openProfile(${h.id})" style="cursor:pointer">${horseSVG(h, 48)}</div>
+      <div onclick="openProfile(${h.id})" style="cursor:pointer">
+           <div class="who">${h.name} ${h.verified?'✓':''}</div>
            <div class="last">${h.breed} · ${h.distance}km away</div></div>
       <div class="likeback">
         <button class="lb-nope" onclick="likeBack(${h.id}, false)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6 18 18M18 6 6 18"/></svg></button>
