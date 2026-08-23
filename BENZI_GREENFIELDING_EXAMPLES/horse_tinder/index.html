@@ -105,6 +105,32 @@
     background: linear-gradient(135deg, #ffe3ec, #ffd6a5);
   }
   .card .photo svg { width: 100%; height: 100%; display: block; object-fit: cover; }
+  /* ---- swipe-card photo gallery: horizontal snap strip + arrows ---- */
+  .card .c-gallery {
+    display: flex; height: 100%; overflow-x: auto; overflow-y: hidden;
+    scroll-snap-type: x mandatory; scrollbar-width: none;
+  }
+  .card .c-gallery::-webkit-scrollbar { display: none; }
+  .card .c-slide { flex: 0 0 100%; height: 100%; scroll-snap-align: start; }
+  .card .c-nav {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 34px; height: 34px; border-radius: 999px; border: none;
+    background: rgba(255,255,255,.82); color: #33262e; font-size: 1.3rem;
+    line-height: 1; cursor: pointer; z-index: 3; padding: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,.18);
+  }
+  .card .c-nav:hover { background: #fff; }
+  .card .c-nav.prev { left: 10px; }
+  .card .c-nav.next { right: 10px; }
+  .card .c-dots {
+    position: absolute; bottom: 10px; left: 0; right: 0; z-index: 3;
+    display: flex; gap: 5px; justify-content: center; pointer-events: none;
+  }
+  .card .c-dots span {
+    width: 6px; height: 6px; border-radius: 999px; background: rgba(255,255,255,.55);
+    box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: background .2s;
+  }
+  .card .c-dots span.on { background: #fff; }
   .card .verified { position: absolute; top: 12px; left: 12px; font-size: 1.1rem;
     background: #2196f3; color: #fff; border-radius: 999px; padding: 2px 9px; font-weight: 700; }
   .card .info { padding: 14px 18px 18px; }
@@ -1272,7 +1298,15 @@ function renderDeck() {
       ${likedYou(h.id) ? '<div class="likesyou">⭐ Likes you</div>' : ''}
       <div class="stamp like">Like</div>
       <div class="stamp nope">Nope</div>
-      <div class="photo">${h.verified ? '<span class="verified">✓</span>' : ''}${horseSVG(h)}</div>
+      <div class="photo">${h.verified ? '<span class="verified">✓</span>' : ''}
+        <div class="c-gallery" id="c-gal-${h.id}">${cardPhotos(h)}</div>
+        ${galleryCount(h) > 1 ? `
+          <button class="c-nav prev" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()"
+            onclick="event.stopPropagation(); cardStep(${h.id}, -1)">‹</button>
+          <button class="c-nav next" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()"
+            onclick="event.stopPropagation(); cardStep(${h.id}, 1)">›</button>
+          <div class="c-dots" id="c-dots-${h.id}">${cardDots(h)}</div>` : ''}
+      </div>
       <div class="info">
         <h2>${h.name} <span>${h.age}</span>
           <button class="info-btn" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" onclick="event.stopPropagation(); openProfile(${h.id})">View profile ›</button>
@@ -1284,6 +1318,7 @@ function renderDeck() {
       </div>`;
     if (idx === 0) attachDrag(card);
     deckEl.appendChild(card);
+    wireCardGallery(h.id);        // keep the dots in sync when swiped directly
   });
 }
 
@@ -1436,6 +1471,48 @@ function galleryPhotos(h) {
     out += `<div class="p-slide">${horseSVG(h, 240, seed)}</div>`;
   }
   return out;   // arrows live OUTSIDE the strip so they don't scroll away
+}
+// ---- swipe-card gallery (same idea as the profile one, but per-card) ----
+// Each card owns its own strip, so ids are suffixed with the horse id.
+function cardPhotos(h) {
+  let out = "";
+  for (let i = 0; i < galleryCount(h); i++) {
+    const seed = h.id + i * 137;          // same seeds as the profile gallery
+    out += `<div class="c-slide">${horseSVG(h, 240, seed)}</div>`;
+  }
+  return out;
+}
+function cardDots(h) {
+  let d = "";
+  for (let i = 0; i < galleryCount(h); i++) d += `<span class="${i === 0 ? 'on' : ''}"></span>`;
+  return d;
+}
+// step the card's strip by dir (-1 prev, +1 next), clamped to the ends
+function cardStep(id, dir) {
+  const strip = document.getElementById("c-gal-" + id);
+  if (!strip) return;
+  const n = strip.children.length;
+  const cur = Math.round(strip.scrollLeft / strip.clientWidth);
+  const next = Math.max(0, Math.min(n - 1, cur + dir));
+  strip.scrollTo({ left: next * strip.clientWidth, behavior: "smooth" });
+  cardSyncDots(id, next);
+}
+function cardSyncDots(id, i) {
+  const dots = document.getElementById("c-dots-" + id);
+  if (!dots) return;
+  [...dots.children].forEach((s, k) => s.classList.toggle("on", k === i));
+}
+// keep the dots in step when the strip is scrolled/swiped directly
+function wireCardGallery(id) {
+  const strip = document.getElementById("c-gal-" + id);
+  if (!strip) return;
+  strip.onscroll = () => cardSyncDots(id, Math.round(strip.scrollLeft / strip.clientWidth));
+  // The card's drag handler lives on the whole card, so a drag starting on the
+  // photo would swipe the card instead of scrolling the strip. Let the strip
+  // claim its own pointer events -- the rest of the card still swipes.
+  const claim = e => e.stopPropagation();
+  strip.addEventListener("mousedown", claim);
+  strip.addEventListener("touchstart", claim, { passive: true });
 }
 function galleryDots(h) {
   let d = "";
