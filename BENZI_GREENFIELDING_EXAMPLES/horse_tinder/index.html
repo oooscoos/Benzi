@@ -1040,7 +1040,7 @@ function _tickOnline() {
   // reads the live isOnline() at swipe time, so card + chat stay one system.
   if (document.getElementById("screen-matches").classList.contains("active")) renderMatches();
   if (document.getElementById("screen-liked").classList.contains("active")) renderLikedYou();
-  if (document.getElementById("screen-chat").classList.contains("active") && typeof renderChatStatus === "function") { renderChatStatus(); renderChat(); }
+  if (document.getElementById("screen-chat").classList.contains("active") && typeof renderChatStatus === "function") { renderChatStatus(); updateReceipt(); }
 }
 
 // hooks -- defined fully in the chat section; guarded so early ticks are safe
@@ -1273,7 +1273,7 @@ function markSeen(id) {
   if ((S.seen[id] || 0) >= mine) return;
   S.seen[id] = mine;
   save();
-  if (isChatOpen(id)) renderChat();
+  if (isChatOpen(id)) updateReceipt();
 }
 // A "them" message landed while their chat was closed: ding + toast + badge pulse.
 function notifyMessage(id) {
@@ -1805,7 +1805,7 @@ function renderChat(force) {
     if (m.from === "me" && i === lastMineIdx && t.map(x=>x.from).lastIndexOf("them") < i) {
       const read = (S.seen[chatWith.id] || 0) >= mineCount;
       const receipt = read ? "Read" : (isOnline(chatWith.id) ? "Delivered" : "Delivered \u00b7 they're offline \ud83c\udf19");
-      bubble += `<div class="receipt${read ? ' read' : ''}">${receipt}</div>`;
+      bubble += `<div class="receipt${read ? ' read' : ''}" id="receipt">${receipt}</div>`;
     }
     return bubble;
   }).join("");
@@ -1814,6 +1814,22 @@ function renderChat(force) {
   updateBadge();                      // unread count just dropped
   if (stick) box.scrollTop = box.scrollHeight;
   else box.scrollTop = prevTop;
+}
+// Update ONLY the delivery receipt (Delivered -> Read, online/offline) in place,
+// without rebuilding the message list -- rebuilding every tick was killing the
+// user's scroll position / momentum. Called by the 2s online tick + markSeen.
+function updateReceipt() {
+  if (!chatWith) return;
+  const el = document.getElementById("receipt");
+  if (!el) return;
+  const t = S.threads[chatWith.id] || [];
+  const lastMineIdx = t.map(m => m.from).lastIndexOf("me");
+  if (lastMineIdx < 0) { el.remove(); return; }
+  if (t.map(x => x.from).lastIndexOf("them") > lastMineIdx) { el.remove(); return; }
+  const mineCount = t.filter(m => m.from === "me").length;
+  const read = (S.seen[chatWith.id] || 0) >= mineCount;
+  el.textContent = read ? "Read" : (isOnline(chatWith.id) ? "Delivered" : "Delivered \u00b7 they're offline \ud83c\udf19");
+  el.className = "receipt" + (read ? " read" : "");
 }
 function sendMsg() {
   const inp = document.getElementById("chat-text");
