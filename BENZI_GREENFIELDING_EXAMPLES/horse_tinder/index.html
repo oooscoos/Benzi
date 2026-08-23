@@ -357,7 +357,7 @@
     <!-- ONBOARDING -->
     <section class="screen active" id="screen-onboard">
       <h2>Create your profile</h2>
-      <p class="sub">Tell us about your horse so we can find their perfect stable-mate.</p>
+      <p class="sub">Are you a horse? There are horses in your area ready to match! 🐴</p>
       <div class="field"><label>Name</label><input id="ob-name" placeholder="e.g. Bella" value="Neigh-oncé"></div>
       <div class="field"><label>Age (years)</label><input id="ob-age" type="number" value="5" min="1" max="40"></div>
       <div class="field"><label>Height (hands)</label><input id="ob-height" type="number" step="0.1" value="15.0"></div>
@@ -370,6 +370,7 @@
       <div class="field"><label>Disciplines (pick a few)</label>
         <div class="chip-row" id="ob-disc"></div>
       </div>
+      <p class="sub" style="text-align:center;margin:14px 0 0">💬 Match with a horse and try texting them — they'll text back!</p>
       <button class="primary-btn" id="ob-start">Start Swiping 🔥</button>
     </section>
 
@@ -1057,7 +1058,13 @@ function horseMessages(horse, awayFor) {
     // the per-horse voice -- this is what makes Daisy sound nothing like Zephyrus
     horse.persona ? `Your personality: ${horse.persona} Stay in that voice.` : "",
     `Your dating bio reads: "${horse.bio || ""}".`,
-    `You are flirting with ${you}, a ${p.age || "?"}-year-old ${p.gender || "horse"} whose temperament is ${p.temperament || "unknown"} and who is into ${yourDiscs}.`,
+    // NOTE: we deliberately do NOT tell the model the USER's temperament here.
+    // It still feeds match SCORING (compatibility()), but not the voice -- a
+    // user picks their temperament once at signup and never revisits it, and
+    // leaking it into the prompt would nudge every horse's reply the same way
+    // forever. The horse's OWN temperament (line above) stays: that's the
+    // personality that makes each one sound different.
+    `You are flirting with ${you}, a ${p.age || "?"}-year-old ${p.gender || "horse"} who is into ${yourDiscs}.`,
     // coming back after an absence: acknowledge it IN CHARACTER, not generically
     awayFor ? `You have just come back online after being away for about ${awayFor} minutes. `
             + `They messaged you while you were gone. Briefly acknowledge that you were away -- `
@@ -1100,14 +1107,13 @@ async function horseReply(horse, awayFor) {
 }
 
 // Every reply a match sends is profile-aware: it sprinkles in YOUR name,
-// age, discipline or temperament so the whole chat feels personal.
+// age or discipline so the whole chat feels personal.
 function reply(horse) {
   const p = S.profile || {};
   const you = p.name || "cutie";
   const disc = (p.disciplines && p.disciplines[0]) || "trail";
   const shared = (p.disciplines || []).filter(d => horse.disciplines.includes(d))[0];
   const age = p.age;
-  const temp = p.temperament;
   const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
   // a pool where EVERY variant name-drops something of yours
@@ -1135,10 +1141,10 @@ function reply(horse) {
                         `We're SO doing ${shared} this weekend, ${you} 🔥`);
   if (age) pool.push(`${age} and this charming? ${you}, you're a rare breed 😌`,
                      `They don't make ${age}-year-olds like you anymore, ${you} 💕`);
-  if (temp === "spirited") pool.push(`Keep up that fire, ${you}, and I'm yours 🔥`);
-  if (temp === "chill") pool.push(`Love how easygoing you are, ${you} 😌`);
-  if (temp === "playful") pool.push(`You're SO much fun, ${you} 🎉`);
-  if (temp === "stoic") pool.push(`Strong and mysterious, ${you}... I'm intrigued 🖤`);
+  if (age) pool.push(`${age} and this charming? ${you}, you're a rare breed 😌`,
+                     `They don't make ${age}-year-olds like you anymore, ${you} 💕`);
+
+  return pick(pool);
 
   return pick(pool);
 }
