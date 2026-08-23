@@ -12,7 +12,7 @@
 <p align="center"><b>An AI coding agent that doesn't read — it <i>queries</i>.</b></p>
 
 <p align="center">
-  <a href="https://benzi.fly.dev/horse_tinder">Horse&nbsp;Tinder&nbsp;Demo</a> &nbsp;·&nbsp;
+  <a href="https://benzi.fly.dev/horse_tinder">StallionSwipe&nbsp;demo</a> &nbsp;·&nbsp;
   <a href="https://benzi.fly.dev/about">Website</a> &nbsp;·&nbsp;
   <a href="https://benzi.fly.dev">Live demo</a> &nbsp;·&nbsp;
   <a href="https://benzi.fly.dev/benchmark">Benchmark</a> &nbsp;·&nbsp;
