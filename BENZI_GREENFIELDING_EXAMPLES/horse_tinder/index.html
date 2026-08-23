@@ -42,6 +42,12 @@
     display: flex; align-items: center; justify-content: space-between;
     padding: 14px 18px; background: var(--surface); color: var(--pink);
     border-bottom: 1px solid #eee; flex-shrink: 0;
+    /* iOS standalone PWA: status bar is translucent (black-translucent) and
+       viewport-fit=cover draws content under the notch, so pad the header down
+       by the safe-area inset. constant() is the older-iOS spelling, env() the
+       current one -- both are harmless where unsupported. */
+    padding-top: calc(14px + constant(safe-area-inset-top));
+    padding-top: calc(14px + env(safe-area-inset-top));
   }
   header .logo {
     font-weight: 800; font-size: 1.25rem;
@@ -91,9 +97,9 @@
   .av-val { min-width: 86px; text-align: center; font-weight: 700; color: var(--pink); }
   .av-mini { border: 1px solid var(--line); background: #fff; color: #4a3f3d; border-radius: 999px; padding: 6px 14px; cursor: pointer; font-size: .85rem; font-weight: 600; }
   .av-mini:active { transform: scale(.95); }
-  body.dark .av-mini { background: #3a3a42; color: #e8e4e2; }
-  body.dark .av-cap { color: #8f8987; }
-  body.dark .av-frame { background: #2f2f36; }
+  body.dark .av-mini { background: #3a2a31; color: #f4edeb; border-color: var(--line); }
+  body.dark .av-cap { color: #a28f8b; }
+  body.dark .av-frame { background: #1f161a; }
   .field label { display: block; font-size: .8rem; font-weight: 700; color: #555; margin-bottom: 6px; }
   .field input, .field select {
     width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; font-size: .95rem; background: #fff; color: #4a3f3d;
@@ -163,7 +169,14 @@
   .card.online { box-shadow: 0 0 0 3px #2fae4e, 0 12px 30px rgba(0,0,0,.25); }
   .match-row .av.av-online { box-shadow: 0 0 0 2px #2fae4e; }
   .mini-on { color: #2fae4e; font-weight: 600; }
-  .card .bio { font-size: .88rem; color: #444; line-height: 1.35; }
+  .card .bio { font-size: .88rem; color: #444; line-height: 1.35;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  /* depth/legibility: soft bottom fade under the gallery dots + into the info */
+  .card .photo::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 70px;
+    background: linear-gradient(transparent, rgba(0,0,0,.26));
+    pointer-events: none; z-index: 1;
+  }
   .card .tags { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
   .card .tags span { background: #fd267d22; color: var(--pink);
     padding: 3px 10px; border-radius: 999px; font-size: .72rem; font-weight: 600; }
@@ -190,7 +203,9 @@
     to   { transform: translateY(0) rotate(0); opacity: 1; }
   }
 
-  #controls { display: flex; gap: 22px; justify-content: center; padding: 4px 0 20px; }
+#controls { display: flex; gap: 22px; justify-content: center; padding: 4px 0 20px; }
+  /* clear the iPhone home indicator in standalone/installed mode */
+  #controls { padding-bottom: calc(20px + constant(safe-area-inset-bottom)); padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
   #controls button, #controls a {
     width: 56px; height: 56px; border-radius: 50%; font-size: 1.4rem;
     cursor: pointer; background: transparent; transition: background .12s, color .12s;
@@ -254,7 +269,9 @@
   @keyframes blink { 0%,60%,100% { opacity: .3; } 30% { opacity: 1; } }
   .bubble.me { background: linear-gradient(135deg, var(--orange), var(--pink)); color: #fff;
     align-self: flex-end; border-bottom-right-radius: 4px; }
-  #chat-input { display: flex; gap: 8px; padding: 10px; background: var(--surface); border-top: 1px solid var(--line); }
+#chat-input { display: flex; gap: 8px; padding: 10px; background: var(--surface); border-top: 1px solid var(--line); }
+  /* clear the iPhone home indicator in standalone mode */
+  #chat-input { padding-bottom: calc(10px + constant(safe-area-inset-bottom)); padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
   #chat-input input { flex: 1; padding: 10px 14px; border: 1px solid var(--line); border-radius: 999px; background: #fff; }
   #chat-input button { border: none; background: var(--pink); color: #fff; border-radius: 50%;
     width: 40px; height: 40px; cursor: pointer; font-size: 1.1rem; }
@@ -330,39 +347,62 @@
     font-size: .85rem; opacity: 0; transition: opacity .3s; z-index: 30; pointer-events: none; }
   .toast.show { opacity: 1; }
 
-  /* ---- dark mode ---- */
+  /* ---- dark mode: warm wine/plum, echoing the pink+orange brand ---- */
   body.dark {
-    --surface:#26262b;
-    --surface-2:#1c1c21;
-    --bubble:#3a3a42;
-    --line:#3d3d46;
-    background: linear-gradient(160deg, #3a1f2e 0%, #241a2e 100%);
+    --surface:#2b1f24;      /* warm dark plum-brown panel */
+    --surface-2:#1f161a;    /* deeper background */
+    --bubble:#3a2a31;       /* incoming chat bubble */
+    --line:#4a3640;         /* warm borders */
+    /* soften the brand accents so they sit INTO the dark theme rather than
+       glowing neon against it */
+    --pink:#f2689a;         /* rose (was #fd267d) */
+    --orange:#ef8f6a;       /* coral (was #ff7854) */
+    --green:#6fbf73;        /* muted emerald (was #4ce600) */
+    --red:#e0605f;          /* muted crimson (was #ff2f2f) */
+    background: linear-gradient(160deg, #6b1f3f 0%, #34132a 100%);
   }
+  body.dark header { border-bottom: 1px solid var(--line); }
   body.dark #screen-onboard, body.dark #screen-filters,
-  body.dark #screen-chat, body.dark .profile-card { color: #e8e4e2; }
-  body.dark .card { color: #e8e4e2; }
-  body.dark .card .bio { color: #c9c4c2; }
-  body.dark .card .meta { color: #a9a3a1; }
+  body.dark #screen-chat, body.dark .profile-card { color: #f4edeb; }
+  body.dark .card { color: #f4edeb; }
+  body.dark .card .bio { color: #d3c7c4; }
+  body.dark .card .meta { color: #b7a8a4; }
   body.dark .card .info h2 span, body.dark .profile-card h2 span,
-  body.dark .list h3 { color: #8f8987; }
-  body.dark .card .status.off, body.dark .chat-status.off { color: #8f8987; }
-  body.dark .list { color: #e8e4e2; }
-  body.dark .match-row .last { color: #a9a3a1; }
+  body.dark .list h3 { color: #a28f8b; }
+  body.dark .card .status.off, body.dark .chat-status.off { color: #a28f8b; }
+  body.dark .card .status.off .dot { background: #6b5651; }
+  body.dark .list { color: #f4edeb; }
+  body.dark .match-row .last { color: #b7a8a4; }
   body.dark .match-row .last.unread { color: #fff; }
-  body.dark .match-row:active { background: #2f2f36; }
-  body.dark .empty-note { color: #a9a3a1; }
-  body.dark .field label { color: #b5afad; }
+  body.dark .match-row:active { background: #3a2a31; }
+  body.dark .empty-note { color: #b7a8a4; }
+  body.dark .field label { color: #d3c7c4; }
   body.dark .field input, body.dark .field select,
   body.dark #chat-input input {
-    background: #3a3a42; color: #e8e4e2; border-color: var(--line);
+    background: #3a2a31; color: #f4edeb; border-color: var(--line);
   }
-  body.dark #screen-onboard p.sub { color: #8f8987; }
-  body.dark #empty h2 { color: #e8e4e2; }
-  body.dark #empty { color: #a9a3a1; }
-  body.dark .profile-card .p-stats { color: #b5afad; }
-  body.dark .profile-card .prompt { background: #2f2f36; }
-  body.dark .profile-card .p-close { background: #3a3a42; color: #e8e4e2; }
-  body.dark header .nav button.active { background: #3a2030; }
+  body.dark .chip { color: #d3c7c4; }
+  body.dark .chip.on { color: #fff; }  /* selected chip: white text on the rose fill */
+  body.dark #screen-onboard p.sub { color: #a28f8b; }
+  body.dark #empty h2 { color: #f4edeb; }
+  body.dark #empty { color: #b7a8a4; }
+  body.dark .profile-card .p-stats { color: #d3c7c4; }
+  body.dark .profile-card .p-bio { color: #d3c7c4; }
+  body.dark .profile-card .prompt { background: #3a2a31; }
+  body.dark .profile-card .p-close { background: #3a2a31; color: #f4edeb; }
+  body.dark header .nav button.active { background: #4a1f35; }
+  /* hardcoded accents (online/read green, blue pills, rewind amber) -> muted */
+  body.dark .card .status.on, body.dark .card .status.on .dot,
+  body.dark .card.online, body.dark .match-row .av.av-online,
+  body.dark .mini-on, body.dark .chat-status.on, body.dark .receipt.read {
+    color: #6fbf73;
+  }
+  body.dark .card .status.on .dot, body.dark .match-row .av.av-online { background: #6fbf73; }
+  body.dark .card.online { box-shadow: 0 0 0 3px #6fbf73, 0 12px 30px rgba(0,0,0,.4); }
+  body.dark .card .verified, body.dark .card .likesyou { background: #7f7fb8; }
+  body.dark #rewind-btn { color: #c9a24b; border-color: #c9a24b; }
+  body.dark #rewind-btn:hover { background: #c9a24b; color: #fff; }
+  body.dark .profile-card .p-active { color: #6fbf73 !important; }
 </style>
 </head>
 <body>
@@ -462,8 +502,8 @@
         <div class="field"><label><input type="checkbox" id="f-dark"> Dark mode 🌙</label></div>
       </div>
       <h2>Discovery Filters</h2>
-      <div class="field"><label>Max distance <span class="range-val" id="fv-dist">500 km</span></label>
-        <input type="range" id="f-dist" min="5" max="500" value="500" style="width:100%"></div>
+<div class="field"><label>Max distance <span class="range-val" id="fv-dist">310 miles</span></label>
+        <input type="range" id="f-dist" min="3" max="310" value="310" style="width:100%"></div>
       <div class="field"><label>Age range <span class="range-val" id="fv-age">1 – 40</span></label>
         <div style="display:flex;gap:8px;align-items:center">
           <select id="f-agemin" style="flex:1"></select>
@@ -1009,7 +1049,15 @@ function _seedOnline() {
 function isOnline(id) { return ONLINE.has(id); }
 function lastSeenLabel(id) {
   const m = lastSeen[id] || 12;
-  return m < 60 ? `Active ${m}m ago` : `Active ${Math.round(m / 60)}h ago`;
+  return m < 60 ? `Last seen ${m}m ago` : `Last seen ${Math.round(m / 60)}h ago`;
+}
+// Distances are stored in km internally (passesFilters compares km), but the
+// UI shows miles: convert at the display boundary only.
+const kmToMi = km => Math.round(km * 0.621371);
+const miToKm = mi => Math.round(mi * 1.609344);
+function distanceLabel(km) {
+  if (km <= 8) return "Nearby";
+  return `${kmToMi(km)} miles away`;
 }
 
 // Ticks fast (every 2s) because an absence only lasts 5-12s -- a 25s tick
@@ -1084,8 +1132,8 @@ const pickFrom = arr => arr[Math.floor(Math.random() * arr.length)];
 // LIVE LLM REPLIES via the backend at POST /horse_chat (same origin).
 // The server holds the DeepSeek key -- nothing secret lives in this page.
 // We only build the messages array (the personas live here) and read
-// { reply } back. Any failure falls back to the local reply() pool below,
-// so the chat never breaks.
+// { reply } back. On failure we return null and the horse stays quiet (no
+// canned fallback) -- callers hide the typing bubble and move on.
 // ============================================================
 
 // Build the OpenAI-style messages array for ONE horse: persona + history.
@@ -1133,59 +1181,17 @@ async function horseReply(horse, awayFor) {
     });
     if (!res.ok) {
       console.warn("[horse_chat]", res.status, await res.text().catch(() => ""));
-      return reply(horse);
+      return null;   // no canned fallback -- the horse just stays quiet
     }
     const data = await res.json();
     const out = (data && data.reply != null) ? String(data.reply).trim() : "";
-    return out || reply(horse);
+    return out || null;
   } catch (e) {
-    console.warn("[horse_chat] failed, using local reply:", e);
-    return reply(horse);
+    console.warn("[horse_chat] failed:", e);
+    return null;
   }
 }
 
-// Every reply a match sends is profile-aware: it sprinkles in YOUR name,
-// age or discipline so the whole chat feels personal.
-function reply(horse) {
-  const p = S.profile || {};
-  const you = p.name || "cutie";
-  const disc = (p.disciplines && p.disciplines[0]) || "trail";
-  const shared = (p.disciplines || []).filter(d => horse.disciplines.includes(d))[0];
-  const age = p.age;
-  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
-
-  // a pool where EVERY variant name-drops something of yours
-  const pool = [
-    `Neigh way ${you}, that's so sweet! 🥰`,
-    `Hay there ${you} 👋 tell me more!`,
-    `You had me at 'apples' ${you} 🍎`,
-    `Trotting over to your paddock now, ${you} 😏`,
-    `Stable relationship with you, ${you}? I'm in. 💕`,
-    `That's un-bri-dled charm, ${you} 😍`,
-    `Foal-ing for you already ${you} 🐴`,
-    `Let's canter into the sunset, ${you} 🌅`,
-    `A ${disc} horse like you is exactly my type, ${you} 💘`,
-    `Honestly ${you}, best swipe of my day 🐎`,
-    `ok but genuinely ${you}, how is nobody else in this paddock talking about ${disc}? 😤`,
-    `I reread your profile twice ${you}. purely for research purposes obviously 🧐`,
-    `warning: I've already told my whole stable about you, ${you} 🙈`,
-    `you seem like the type to steal the good hay and I respect that, ${you} 😌`,
-    `${you} I'm not saying it's fate, but we did both end up here 🌙`,
-    `hot take ${you}: sunrise ${disc} > sunset ${disc}. defend your position ⚔️`,
-    `if I asked you to run off to a nicer pasture ${you}, hypothetically... 🌾`,
-    `something about you feels dangerously easy to talk to, ${you} 💭`,
-  ];
-  if (shared) pool.push(`Can't stop thinking about that ${shared} date, ${you} 🥰`,
-                        `We're SO doing ${shared} this weekend, ${you} 🔥`);
-  if (age) pool.push(`${age} and this charming? ${you}, you're a rare breed 😌`,
-                     `They don't make ${age}-year-olds like you anymore, ${you} 💕`);
-  if (age) pool.push(`${age} and this charming? ${you}, you're a rare breed 😌`,
-                     `They don't make ${age}-year-olds like you anymore, ${you} 💕`);
-
-  return pick(pool);
-
-  return pick(pool);
-}
 
 
 // ---- personalized opener: the FIRST message a match sends you ----
@@ -1244,6 +1250,7 @@ t.push({ from: "them", text: opener(horse), ts: Date.now() });
     // thread array `t` declared above. Worked, but a trap for the next edit.
     horseReply(horse, awayFor).then(txt => {
       if (!isOnline(id)) { hideTyping(); return; }     // went offline mid-think
+      if (!txt) { hideTyping(); return; }              // backend had no reply
       typeThenReply(id, txt, true);                    // already waited -> reveal now
     });
     didSomething = true;
@@ -1476,7 +1483,7 @@ function renderDeck() {
           <button class="info-btn" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" onclick="event.stopPropagation(); openProfile(${h.id})">View profile ›</button>
         </h2>
         <div class="status ${isOnline(h.id) ? 'on' : 'off'}"><span class="dot"></span>${isOnline(h.id) ? 'Active now' : lastSeenLabel(h.id)}</div>
-        <div class="meta">${h.breed} · ${h.gender} · ${h.height} hands · ${h.distance}km away</div>
+<div class="meta">${h.breed} · ${h.gender} · ${h.height} hands · ${distanceLabel(h.distance)}</div>
         <div class="bio">${h.bio}</div>
         <div class="tags">${h.disciplines.map(d => `<span>${d}</span>`).join("")}</div>
       </div>`;
@@ -1738,7 +1745,7 @@ function openProfile(id) {
   const ib2      = own[0] ? own[0][1] : ib;
   const extra    = own[1] ? own[1] : PROMPTS_EXTRA[id % PROMPTS_EXTRA.length];
   const statusLine = isOnline(id)
-    ? '<span style="color:#2fae4e;font-weight:600">● Active now</span>'
+    ? '<span class="p-active" style="color:#2fae4e;font-weight:600">● Active now</span>'
     : `<span style="color:#999">${lastSeenLabel(id)}</span>`;
   document.getElementById("profile-card").innerHTML = `
     <div class="p-gallery-wrap">
@@ -1751,7 +1758,7 @@ function openProfile(id) {
       <div style="margin:2px 0 6px">${statusLine}</div>
       <div class="p-stats">
         <span>🐴 ${h.breed}</span><span>📏 ${h.height} hands</span>
-        <span>📍 ${h.distance}km · ${h.stable}</span><span>💫 ${h.temperament}</span>
+        <span>📍 ${kmToMi(h.distance)} miles · ${h.stable}</span><span>✨ ${h.temperament}</span>
         <span>${hobbyLabel(sharedHobbies(S.profile, h))}</span>
       </div>
       <div class="p-bio">"${h.bio}"</div>
@@ -1797,15 +1804,13 @@ function renderChat(force) {
   }
   // find the last of YOUR messages so we can label its delivery state
   const lastMineIdx = t.map(m => m.from).lastIndexOf("me");
-  const mineCount = t.filter(m => m.from === "me").length;
   box.innerHTML = t.map((m, i) => {
     const when = m.ts ? `<div class="time">${fmtTime(m.ts)}</div>` : "";
     let bubble = `<div class="bubble ${m.from === 'me' ? 'me' : 'them'}">${m.text}${when}</div>`;
     // if your last message hasn't been answered, show a receipt
     if (m.from === "me" && i === lastMineIdx && t.map(x=>x.from).lastIndexOf("them") < i) {
-      const read = (S.seen[chatWith.id] || 0) >= mineCount;
-      const receipt = read ? "Read" : (isOnline(chatWith.id) ? "Delivered" : "Delivered \u00b7 they're offline \ud83c\udf19");
-      bubble += `<div class="receipt${read ? ' read' : ''}" id="receipt">${receipt}</div>`;
+      const rs = receiptState();
+      if (rs) bubble += `<div class="${rs.cls}" id="receipt">${rs.text}</div>`;
     }
     return bubble;
   }).join("");
@@ -1815,31 +1820,75 @@ function renderChat(force) {
   if (stick) box.scrollTop = box.scrollHeight;
   else box.scrollTop = prevTop;
 }
-// Update ONLY the delivery receipt (Delivered -> Read, online/offline) in place,
-// without rebuilding the message list -- rebuilding every tick was killing the
-// user's scroll position / momentum. Called by the 2s online tick + markSeen.
+// Update ONLY the delivery receipt in place, without rebuilding the message
+// list -- rebuilding every tick was killing the user's scroll position.
+// Called by the 2s online tick + markSeen.
 function updateReceipt() {
-  if (!chatWith) return;
   const el = document.getElementById("receipt");
   if (!el) return;
+  const rs = receiptState();
+  if (!rs) { el.remove(); return; }
+  el.textContent = rs.text;
+  el.className = rs.cls;
+}
+// Compute the delivery receipt for the last unanswered "me" message:
+// Queued (you're offline) -> Delivered -> Read.
+function receiptState() {
+  if (!chatWith) return null;
   const t = S.threads[chatWith.id] || [];
   const lastMineIdx = t.map(m => m.from).lastIndexOf("me");
-  if (lastMineIdx < 0) { el.remove(); return; }
-  if (t.map(x => x.from).lastIndexOf("them") > lastMineIdx) { el.remove(); return; }
-  const mineCount = t.filter(m => m.from === "me").length;
+  if (lastMineIdx < 0) return null;
+  if (t.map(x => x.from).lastIndexOf("them") > lastMineIdx) return null;
+  const m = t[lastMineIdx];
+  if (m.pending) return { text: "Queued · you're offline", cls: "receipt" };
+  const mineCount = t.filter(x => x.from === "me").length;
   const read = (S.seen[chatWith.id] || 0) >= mineCount;
-  el.textContent = read ? "Read" : (isOnline(chatWith.id) ? "Delivered" : "Delivered \u00b7 they're offline \ud83c\udf19");
-  el.className = "receipt" + (read ? " read" : "");
+  if (read) return { text: "Read", cls: "receipt read" };
+  return { text: isOnline(chatWith.id) ? "Delivered" : "Delivered · they're offline 🌙", cls: "receipt" };
+}
+// ---- user connectivity: are WE online? ----
+// "Offline" here means YOUR device has no connection (the /horse_chat backend
+// is unreachable). While offline, your messages are queued ("Queued · you're
+// offline") instead of sent; flushQueued() delivers them when you reconnect.
+let userOnline = navigator.onLine;
+window.addEventListener("online", () => { userOnline = true; flushQueued(); });
+window.addEventListener("offline", () => { userOnline = false; });
+
+function flushQueued() {
+  let changed = false;
+  for (const id in S.threads) {
+    const t = S.threads[id];
+    for (const m of t) if (m.pending) { m.pending = false; changed = true; }
+  }
+  if (!changed) return;
+  save();
+  if (chatWith && isChatOpen(chatWith.id)) {
+    renderChat();
+    if (isOnline(chatWith.id)) {   // the horse can now receive them -> reply
+      showTyping();
+      const who = chatWith;
+      horseReply(who).then(t => {
+        if (!isOnline(who.id)) { hideTyping(); return; }
+        if (!t) { hideTyping(); return; }
+        typeThenReply(who.id, t, true);
+      });
+    }
+  }
 }
 function sendMsg() {
   const inp = document.getElementById("chat-text");
   const text = inp.value.trim();
   if (!text || !chatWith) return;
+  // "pending" means YOUR device is offline, so this message is queued (not
+  // sent) and shows "Queued · you're offline" until we reconnect and
+  // flushQueued() delivers it.
+  const offline = !userOnline;
   S.threads[chatWith.id] = S.threads[chatWith.id] || [];
-S.threads[chatWith.id].push({ from: "me", text, ts: Date.now() });
+  S.threads[chatWith.id].push({ from: "me", text, ts: Date.now(), pending: offline });
   inp.value = "";
   save(); renderChat(); ding("send");
-  // ONLINE -> they reply (with typing indicator). OFFLINE -> left on read.
+  if (offline) return;   // queued — delivered when we're back online
+  // user online: if the HORSE is online, it replies (typing + fetch).
   if (isOnline(chatWith.id)) {
     const who = chatWith;                             // pin it: async resolve
     // they glance at it shortly after you send -> "Delivered" flips to "Read"
@@ -1847,9 +1896,11 @@ S.threads[chatWith.id].push({ from: "me", text, ts: Date.now() });
     showTyping();                                     // bubble up DURING the fetch
     horseReply(who).then(t => {
       if (!isOnline(who.id)) { hideTyping(); return; } // went offline mid-think
+      if (!t) { hideTyping(); return; }                // backend had no reply -> stay quiet
       typeThenReply(who.id, t, true);                 // already waited -> reveal now
     });
   }
+  // horse offline (user online) -> "Delivered · they're offline", no reply yet
 }
 // ---- match modal ----
 let modalHorse = null;
@@ -1904,7 +1955,7 @@ function pulseBadge() {
 // ---- tiny WebAudio sound effects (muteable, no files) ----
 let _audioCtx = null;
 let soundOn = (localStorage.getItem("ss-sound") !== "off");
-let darkOn = (localStorage.getItem("ss-dark") === "on");
+let darkOn = (localStorage.getItem("ss-dark") !== "off");   // dark by default
 document.body.classList.toggle("dark", darkOn);
 function ding(kind) {
   if (!soundOn) return;
@@ -1949,7 +2000,7 @@ function renderLikedYou() {
       <div class="av" onclick="openProfile(${h.id})" style="cursor:pointer">${horseSVG(h, 48)}</div>
       <div onclick="openProfile(${h.id})" style="cursor:pointer">
            <div class="who">${h.name} ${h.verified?'✓':''}</div>
-           <div class="last">${h.breed} · ${h.distance}km away</div></div>
+<div class="last">${h.breed} · ${distanceLabel(h.distance)}</div></div>
       <div class="likeback">
         <button class="lb-nope" onclick="likeBack(${h.id}, false)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6 18 18M18 6 6 18"/></svg></button>
         <button class="lb-yes" onclick="likeBack(${h.id}, true)"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 20.5 4.2 12.7a4.8 4.8 0 0 1 6.8-6.8l1 1 1-1a4.8 4.8 0 0 1 6.8 6.8Z"/></svg></button>
@@ -2095,7 +2146,7 @@ for (const sel of [fMin, fMax]) {
   }
 }
 function refreshFilterUI() {
-  fDist.value = S.filters.dist; fvDist.textContent = S.filters.dist + " km";
+  fDist.value = kmToMi(S.filters.dist); fvDist.textContent = fDist.value + " miles";
   fMin.value = S.filters.ageMin; fMax.value = S.filters.ageMax;
   fvAge.textContent = `${S.filters.ageMin} – ${S.filters.ageMax}`;
   gChips.length = 0; gChips.push(...S.filters.genders);
@@ -2106,11 +2157,11 @@ function refreshFilterUI() {
   document.getElementById("f-sound").checked = soundOn;
 document.getElementById("f-dark").checked = darkOn;
 }
-fDist.oninput = () => fvDist.textContent = fDist.value + " km";
+fDist.oninput = () => fvDist.textContent = fDist.value + " miles";
 const ageLabel = () => fvAge.textContent = `${Math.min(+fMin.value,+fMax.value)} – ${Math.max(+fMin.value,+fMax.value)}`;
 fMin.onchange = fMax.onchange = ageLabel;
 document.getElementById("f-apply").addEventListener("click", () => {
-  S.filters.dist = +fDist.value;
+  S.filters.dist = miToKm(+fDist.value);
   S.filters.ageMin = Math.min(+fMin.value, +fMax.value);
   S.filters.ageMax = Math.max(+fMin.value, +fMax.value);
   S.filters.genders = gChips.length ? [...gChips] : [...GENDERS];
