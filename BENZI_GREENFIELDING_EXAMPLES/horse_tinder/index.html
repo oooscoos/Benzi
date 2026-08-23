@@ -1842,7 +1842,7 @@ function pulseBadge() {
 // ---- tiny WebAudio sound effects (muteable, no files) ----
 let _audioCtx = null;
 let soundOn = (localStorage.getItem("ss-sound") !== "off");
-let darkOn = (localStorage.getItem("ss-dark") !== "off");   // dark by default
+let darkOn = (localStorage.getItem("ss-dark") === "on");
 document.body.classList.toggle("dark", darkOn);
 function ding(kind) {
   if (!soundOn) return;
