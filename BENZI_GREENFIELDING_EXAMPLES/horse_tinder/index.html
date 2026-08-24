@@ -1589,10 +1589,11 @@ function renderMatches() {
     const unreadCount = t.length - (S.read[h.id] || 0);
     const unread = unreadCount > 0;
     const last = t.length ? t[t.length-1].text : "You matched! Say hi 👋";
+    const preview = last.length > 30 ? last.slice(0, 30).trimEnd() + "…" : last;
     return `<div class="match-row" onclick="openChat(${h.id})">
       <div class="av${isOnline(h.id) ? ' av-online' : ''}">${horseSVG(h, 48)}</div>
       <div><div class="who">${h.name} ${h.verified?'✓':''}</div>
-           <div class="last${unread ? ' unread' : ''}">${t.length ? last.slice(0,30) : (isOnline(h.id) ? '<span class="mini-on">● Active now</span>' : last)}</div></div>
+           <div class="last${unread ? ' unread' : ''}">${t.length ? preview : (isOnline(h.id) ? '<span class="mini-on">● Active now</span>' : last)}</div></div>
       ${unread ? `<div class="ub">${unreadCount}</div>` : ''}
     </div>`;
   }).join("");
