@@ -339,8 +339,7 @@
   .profile-card .p-bio { font-size: .92rem; line-height: 1.4; margin-bottom: 12px;
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .profile-card .prompt { background: #faf6f2; border-left: 3px solid var(--pink);
-    padding: 8px 12px; border-radius: 8px; margin: 8px 0; font-size: .88rem;
-    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    padding: 8px 12px; border-radius: 8px; margin: 8px 0; font-size: .88rem; }
   .profile-card .prompt b { display: block; color: var(--pink); font-size: .74rem; text-transform: uppercase; margin-bottom: 2px; }
   .profile-card .p-close { width: 100%; padding: 12px; border: none; background: #f0f0f0;
     color: #555; font-weight: 700; border-radius: 10px; margin-top: 8px; cursor: pointer; }
@@ -1570,10 +1569,17 @@ function attachDrag(card) {
 }
 
 // ---- matches list ----
+// When was this horse's thread last touched (message sent OR received)?
+// Used to order the inbox by recency, not by shared hobbies.
+function threadActivity(id) {
+  const t = S.threads[id] || [];
+  if (!t.length) return 0;
+  return t[t.length - 1].ts || 0;
+}
 function renderMatches() {
   const el = document.getElementById("matches-list");
   const ms = S.matched.map(id => HERD.find(h => h.id === id)).filter(Boolean)
-    .sort((a, b) => sharedHobbies(S.profile, b) - sharedHobbies(S.profile, a));
+    .sort((a, b) => threadActivity(b.id) - threadActivity(a.id));
   if (ms.length === 0) {
     el.innerHTML = `<div class="empty-note">No matches yet 🐴<br>Keep swiping to find your herd!</div>`;
     return;
