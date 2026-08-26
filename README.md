@@ -31,7 +31,7 @@
 
 Most AI coding agents dump a repository into a context window and hope the model finds what matters. Benzi works differently: before answering anything, a real compiler — built on tree-sitter — parses every file in the project and resolves it into a precise, queryable map. Every symbol, every call edge, every reference, every class in its inheritance chain. One pass, done.
 
-The agent then navigates that map with structured tools — not grep, not embeddings. Where a function is defined, who calls it, what feeds its parameters, and where its return value ends up are each one O(1) lookup, every time.
+The agent then navigates that map with structured tools. Claude Code searches with grep. Cursor searches with embeddings. Aider reads tree-sitter signatures. Benzi resolves the full structure ahead of time, so where a function is defined, who calls it, what feeds its parameters, and where its return value ends up are each one O(1) lookup, every time — not a search.
 
 ## SWE-bench Verified
 
@@ -47,7 +47,33 @@ The full SWE-bench Verified set — 500 real GitHub issues from twelve Python re
 | Input tokens served from cache | 97% |
 | Output tokens | 22.0M |
 
-Full technical report: [swebench/SWE_BENCH_REPORT.md](swebench/SWE_BENCH_REPORT.md) ([web version](https://benzi.fly.dev/report)). Every instance's cost, tokens, turns, and lines read: [benzi.fly.dev/benchmark_swebench](https://benzi.fly.dev/benchmark_swebench). The cross-harness efficiency comparison (lines read, wall clock, cost vs. Claude Code and a plain DeepSeek harness on 24 bugs): [benzi.fly.dev/benchmark](https://benzi.fly.dev/benchmark).
+Full technical report: [swebench/SWE_BENCH_REPORT.md](swebench/SWE_BENCH_REPORT.md) ([web version](https://benzi.fly.dev/report)). Every instance's cost, tokens, turns, and lines read: [benzi.fly.dev/benchmark_swebench](https://benzi.fly.dev/benchmark_swebench). The cross-harness efficiency comparison below (and the full 24-bug chart): [benzi.fly.dev/benchmark](https://benzi.fly.dev/benchmark).
+
+## What the index actually changes
+
+Same 24 bugs, one run each, four harness/model combinations. **Lines read** counts only what came back from file-read calls — grep and shell output are search, not reading, so this is the one figure that means the same thing in every harness.
+
+| Harness · model | Lines read | vs Benzi |
+|---|---:|---:|
+| **Benzi · Sonnet** | **9,125** | — |
+| Benzi · DeepSeek | 16,407 | 1.8× |
+| Claude Code · Sonnet | 20,704 | 2.3× |
+| DeepSeek Harness · DeepSeek | 43,598 | 4.8× |
+
+Every harness opens more source as bugs get harder — the question is the slope. Benzi's stays flatter because it answers most of what a bug needs from the map instead of by reading.
+
+## Live demos
+
+**[StallionSwipe](BENZI_GREENFIELDING_EXAMPLES/horse_tinder/)** — a dating app for horses, greenfielded by Benzi from scratch in a single chat session. No image is a file: every horse portrait is procedural SVG, generated in code. Match with one and it flirts back through a real model, live. Frontend, backend, and the prompts — all written by Benzi. [Try it live](https://benzi.fly.dev/horse_tinder).
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/stallionswipe/ht2.jpeg" width="200" alt="StallionSwipe swipe deck">
+  <img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/stallionswipe/ht4.jpeg" width="200" alt="StallionSwipe profile detail">
+  <img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/stallionswipe/ht3.jpeg" width="200" alt="StallionSwipe live AI chat">
+  <img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/stallionswipe/ht1.jpeg" width="200" alt="StallionSwipe profile creation">
+</p>
+
+**[VS Code's own source, resolved](https://benzi.fly.dev/about)** — the real `microsoft/vscode` repo is 1.8M lines; this indexes 923k of them: the editor core (`src/vs/editor` + `src/vs/base`), the platform services layer, and workbench's shell/API/browser plumbing — deliberately excluding the 747k-line grab-bag of individual features in `workbench/contrib`. Built once, in just over two minutes, then cached. [Try it live](https://benzi.fly.dev/about) (chat panel, near the bottom of the page).
 
 ## How it works
 
@@ -79,6 +105,18 @@ One compiler, ten languages; tree-sitter is the only real dependency, and each l
 - **In the browser** — paste any public GitHub repo at [benzi.fly.dev](https://benzi.fly.dev); no install.
 - **In VS Code** — chat, graph, and edit inside the editor: [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=varianttech.benzi).
 
-## Greenfielding examples
+## Reading a real codebase: DOOM
 
-Apps Benzi has built from scratch in a single chat session live in [`BENZI_GREENFIELDING_EXAMPLES/`](BENZI_GREENFIELDING_EXAMPLES/) — starting with [StallionSwipe](BENZI_GREENFIELDING_EXAMPLES/horse_tinder/), a Tinder for horses ([live](https://benzi.fly.dev/horse_tinder)).
+Everyone says DOOM's engine was ahead of its time. Almost nobody has opened `z_zone.c` to see why. So we pointed Benzi at it. A few things were worth writing down.
+
+**There is no `malloc()` during gameplay.** id (the developer) wrote their own memory allocator — one big arena grabbed once at startup, sliced into blocks tagged by how precious they are (`PU_STATIC`, `PU_LEVEL`, `PU_CACHE`...). The genius part: allocating new memory can silently evict old "cache" blocks it walks past along the way — no one calls `free()`, the allocator just decides your cached texture is cheap to regenerate and reclaims the space on the spot. That's cache-eviction policy baked directly into the allocation path itself. `malloc`/`free` still can't do that today.
+
+**There's no floating point math, anywhere, in the renderer.** `tables.c` is a 2,000+ line file that is almost entirely one thing: every sine, tangent and arctangent value the engine will ever need, precomputed at compile time into lookup tables. Movement, angles, rendering — all fixed-point integer math against these tables. Not every '93 machine had an FPU, and even where it did, table lookups beat live trig every time.
+
+**The whole screen is just a byte array — and "UI" isn't a system, it's a coincidence.** `screens[0]` is a flat 320×200 buffer, one byte per pixel. The 3D world gets drawn into it column by column. Then the HUD gets stamped on top using the exact same pixel-blitting function used to draw monster sprites and gun sprites. There is no UI toolkit, no widget tree, because there was nothing to build one on top of: the game owns the entire display, full stop. A health digit and a demon sprite are the same kind of draw call.
+
+**Collision detection has its own hand-rolled spatial index.** `p_maputl.c` splits the map into a grid (the "blockmap") so hit detection only checks nearby geometry instead of scanning every wall in the level — a spatial hash, built from scratch, years before that was a common technique people talked about.
+
+None of this was over-engineering. Every one of these systems exists because the standard answer (`malloc`, floats, a GUI library, brute-force collision) either didn't exist on the target hardware or would have been too slow.
+
+*Explored with Benzi — an AI that reads codebases like this one directly, instead of guessing from memory.*
