@@ -11,6 +11,8 @@
 
 <p align="center"><b>An AI coding agent that doesn't read — it <i>queries</i>.</b></p>
 
+<p align="center">Benzi is free to use — actively in development, a work in progress.</p>
+
 <p align="center">
   <a href="https://benzi.fly.dev/horse_tinder">StallionSwipe&nbsp;demo</a> &nbsp;·&nbsp;
   <a href="https://benzi.fly.dev/about">Website</a> &nbsp;·&nbsp;
@@ -31,7 +33,19 @@
 
 Most AI coding agents dump a repository into a context window and hope the model finds what matters. Benzi works differently: before answering anything, a real compiler — built on tree-sitter — parses every file in the project and resolves it into a precise, queryable map. Every symbol, every call edge, every reference, every class in its inheritance chain. One pass, done.
 
-The agent then navigates that map with structured tools. Claude Code searches with grep. Cursor searches with embeddings. Aider reads tree-sitter signatures. Benzi resolves the full structure ahead of time, so where a function is defined, who calls it, what feeds its parameters, and where its return value ends up are each one O(1) lookup, every time — not a search.
+Every file parsed, imports resolved, class ancestry built, every identifier traced to its definition — before a single question is answered. Call flow and data flow are joined at every call site, so a bad value traces to its origin in one tool call. Claude Code greps; Cursor embeds; Benzi resolves — and answers in O(1).
+
+<p align="center">
+  <a href="https://benzi.fly.dev"><b>Where do I test Benzi's language-agnostic code intelligence? (read-only)</b></a>
+  <br>
+  <a href="https://benzi.fly.dev/horse_tinder"><b>Where can I see what kind of app Benzi can build?</b></a>
+  <br>
+  <a href="https://benzi.fly.dev/benchmark"><b>Benchmarks comparing harnesses across all 10 languages, plus the SWE-bench technical report</b></a>
+  <br>
+  <a href="https://marketplace.visualstudio.com/items?itemName=varianttech.benzi"><b>Get Benzi in VS Code (can write code there, unlike the read-only web demo)</b></a>
+  <br>
+  <a href="https://benzi.fly.dev/about"><b>Visit the website</b></a>
+</p>
 
 ## SWE-bench Verified
 
@@ -79,8 +93,31 @@ Every harness opens more source as bugs get harder — the question is the slope
 
 1. **Compile.** Tree-sitter parses every file; imports are resolved, class ancestry built, every identifier traced to its definition. The output is an index, not a blob of text.
 2. **Query.** The agent answers questions and plans edits through structured tools over that index — `profile`, `get_callers`, `backflow`, `trace_path`, `skim_source`, and ~30 more.
-3. **Edit, gated.** Every write passes syntax and semantic checks against the real language parser — a broken parse auto-reverts. Every write that lands reports its blast radius: the changed symbol, its callers, its holders.
+3. **Edit, gated.** Every write passes syntax and semantic gates against the real language parser — a broken parse auto-reverts. Every write that lands reports its blast radius: the changed symbol, its callers, its holders — and the same analysis pulls in the selectively relevant existing tests.
 4. **Verify.** A focused, context-aware repro is generated against the exact change and run under a runtime tracer that records real argument values, real returns, real dispatch — plus the selectively relevant existing test cases that the same blast-radius analysis surfaces.
+
+## Tools
+
+A sample of 16 of Benzi's 35+ tools — what falls out of actually resolving the code, from the index itself to the gates on every write.
+
+| Tool | What it answers |
+|---|---|
+| `get_callers` | Every call site that reaches a function — the code that will feel a change. |
+| `call_tree` | The transitive call closure from one function, forward or in reverse. |
+| `trace_path` | The call chain connecting two functions, and the data carried along it. |
+| `external_calls` | Which libraries a scope leans on, and where it calls into them. |
+| `forwardflow` | Where a function's return value ends up, everywhere it has to match. |
+| `backflow` | Where a wrong value came from, without opening every caller. |
+| `profile` | The full 360 on one symbol in a single call. |
+| `get_definition` | The declaration card — signature, docs and location. |
+| `search_symbols` | Case-insensitive substring search across every symbol in the repo. |
+| `get_hierarchy` | A type's resolved bases and its direct subclasses. |
+| `skim_source` | A body's one-level outline, so you know which lines are worth reading. |
+| `execute_from` | Runs a file under the call tracer and records what actually happened. |
+| `check_last_execution` | Reads back the last recorded run's facts, no re-run needed. |
+| `execute_generated_testcase` | Writes a self-contained repro and runs it to debug its own change. |
+| `rollback_edit` | Undoes the last writes by snapshot reload, not by re-editing. |
+| `upgrade_to_pro` | Escalates itself to a larger reasoning budget mid-task. |
 
 ## Features
 
