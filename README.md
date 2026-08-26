@@ -9,6 +9,8 @@
 
 <h1 align="center">Benzi</h1>
 
+<p align="center">by <img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/variant_logo.png" width="16" alt=""> <b>Variant Technologies</b></p>
+
 <p align="center"><b>An AI coding agent that doesn't read — it <i>queries</i>.</b></p>
 
 <p align="center">Benzi is free to use — actively in development, a work in progress.</p>
@@ -36,15 +38,15 @@ Most AI coding agents dump a repository into a context window and hope the model
 Every file parsed, imports resolved, class ancestry built, every identifier traced to its definition — before a single question is answered. Call flow and data flow are joined at every call site, so a bad value traces to its origin in one tool call. Claude Code greps; Cursor embeds; Benzi resolves — and answers in O(1). Every language runs its own tree-sitter grammar into that same compiled map — ten so far, plus a second engine for markup (HTML, CSS, DOM-JS) — see [Language support](#language-support) below.
 
 <p align="center">
-  <a href="https://benzi.fly.dev"><b>Where do I test Benzi's language-agnostic code intelligence? (read-only)</b></a>
+  <a href="https://benzi.fly.dev"><img src="https://img.shields.io/badge/Try_the_Demo_(Any_Repo)-1E7A5C?style=for-the-badge" alt="Try the demo (any repo)"></a>
   <br><br>
-  <a href="https://benzi.fly.dev/horse_tinder"><b>Where can I see what kind of app Benzi can build?</b></a>
+  <a href="https://benzi.fly.dev/horse_tinder"><img src="https://img.shields.io/badge/See_What_Benzi_Can_Build-1E7A5C?style=for-the-badge" alt="See what Benzi can build"></a>
   <br><br>
-  <a href="https://benzi.fly.dev/benchmark"><b>Benchmarks comparing harnesses across all 10 languages, plus the SWE-bench technical report</b></a>
+  <a href="https://benzi.fly.dev/benchmark"><img src="https://img.shields.io/badge/Benchmarks_and_SWE_bench_Report-1E7A5C?style=for-the-badge" alt="Benchmarks and SWE-bench report"></a>
   <br><br>
-  <a href="https://marketplace.visualstudio.com/items?itemName=varianttech.benzi"><b>Get Benzi in VS Code (can write code there, unlike the read-only web demo)</b></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=varianttech.benzi"><img src="https://img.shields.io/badge/Get_Benzi_for_VS_Code-1E7A5C?style=for-the-badge" alt="Get Benzi for VS Code"></a>
   <br><br>
-  <a href="https://benzi.fly.dev/about"><b>Visit the website</b></a>
+  <a href="https://benzi.fly.dev/about"><img src="https://img.shields.io/badge/Visit_the_Website-1E7A5C?style=for-the-badge" alt="Visit the website"></a>
 </p>
 
 ## SWE-bench Verified
@@ -63,19 +65,6 @@ The full SWE-bench Verified set — 500 real GitHub issues from twelve Python re
 
 Full technical report: [swebench/SWE_BENCH_REPORT.md](swebench/SWE_BENCH_REPORT.md) ([web version](https://benzi.fly.dev/report)). Every instance's cost, tokens, turns, and lines read: [benzi.fly.dev/benchmark_swebench](https://benzi.fly.dev/benchmark_swebench). The cross-harness efficiency comparison below (and the full 24-bug chart): [benzi.fly.dev/benchmark](https://benzi.fly.dev/benchmark).
 
-## What the index actually changes
-
-Same 24 bugs, one run each, four harness/model combinations. **Lines read** counts only what came back from file-read calls — grep and shell output are search, not reading, so this is the one figure that means the same thing in every harness.
-
-| Harness · model | Lines read | vs Benzi |
-|---|---:|---:|
-| **Benzi · Sonnet** | **9,125** | — |
-| Benzi · DeepSeek | 16,407 | 1.8× |
-| Claude Code · Sonnet | 20,704 | 2.3× |
-| DeepSeek Harness · DeepSeek | 43,598 | 4.8× |
-
-Every harness opens more source as bugs get harder — the question is the slope. Benzi's stays flatter because it answers most of what a bug needs from the map instead of by reading.
-
 ## Live demos
 
 **[StallionSwipe](BENZI_GREENFIELDING_EXAMPLES/horse_tinder/) · Python, HTML, CSS, JS** — a dating app for horses, greenfielded by Benzi from scratch in a single chat session. No image is a file: every horse portrait is procedural SVG, generated in code. Match with one and it flirts back through a real model, live. Frontend, backend, and the prompts — all written by Benzi. [Try it live](https://benzi.fly.dev/horse_tinder).
@@ -89,12 +78,7 @@ Every harness opens more source as bugs get harder — the question is the slope
 
 **[VS Code's own source, resolved](https://benzi.fly.dev/about) · TypeScript** — the real `microsoft/vscode` repo is 1.8M lines; this indexes 923k of them: the editor core (`src/vs/editor` + `src/vs/base`), the platform services layer, and workbench's shell/API/browser plumbing — deliberately excluding the 747k-line grab-bag of individual features in `workbench/contrib`. Built once, in just over two minutes, then cached. [Try it live](https://benzi.fly.dev/about) (chat panel, near the bottom of the page).
 
-## How it works
-
-1. **Compile.** Tree-sitter parses every file; imports are resolved, class ancestry built, every identifier traced to its definition. The output is an index, not a blob of text.
-2. **Query.** The agent answers questions and plans edits through structured tools over that index — `profile`, `get_callers`, `backflow`, `trace_path`, `skim_source`, and ~30 more.
-3. **Edit, gated.** Every write passes syntax and semantic gates against the real language parser — a broken parse auto-reverts. The model checks blast radius *before* it changes anything, not just after: the same analysis — the changed symbol, its callers, its holders, the selectively relevant existing tests — runs both going in and once a write lands.
-4. **Verify.** A focused, context-aware repro is generated against the exact change and run under a runtime tracer that records real argument values, real returns, real dispatch — plus the selectively relevant existing test cases that the same blast-radius analysis surfaces.
+**Or, try any repo of your choice at all here** — point Benzi at any public GitHub repo and it builds the index live. [benzi.fly.dev](https://benzi.fly.dev).
 
 ## Tools
 
@@ -119,6 +103,46 @@ A sample of 16 of Benzi's 35+ tools — what falls out of actually resolving the
 | `rollback_edit` | Undoes the last writes by snapshot reload, not by re-editing. |
 | `upgrade_to_pro` | Escalates itself to a larger reasoning budget mid-task. |
 
+## How it works
+
+1. **Compile.** Tree-sitter parses every file; imports are resolved, class ancestry built, every identifier traced to its definition. The output is an index, not a blob of text.
+2. **Query.** The agent answers questions and plans edits through structured tools over that index — `profile`, `get_callers`, `backflow`, `trace_path`, `skim_source`, and ~30 more.
+3. **Edit, gated.** Every write passes syntax and semantic gates against the real language parser — a broken parse auto-reverts. The model checks blast radius *before* it changes anything, not just after: the same analysis — the changed symbol, its callers, its holders, the selectively relevant existing tests — runs both going in and once a write lands.
+4. **Verify.** A focused, context-aware repro is generated against the exact change and run under a runtime tracer that records real argument values, real returns, real dispatch — plus the selectively relevant existing test cases that the same blast-radius analysis surfaces.
+
+## What the index actually changes
+
+Same 24 bugs, one run each, four harness/model combinations. **Lines read** counts only what came back from file-read calls — grep and shell output are search, not reading, so this is the one figure that means the same thing in every harness.
+
+| Harness · model | Lines read | vs Benzi |
+|---|---:|---:|
+| **Benzi · Sonnet** | **9,125** | — |
+| Benzi · DeepSeek | 16,407 | 1.8× |
+| Claude Code · Sonnet | 20,704 | 2.3× |
+| DeepSeek Harness · DeepSeek | 43,598 | 4.8× |
+
+Every harness opens more source as bugs get harder — the question is the slope. Benzi's stays flatter because it answers most of what a bug needs from the map instead of by reading.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/chart_lines_read.png" width="600" alt="Source lines read per bug, all four harnesses">
+</p>
+
+Benzi reads the least source on every bug and the gap widens as bugs get harder — the index answers most of what a fix needs before a file is ever opened.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/chart_wall_clock.png" width="600" alt="Wall-clock time per bug, all four harnesses">
+</p>
+
+Wall-clock time tracks close across all four — reading less doesn't make Benzi slower to think, just cheaper to look.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/chart_cost.png" width="600" alt="Cost per fix, all four harnesses">
+</p>
+
+Benzi on DeepSeek costs about a cent a bug; Claude Code climbs to $0.18 a step as bugs get harder — roughly 18x.
+
+More detail, per-bug breakdowns, and full methodology: [benzi.fly.dev/benchmark](https://benzi.fly.dev/benchmark).
+
 ## Features
 
 - **Three tiers of truth** — proven edges carry evidence; ambiguous calls keep their full candidate lists instead of a guess; runtime traces settle what static analysis can't.
@@ -142,7 +166,7 @@ One compiler, ten languages; tree-sitter is the only real dependency, and each l
 - **In the browser** — paste any public GitHub repo at [benzi.fly.dev](https://benzi.fly.dev); no install.
 - **In VS Code** — chat, graph, and edit inside the editor: [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=varianttech.benzi).
 
-## Reading a real codebase: DOOM · C
+## BONUS DEMO: Reading a real codebase: DOOM · C
 
 Everyone says DOOM's engine was ahead of its time. Almost nobody has opened `z_zone.c` to see why. So we pointed Benzi at it. A few things were worth writing down.
 
