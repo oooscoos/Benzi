@@ -33,17 +33,17 @@
 
 Most AI coding agents dump a repository into a context window and hope the model finds what matters. Benzi works differently: before answering anything, a real compiler — built on tree-sitter — parses every file in the project and resolves it into a precise, queryable map. Every symbol, every call edge, every reference, every class in its inheritance chain. One pass, done.
 
-Every file parsed, imports resolved, class ancestry built, every identifier traced to its definition — before a single question is answered. Call flow and data flow are joined at every call site, so a bad value traces to its origin in one tool call. Claude Code greps; Cursor embeds; Benzi resolves — and answers in O(1).
+Every file parsed, imports resolved, class ancestry built, every identifier traced to its definition — before a single question is answered. Call flow and data flow are joined at every call site, so a bad value traces to its origin in one tool call. Claude Code greps; Cursor embeds; Benzi resolves — and answers in O(1). Every language runs its own tree-sitter grammar into that same compiled map — ten so far, plus a second engine for markup (HTML, CSS, DOM-JS) — see [Language support](#language-support) below.
 
 <p align="center">
   <a href="https://benzi.fly.dev"><b>Where do I test Benzi's language-agnostic code intelligence? (read-only)</b></a>
-  <br>
+  <br><br>
   <a href="https://benzi.fly.dev/horse_tinder"><b>Where can I see what kind of app Benzi can build?</b></a>
-  <br>
+  <br><br>
   <a href="https://benzi.fly.dev/benchmark"><b>Benchmarks comparing harnesses across all 10 languages, plus the SWE-bench technical report</b></a>
-  <br>
+  <br><br>
   <a href="https://marketplace.visualstudio.com/items?itemName=varianttech.benzi"><b>Get Benzi in VS Code (can write code there, unlike the read-only web demo)</b></a>
-  <br>
+  <br><br>
   <a href="https://benzi.fly.dev/about"><b>Visit the website</b></a>
 </p>
 
@@ -78,7 +78,7 @@ Every harness opens more source as bugs get harder — the question is the slope
 
 ## Live demos
 
-**[StallionSwipe](BENZI_GREENFIELDING_EXAMPLES/horse_tinder/)** — a dating app for horses, greenfielded by Benzi from scratch in a single chat session. No image is a file: every horse portrait is procedural SVG, generated in code. Match with one and it flirts back through a real model, live. Frontend, backend, and the prompts — all written by Benzi. [Try it live](https://benzi.fly.dev/horse_tinder).
+**[StallionSwipe](BENZI_GREENFIELDING_EXAMPLES/horse_tinder/) · Python, HTML, CSS, JS** — a dating app for horses, greenfielded by Benzi from scratch in a single chat session. No image is a file: every horse portrait is procedural SVG, generated in code. Match with one and it flirts back through a real model, live. Frontend, backend, and the prompts — all written by Benzi. [Try it live](https://benzi.fly.dev/horse_tinder).
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/stallionswipe/ht2.jpeg" width="200" alt="StallionSwipe swipe deck">
@@ -87,13 +87,13 @@ Every harness opens more source as bugs get harder — the question is the slope
   <img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/stallionswipe/ht1.jpeg" width="200" alt="StallionSwipe profile creation">
 </p>
 
-**[VS Code's own source, resolved](https://benzi.fly.dev/about)** — the real `microsoft/vscode` repo is 1.8M lines; this indexes 923k of them: the editor core (`src/vs/editor` + `src/vs/base`), the platform services layer, and workbench's shell/API/browser plumbing — deliberately excluding the 747k-line grab-bag of individual features in `workbench/contrib`. Built once, in just over two minutes, then cached. [Try it live](https://benzi.fly.dev/about) (chat panel, near the bottom of the page).
+**[VS Code's own source, resolved](https://benzi.fly.dev/about) · TypeScript** — the real `microsoft/vscode` repo is 1.8M lines; this indexes 923k of them: the editor core (`src/vs/editor` + `src/vs/base`), the platform services layer, and workbench's shell/API/browser plumbing — deliberately excluding the 747k-line grab-bag of individual features in `workbench/contrib`. Built once, in just over two minutes, then cached. [Try it live](https://benzi.fly.dev/about) (chat panel, near the bottom of the page).
 
 ## How it works
 
 1. **Compile.** Tree-sitter parses every file; imports are resolved, class ancestry built, every identifier traced to its definition. The output is an index, not a blob of text.
 2. **Query.** The agent answers questions and plans edits through structured tools over that index — `profile`, `get_callers`, `backflow`, `trace_path`, `skim_source`, and ~30 more.
-3. **Edit, gated.** Every write passes syntax and semantic gates against the real language parser — a broken parse auto-reverts. Every write that lands reports its blast radius: the changed symbol, its callers, its holders — and the same analysis pulls in the selectively relevant existing tests.
+3. **Edit, gated.** Every write passes syntax and semantic gates against the real language parser — a broken parse auto-reverts. The model checks blast radius *before* it changes anything, not just after: the same analysis — the changed symbol, its callers, its holders, the selectively relevant existing tests — runs both going in and once a write lands.
 4. **Verify.** A focused, context-aware repro is generated against the exact change and run under a runtime tracer that records real argument values, real returns, real dispatch — plus the selectively relevant existing test cases that the same blast-radius analysis surfaces.
 
 ## Tools
@@ -142,7 +142,7 @@ One compiler, ten languages; tree-sitter is the only real dependency, and each l
 - **In the browser** — paste any public GitHub repo at [benzi.fly.dev](https://benzi.fly.dev); no install.
 - **In VS Code** — chat, graph, and edit inside the editor: [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=varianttech.benzi).
 
-## Reading a real codebase: DOOM
+## Reading a real codebase: DOOM · C
 
 Everyone says DOOM's engine was ahead of its time. Almost nobody has opened `z_zone.c` to see why. So we pointed Benzi at it. A few things were worth writing down.
 
