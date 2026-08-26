@@ -7,9 +7,7 @@
   <img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/icon.png" width="120" alt="Benzi">
 </p>
 
-<h1 align="center">Benzi</h1>
-
-<p align="center">by <img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/variant_logo.png" width="16" alt=""> <b>Variant Technologies</b></p>
+<h1 align="center">Benzi<br><sub>by <img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/variant_logo.png" width="16" alt=""> <b>Variant Technologies</b></sub></h1>
 
 <p align="center"><b>An AI coding agent that doesn't read — it <i>queries</i>.</b></p>
 
@@ -35,7 +33,7 @@
 
 Most AI coding agents dump a repository into a context window and hope the model finds what matters. Benzi works differently: before answering anything, a real compiler — built on tree-sitter — parses every file in the project and resolves it into a precise, queryable map. Every symbol, every call edge, every reference, every class in its inheritance chain. One pass, done.
 
-Every file parsed, imports resolved, class ancestry built, every identifier traced to its definition — before a single question is answered. Call flow and data flow are joined at every call site, so a bad value traces to its origin in one tool call. Claude Code greps; Cursor embeds; Benzi resolves — and answers in O(1). Every language runs its own tree-sitter grammar into that same compiled map — ten so far, plus a second engine for markup (HTML, CSS, DOM-JS) — see [Language support](#language-support) below.
+Every file parsed, imports resolved, class ancestry built, every identifier traced to its definition — before a single question is answered. Call flow and data flow are joined at every call site, so a bad value traces to its origin in one tool call. Claude Code greps; Cursor embeds; Aider maps signatures; Benzi resolves — and answers in O(1). Every language runs its own tree-sitter grammar into that same compiled map — ten so far, plus a second engine for markup (HTML, CSS, DOM-JS) — see [Language support](#language-support) below.
 
 <p align="center">
   <a href="https://benzi.fly.dev"><img src="https://img.shields.io/badge/Try_the_Demo_(Any_Repo)-1E7A5C?style=for-the-badge" alt="Try the demo (any repo)"></a>
