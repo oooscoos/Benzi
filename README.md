@@ -166,7 +166,7 @@ Benzi is completely free to use.
 - **In the browser** — paste any public GitHub repo at [benzi.fly.dev](https://benzi.fly.dev); no install, no signup. Read-only: ask it questions, explore the map, nothing writes to the repo. This is the demo — click here to see what it can do.
 - **In VS Code** — the same compiler, but with edit access: chat, graph, and Benzi actually writing code in your own project. [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=varianttech.benzi). This is the real tool — click here to use it.
 
-There's no headless or CLI mode — the browser and VS Code are the only two ways in.
+There's no headless or CLI mode (as of yet) — the browser and VS Code are the only two ways in.
 
 ## BONUS DEMO: Reading a real codebase: DOOM · C
 
