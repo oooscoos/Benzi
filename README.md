@@ -35,6 +35,8 @@ Most AI coding agents dump a repository into a context window and hope the model
 
 Every file parsed, imports resolved, class ancestry built, every identifier traced to its definition — before a single question is answered. Call flow and data flow are joined at every call site, so a bad value traces to its origin in one tool call. Claude Code greps; Cursor embeds; Aider maps signatures; Benzi resolves — and answers in O(1). Every language runs its own tree-sitter grammar into that same compiled map — ten so far, plus a second engine for markup (HTML, CSS, DOM-JS) — see [Language support](#language-support) below.
 
+You can try pasting this repo's link to Benzi too!
+
 <p align="center">
   <a href="https://benzi.fly.dev"><img src="https://img.shields.io/badge/Try_the_Demo_(Any_Repo)-1E7A5C?style=for-the-badge" alt="Try the demo (any repo)"></a>
   <br><br>
