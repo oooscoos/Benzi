@@ -45,8 +45,6 @@ Every file parsed, imports resolved, class ancestry built, every identifier trac
   <a href="https://marketplace.visualstudio.com/items?itemName=varianttech.benzi"><img src="https://img.shields.io/badge/Get_Benzi_for_VS_Code-1E7A5C?style=for-the-badge" alt="Get Benzi for VS Code"></a>
   <br><br>
   <a href="https://benzi.fly.dev/about"><img src="https://img.shields.io/badge/Visit_the_Website-1E7A5C?style=for-the-badge" alt="Visit the website"></a>
-  <br><br>
-  <a href="https://benzi.fly.dev/?repo=https://github.com/oooscoos/Benzi"><img src="https://img.shields.io/badge/Watch_Benzi_Analyze_Itself-1E7A5C?style=for-the-badge" alt="Watch Benzi analyze itself"></a>
 </p>
 
 ## SWE-bench Verified
@@ -77,8 +75,6 @@ Full technical report: [swebench/SWE_BENCH_REPORT.md](swebench/SWE_BENCH_REPORT.
 </p>
 
 **[VS Code's own source, resolved](https://benzi.fly.dev/about) · TypeScript** — the real `microsoft/vscode` repo is 1.8M lines; this indexes 923k of them: the editor core (`src/vs/editor` + `src/vs/base`), the platform services layer, and workbench's shell/API/browser plumbing — deliberately excluding the 747k-line grab-bag of individual features in `workbench/contrib`. Built once, in just over two minutes, then cached. [Try it live](https://benzi.fly.dev/about) (chat panel, near the bottom of the page).
-
-**[Cool demo, watch Benzi analyze this Benzi repo itself](https://benzi.fly.dev/?repo=https://github.com/oooscoos/Benzi).**
 
 **Or, try any repo of your choice at all here** — point Benzi at any public GitHub repo and it builds the index live. [benzi.fly.dev](https://benzi.fly.dev).
 
