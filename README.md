@@ -35,8 +35,8 @@
 - [In the press](#in-the-press) — what people wrote about it
 - [SWE-bench Verified](#swe-bench-verified) — 391/500 (78.2%) for $37.33
 - [Live demos](#live-demos) — StallionSwipe, VS Code's own source, or any repo you paste
-- [Tools](#tools) — 16 of the 35+ the index makes possible
 - [How it works](#how-it-works) — compile, query, edit, verify
+- [Tools](#tools) — 16 of the 35+ the index makes possible
 - [What the index actually changes](#what-the-index-actually-changes) — lines read vs three other harnesses
 - [Features](#features) · [Language support](#language-support) · [Getting started](#getting-started)
 - [FAQ](#faq) — privacy, MCP, pricing, limits
@@ -66,9 +66,8 @@ You can try pasting this repo's link to Benzi too!
 
 ## In the press
 
-> "37 美元跑出来的 78.2%，是对「大力出奇迹」路线的一次打脸。"
-> *"78.2% for $37 is a slap in the face to the 'brute force wins' school."*
-> — Alex Xiang, [**zicode**](https://zicode.com/blog/ai-coding-supply-chain/)
+> "78.2% for $37 is a slap in the face to the 'brute force wins' school."
+> — Alex Xiang, [**zicode**](https://zicode.com/blog/ai-coding-supply-chain/) *(translated)*
 
 > "Benzi is proving that the core competency of coding tools is shifting from simple 'reading comprehension' to 'structural grasping ability.'"
 > — Gi Pyeong Lee, [**Tech Blog**](https://gipyeong-lee.github.io/2026/09/11/Show-HN-Benzi-A-Code-IntillegenceHarness-Beating-Claude-Code-and-CodeGraph.en/)
@@ -76,9 +75,8 @@ You can try pasting this repo's link to Benzi too!
 > "Fewer tokens, no context drift. Wild idea, honestly."
 > — [**prompt 🤖 AI News**](https://t.me/prompt/392)
 
-> "Analiza cambios antes de escribirlos y supera a Claude Code en benchmarks."
-> *"It analyzes changes before writing them — and beats Claude Code on benchmarks."*
-> — [**Ponte al dIA**](https://ponte-al-dia.com/p/benzi-agente-de-codigo-que-supera-a-claude-sonnet-en-tareas-de-programacion)
+> "It analyzes changes before writing them — and beats Claude Code on benchmarks."
+> — [**Ponte al dIA**](https://ponte-al-dia.com/p/benzi-agente-de-codigo-que-supera-a-claude-sonnet-en-tareas-de-programacion) *(translated)*
 
 ## SWE-bench Verified
 
@@ -111,6 +109,14 @@ Full technical report: [swebench/SWE_BENCH_REPORT.md](swebench/SWE_BENCH_REPORT.
 
 **Or, try any repo of your choice at all here** — point Benzi at any public GitHub repo and it builds the index live. [benzi.fly.dev](https://benzi.fly.dev).
 
+## How it works
+
+1. **Compile.** Tree-sitter parses every file; imports are resolved, class ancestry built, every identifier traced to its definition. The output is an index, not a blob of text.
+2. **Query.** The agent answers questions and plans edits through structured tools over that index — `profile`, `get_callers`, `backflow`, `trace_path`, `skim_source`, and ~30 more.
+3. **Edit, gated.** Every write passes syntax and semantic gates against the real language parser — a broken parse auto-reverts. The model checks blast radius *before* it changes anything, not just after: the same analysis — the changed symbol, its callers, its holders, the selectively relevant existing tests — runs both going in and once a write lands.
+4. **Verify.** A focused, context-aware repro is generated against the exact change and run under a runtime tracer that records real argument values, real returns, real dispatch — plus the selectively relevant existing test cases that the same blast-radius analysis surfaces.
+5. **Observe.** The tracer hooks a real run and records every call that actually happened — confirming proven edges with live counts, collapsing ambiguous ones onto the target that fired, and catching the callbacks and thread targets static analysis cannot see even in principle.
+
 ## Tools
 
 A sample of 16 of Benzi's 35+ tools — what falls out of actually resolving the code, from the index itself to the gates on every write.
@@ -133,13 +139,6 @@ A sample of 16 of Benzi's 35+ tools — what falls out of actually resolving the
 | `execute_generated_testcase` | Writes a self-contained repro and runs it to debug its own change. |
 | `rollback_edit` | Undoes the last writes by snapshot reload, not by re-editing. |
 | `upgrade_to_pro` | Escalates itself to a larger reasoning budget mid-task. |
-
-## How it works
-
-1. **Compile.** Tree-sitter parses every file; imports are resolved, class ancestry built, every identifier traced to its definition. The output is an index, not a blob of text.
-2. **Query.** The agent answers questions and plans edits through structured tools over that index — `profile`, `get_callers`, `backflow`, `trace_path`, `skim_source`, and ~30 more.
-3. **Edit, gated.** Every write passes syntax and semantic gates against the real language parser — a broken parse auto-reverts. The model checks blast radius *before* it changes anything, not just after: the same analysis — the changed symbol, its callers, its holders, the selectively relevant existing tests — runs both going in and once a write lands.
-4. **Verify.** A focused, context-aware repro is generated against the exact change and run under a runtime tracer that records real argument values, real returns, real dispatch — plus the selectively relevant existing test cases that the same blast-radius analysis surfaces.
 
 ## What the index actually changes
 
@@ -176,8 +175,7 @@ More detail, per-bug breakdowns, and full methodology: [benzi.fly.dev/benchmark]
 
 ## Features
 
-- **Three tiers of truth** — proven edges carry evidence; ambiguous calls keep their full candidate lists instead of a guess; runtime traces settle what static analysis can't.
-- **Blind spots, declared** — every unresolved call is classified: a real library call, an in-repo call with recorded candidates, or an honest unknown carrying the ID the compiler supposed. Nothing is silently dropped.
+- **Six states, never a guess** — every call site and every file carries one: **resolved** (proven in-repo edge), **external** (into a library, with the import evidence), **candidate** (ambiguous — the bounded set of possible targets, kept in full), **unresolved** (seen but not settled, carrying *why*), **observed** (confirmed by an actual run), **unindexed** (never parsed, with the reason). One rule throughout: whatever static analysis can't settle is flagged as unsettled rather than guessed — and running the program is what settles it.
 - **Runtime tracer** — hooks every call during execution and overlays the observations back onto the static map.
 - **Reasoning you can click** — the same map that drives the tools drives a live call graph beside the chat; when the agent names a function, that node lights up.
 - **Persistent memory** — durable per-repo facts survive restarts; conventions learned once aren't re-derived every session.
@@ -189,8 +187,6 @@ More detail, per-bug breakdowns, and full methodology: [benzi.fly.dev/benchmark]
 **Python · JavaScript · TypeScript · Java · C# · C++ · C · Go · Rust · Ruby**
 
 One compiler, ten languages; tree-sitter is the only real dependency, and each language is a grammar plugin. The map looks the same everywhere: symbols, call edges, data flow, references, inheritance.
-
-**Honest limits:** depth varies by language. Python is the deepest — it's where the runtime tracer works and where parsing is strongest. A Go codebase gets the same structural map as a Python one, but not runtime traces. Execution is local-only, and the agent doesn't browse the web: everything it knows about a project comes from the project's own source.
 
 ## Getting started
 
@@ -223,6 +219,9 @@ VS Code handles real codebases — `microsoft/vscode` at 923k indexed lines buil
 
 **How is this different from Cursor, Copilot, or Claude Code?**
 They find code by searching text — grep, or embedding similarity. Benzi resolves it first: a tree-sitter compiler builds a real index of symbols, call edges, inheritance and data flow, and the agent queries that index instead of guessing which files to read. The practical difference is in [what the index actually changes](#what-the-index-actually-changes) — the same 24 bugs, 2.3× less source read than Claude Code on the same model.
+
+**How is this different from CodeGraph?**
+CodeGraph is the closest comparison there is, because it's the other tool that indexes rather than searches — so the difference is scope, not approach. CodeGraph hands an agent a graph of your code. Benzi is the whole loop around one: the compiler, the agent querying it, writes gated against the real parser, and a runtime tracer that settles what static analysis leaves ambiguous. Benzi also exposes its index over MCP, which is the nearer apples-to-apples comparison. We ran CodeGraph's own benchmark — their six repos, their questions, their published methodology — on Claude Sonnet 5, and had four models (Gemini, DeepSeek, Claude, ChatGPT) score every answer from a fresh chat with no shared context. All four ranked Benzi Product first. Full answers, scores and reasoning: [benzi.fly.dev/benchmark_codegraph](https://benzi.fly.dev/benchmark_codegraph).
 
 **Is there a CLI or headless mode?**
 Not yet. The browser and the VS Code extension are the only two ways in today; the MCP server above is the nearest thing coming.
