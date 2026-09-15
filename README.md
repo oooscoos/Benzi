@@ -32,7 +32,7 @@
 ## Contents
 
 - [What is Benzi](#what-is-benzi) — how it works in one paragraph
-- [In the press](#in-the-press) — what people wrote about it
+- [What people say](#what-people-say) — what people wrote about it
 - [SWE-bench Verified](#swe-bench-verified) — 391/500 (78.2%) for $37.33
 - [Live demos](#live-demos) — StallionSwipe, VS Code's own source, or any repo you paste
 - [How it works](#how-it-works) — compile, query, edit, verify
@@ -64,7 +64,7 @@ You can try pasting this repo's link to Benzi too!
   <a href="https://benzi.fly.dev/about"><img src="https://img.shields.io/badge/Visit_the_Website-1E7A5C?style=for-the-badge" alt="Visit the website"></a>
 </p>
 
-## In the press
+## What people say
 
 > "78.2% for $37 is a slap in the face to the 'brute force wins' school."
 > — Alex Xiang, [**zicode**](https://zicode.com/blog/ai-coding-supply-chain/) *(translated)*
