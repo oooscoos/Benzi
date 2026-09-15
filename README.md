@@ -29,6 +29,21 @@
 
 ---
 
+## Contents
+
+- [What is Benzi](#what-is-benzi) — how it works in one paragraph
+- [In the press](#in-the-press) — what people wrote about it
+- [SWE-bench Verified](#swe-bench-verified) — 391/500 (78.2%) for $37.33
+- [Live demos](#live-demos) — StallionSwipe, VS Code's own source, or any repo you paste
+- [Tools](#tools) — 16 of the 35+ the index makes possible
+- [How it works](#how-it-works) — compile, query, edit, verify
+- [What the index actually changes](#what-the-index-actually-changes) — lines read vs three other harnesses
+- [Features](#features) · [Language support](#language-support) · [Getting started](#getting-started)
+- [FAQ](#faq) — privacy, MCP, pricing, limits
+- [Bonus: reading DOOM's source](#bonus-demo-reading-a-real-codebase-doom--c)
+
+---
+
 ## What is Benzi
 
 Most AI coding agents dump a repository into a context window and hope the model finds what matters. Benzi works differently: before answering anything, a real compiler — built on tree-sitter — parses every file in the project and resolves it into a precise, queryable map. Every symbol, every call edge, every reference, every class in its inheritance chain. One pass, done.
@@ -48,6 +63,22 @@ You can try pasting this repo's link to Benzi too!
   <br><br>
   <a href="https://benzi.fly.dev/about"><img src="https://img.shields.io/badge/Visit_the_Website-1E7A5C?style=for-the-badge" alt="Visit the website"></a>
 </p>
+
+## In the press
+
+> "37 美元跑出来的 78.2%，是对「大力出奇迹」路线的一次打脸。"
+> *"78.2% for $37 is a slap in the face to the 'brute force wins' school."*
+> — Alex Xiang, [**zicode**](https://zicode.com/blog/ai-coding-supply-chain/)
+
+> "Benzi is proving that the core competency of coding tools is shifting from simple 'reading comprehension' to 'structural grasping ability.'"
+> — Gi Pyeong Lee, [**Tech Blog**](https://gipyeong-lee.github.io/2026/09/11/Show-HN-Benzi-A-Code-IntillegenceHarness-Beating-Claude-Code-and-CodeGraph.en/)
+
+> "Fewer tokens, no context drift. Wild idea, honestly."
+> — [**prompt 🤖 AI News**](https://t.me/prompt/392)
+
+> "Analiza cambios antes de escribirlos y supera a Claude Code en benchmarks."
+> *"It analyzes changes before writing them — and beats Claude Code on benchmarks."*
+> — [**Ponte al dIA**](https://ponte-al-dia.com/p/benzi-agente-de-codigo-que-supera-a-claude-sonnet-en-tareas-de-programacion)
 
 ## SWE-bench Verified
 
@@ -169,6 +200,35 @@ Benzi is completely free to use.
 - **In VS Code** — the same compiler, but with edit access: chat, graph, and Benzi actually writing code in your own project. [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=varianttech.benzi). This is the real tool — click here to use it.
 
 There's no headless or CLI mode (as of yet) — the browser and VS Code are the only two ways in.
+
+## FAQ
+
+**Does my code leave my machine?**
+In VS Code, the compiler runs locally: your project is parsed on your machine, the index is built there, and it stays there. Nothing is uploaded, nothing is embedded into a vector store, and no copy of your repo is kept anywhere. What does leave is the same thing that leaves with any AI assistant — the specific snippets the agent actually reads while answering you go to the model as part of the prompt. Reading less is the point of the index: on the 24-bug comparison Benzi opened **9,125** lines where Claude Code opened 20,704, so there is materially less of your code in flight. The browser demo is different by nature — it downloads a *public* repo to the server, works on it read-only for your session, and deletes it when the session ends.
+
+**Is there an MCP server?**
+Soon. Benzi's index already speaks MCP over stdio, so any MCP-capable harness — Claude Code, Cursor, your own agent loop — can query the same compiled map the Benzi agent uses, as a local server on your machine. It isn't packaged for release yet; this README will say so when it is.
+
+**Do I need an API key?**
+No. There's no key to get, no provider account to create, no config file. That's true of both the browser demo and the VS Code extension.
+
+**Is it actually free?**
+Yes, today, both surfaces, with no signup for the browser demo. Benzi is early and actively in development — that's the trade you're making, not a paywall.
+
+**Can I point it at a private repo?**
+In VS Code, yes — it analyzes whatever project you have open, private or not, because the compiler runs locally. The browser demo is public repos only: it fetches over the public GitHub API with no credentials.
+
+**How large a repo can it handle?**
+VS Code handles real codebases — `microsoft/vscode` at 923k indexed lines builds in just over two minutes, then caches. The browser demo is capped at 2,000 analyzable files and skips individual files over 2 MB, so a very large repo will be refused there but works fine in the extension.
+
+**How is this different from Cursor, Copilot, or Claude Code?**
+They find code by searching text — grep, or embedding similarity. Benzi resolves it first: a tree-sitter compiler builds a real index of symbols, call edges, inheritance and data flow, and the agent queries that index instead of guessing which files to read. The practical difference is in [what the index actually changes](#what-the-index-actually-changes) — the same 24 bugs, 2.3× less source read than Claude Code on the same model.
+
+**Is there a CLI or headless mode?**
+Not yet. The browser and the VS Code extension are the only two ways in today; the MCP server above is the nearest thing coming.
+
+**My language isn't Python — how much do I lose?**
+The structural map is the same in all ten languages: symbols, call edges, references, inheritance, data flow. What's Python-only is the runtime tracer, which executes code and records real calls and values. So a Go or TypeScript project gets the full index and full navigation, just not runtime verification.
 
 ## BONUS DEMO: Reading a real codebase: DOOM · C
 
