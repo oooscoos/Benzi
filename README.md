@@ -22,9 +22,9 @@
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/demo.gif" width="700" alt="Benzi demo">
+  <img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/benzi_on_sqlite.png" width="700" alt="Benzi on SQLite">
   <br>
-  <sub>Select a symbol in the graph → ask about it → Benzi queries the map and answers.</sub>
+  <sub>Benzi in use on SQLite</sub>
 </p>
 
 ---
