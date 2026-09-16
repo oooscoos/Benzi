@@ -24,7 +24,7 @@
 <p align="center">
   <img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/benzi_on_sqlite.png" width="700" alt="Benzi on SQLite">
   <br>
-  <sub>Benzi in use on SQLite</sub>
+  <sub>Benzi on SQLite</sub>
 </p>
 
 ---
