@@ -206,21 +206,21 @@ Run `benzi_login` once to authenticate before using the VS Code extension, MCP, 
 ## FAQ
 
 **How do I get at it — API, CLI, SDK, MCP, my own harness?**
-All of them, in time. Benzi is not meant to be a chat window you visit; it is an AI-native code intelligence layer, and a layer is only worth the name if whatever you already work in can call it.
+The CLI and MCP are here now — see [Getting started](#getting-started) above. Benzi is not meant to be a chat window you visit; it is an AI-native code intelligence layer, and a layer is only worth the name if whatever you already work in can call it.
 
-The index already speaks MCP over stdio, so any MCP-capable harness — Claude Code, Cursor, your own agent loop — can query the same compiled map the Benzi agent uses, as a local server on your machine; what's left is packaging it for release. A CLI, a headless mode, an SDK and an API all sit on that same index. **Every one of them will be available by early October 2026.** Today the browser and the VS Code extension are the two doors that actually open.
+`pip install benzi` gets you both: `benzi`, the same agent as the browser and VS Code, from your own terminal, and `benzi-mcp`, the same compiled index exposed as tools over MCP for whatever agent you already run — Claude Code, Cursor, your own harness. An SDK and a hosted API still sit on that same index but aren't out yet.
 
 **Does my code leave my machine?**
-In VS Code, the compiler runs locally: your project is parsed on your machine, the index is built there, and it stays there. Nothing is uploaded, nothing is embedded into a vector store, and no copy of your repo is kept anywhere. What does leave is the same thing that leaves with any AI assistant — the specific snippets the agent actually reads while answering you go to the model as part of the prompt. Reading less is the point of the index: on the 24-bug comparison Benzi opened **9,125** lines where Claude Code opened 20,704, so there is materially less of your code in flight. The browser demo is different by nature — it downloads a *public* repo to the server, works on it read-only for your session, and deletes it when the session ends.
+In VS Code, the CLI, or over MCP, the compiler runs locally: your project is parsed on your machine, the index is built there, and it stays there. Nothing is uploaded, nothing is embedded into a vector store, and no copy of your repo is kept anywhere. What does leave is the same thing that leaves with any AI assistant — the specific snippets the agent actually reads while answering you go to the model as part of the prompt, straight from your machine to your own provider on the CLI and MCP, never through Benzi's servers. Reading less is the point of the index: on the 24-bug comparison Benzi opened **9,125** lines where Claude Code opened 20,704, so there is materially less of your code in flight. The browser demo is different by nature — it downloads a *public* repo to the server, works on it read-only for your session, and deletes it when the session ends.
 
 **Do I need an API key?**
 For the browser demo, no — there's no key to get, no provider account to create, no config file. For the VS Code extension, MCP, and the headless CLI, yes: run `benzi_login` once to bring your own Anthropic or OpenAI-compatible key.
 
 **Is it actually free?**
-Yes, today, both surfaces, with no signup for the browser demo. Benzi is early and actively in development — that's the trade you're making, not a paywall.
+Yes — Benzi itself doesn't charge, on any surface. The browser demo and VS Code extension need nothing else at all; the CLI and MCP are BYOK, so you pay your own model provider for usage, same as running any other tool with your own key. Benzi is early and actively in development — that's the trade you're making, not a paywall.
 
 **Can I point it at a private repo?**
-In VS Code, yes — it analyzes whatever project you have open, private or not, because the compiler runs locally. The browser demo is public repos only: it fetches over the public GitHub API with no credentials.
+Not on the web demo — that's public repos only, fetched over the public GitHub API with no credentials. Everywhere else (VS Code, the CLI, MCP), yes: all three analyze whatever local path you point them at, private or not, because the compiler runs locally.
 
 **How large a repo can it handle?**
 VS Code handles real codebases — `microsoft/vscode` at 923k indexed lines builds in just over two minutes, then caches. The browser demo is capped at 2,000 analyzable files and skips individual files over 2 MB, so a very large repo will be refused there but works fine in the extension.
