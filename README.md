@@ -198,8 +198,10 @@ Benzi is completely free to use.
 
 - **In the browser** — paste any public GitHub repo at [benzi.fly.dev](https://benzi.fly.dev); no install, no signup. Read-only: ask it questions, explore the map, nothing writes to the repo. This is the demo — click here to see what it can do.
 - **In VS Code** — the same compiler, but with edit access: chat, graph, and Benzi actually writing code in your own project. [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=varianttech.benzi). This is the real tool — click here to use it.
+- **MCP** — the same compiled index, exposed as tools over MCP for whatever agent you already run: Claude Code, Cursor, or your own harness. `pip install benzi`, then point your MCP client at `benzi-mcp`. This is the benzi index without the agentic loop — output quality will depend on your agent/harness.
+- **Headless** — the same agent as VS Code, from your own terminal: `pip install benzi`, then `benzi <repo> "your question"`. This is Benzi for scripts and CI — no editor needed.
 
-Those are the two ways in today. Benzi is meant to be a code intelligence layer rather than a place you visit, so MCP, a CLI, a headless mode, an SDK and an API all sit on the same index — **every one of them available by early October 2026.**
+Run `benzi_login` once to authenticate before using the VS Code extension, MCP, or headless — the same command lets you update your model or key again later too.
 
 ## FAQ
 
@@ -212,7 +214,7 @@ The index already speaks MCP over stdio, so any MCP-capable harness — Claude C
 In VS Code, the compiler runs locally: your project is parsed on your machine, the index is built there, and it stays there. Nothing is uploaded, nothing is embedded into a vector store, and no copy of your repo is kept anywhere. What does leave is the same thing that leaves with any AI assistant — the specific snippets the agent actually reads while answering you go to the model as part of the prompt. Reading less is the point of the index: on the 24-bug comparison Benzi opened **9,125** lines where Claude Code opened 20,704, so there is materially less of your code in flight. The browser demo is different by nature — it downloads a *public* repo to the server, works on it read-only for your session, and deletes it when the session ends.
 
 **Do I need an API key?**
-No. There's no key to get, no provider account to create, no config file. That's true of both the browser demo and the VS Code extension.
+For the browser demo, no — there's no key to get, no provider account to create, no config file. For the VS Code extension, MCP, and the headless CLI, yes: run `benzi_login` once to bring your own Anthropic or OpenAI-compatible key.
 
 **Is it actually free?**
 Yes, today, both surfaces, with no signup for the browser demo. Benzi is early and actively in development — that's the trade you're making, not a paywall.
