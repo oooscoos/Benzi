@@ -40,7 +40,7 @@
 ### <u>Contents</u>
 
 [What is Benzi](#what-is-benzi) — how it works in one paragraph
-<br>[Live demos](#live-demos) — StallionSwipe, VS Code's own source, or any repo you paste
+<br>[Live demos](#live-demos) — StallionSwipe, or any repo you paste
 <br>[Language support](#language-support) — ten languages, and where the depth is uneven
 <br>[Getting started](#getting-started) — the Benzi agent (VS Code or headless), or the compiler over MCP
 <br>[What people say](#what-people-say) — what people wrote about it
@@ -83,8 +83,6 @@ You can try pasting this repo's link to Benzi in the [live demo](https://variant
   <img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/stallionswipe/ht3.jpeg" width="200" alt="StallionSwipe live AI chat">
   <img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/stallionswipe/ht1.jpeg" width="200" alt="StallionSwipe profile creation">
 </p>
-
-**[VS Code's own source, resolved](https://varianttech.net/about) · TypeScript** — the real `microsoft/vscode` repo is 1.8M lines; this indexes 923k of them: the editor core (`src/vs/editor` + `src/vs/base`), the platform services layer, and workbench's shell/API/browser plumbing — deliberately excluding the 747k-line grab-bag of individual features in `workbench/contrib`. Built once, in just over two minutes, then cached. [Try it live](https://varianttech.net/about) (chat panel, near the bottom of the page).
 
 **Or, try any repo of your choice at all here** — point Benzi at any public GitHub repo and it builds the index live. [varianttech.net/demo](https://varianttech.net/demo).
 
