@@ -41,12 +41,14 @@
 
 [What is Benzi](#what-is-benzi) — how it works in one paragraph
 <br>[Live demos](#live-demos) — StallionSwipe, VS Code's own source, or any repo you paste
+<br>[Language support](#language-support) — ten languages, and where the depth is uneven
+<br>[Getting started](#getting-started) — the Benzi agent (VS Code or headless), or the compiler over MCP
 <br>[What people say](#what-people-say) — what people wrote about it
 <br>[SWE-bench Verified](#swe-bench-verified) — 391/500 (78.2%) for $37.33
 <br>[How it works](#how-it-works) — compile, query, edit, verify
 <br>[Tools](#tools) — 16 of the 35+ the index makes possible
 <br>[What the index actually changes](#what-the-index-actually-changes) — lines read vs three other harnesses
-<br>[Features](#features) · [Language support](#language-support) · [Getting started](#getting-started)
+<br>[Features](#features) — six states, runtime tracer, live call graph, memory, markup engine
 <br>[FAQ & comparisons](#faq) — privacy, pricing, limits, and how Benzi compares
 
 </div>
@@ -85,6 +87,93 @@ You can try pasting this repo's link to Benzi in the [live demo](https://variant
 **[VS Code's own source, resolved](https://varianttech.net/about) · TypeScript** — the real `microsoft/vscode` repo is 1.8M lines; this indexes 923k of them: the editor core (`src/vs/editor` + `src/vs/base`), the platform services layer, and workbench's shell/API/browser plumbing — deliberately excluding the 747k-line grab-bag of individual features in `workbench/contrib`. Built once, in just over two minutes, then cached. [Try it live](https://varianttech.net/about) (chat panel, near the bottom of the page).
 
 **Or, try any repo of your choice at all here** — point Benzi at any public GitHub repo and it builds the index live. [varianttech.net/demo](https://varianttech.net/demo).
+
+<img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/divider_gold.png" width="100%" alt="">
+
+### <u>Language support</u>
+
+**Python · JavaScript · TypeScript · Java · C# · C++ · C · Go · Rust · Ruby**
+
+One compiler, ten languages — each is a tree-sitter grammar plugin, so the core of the map (symbols, call edges, references, inheritance, data flow) is built the same way everywhere.
+
+**Depth is uneven, and we'd rather say so than let you find out.** Python is deepest, and the only one with the runtime tracer. Every language reaches the core of the map, but each has its own constructs, not all modelled yet — a question specific to your language may come back thinner than the same question in Python.
+
+Incremental reindexing is also less optimized for C, C++, Rust, and Ruby — it works, just not as fast on a large edit loop.
+
+Wrong or thin answer in your language? [Open an issue](https://github.com/oooscoos/Benzi/issues) with the repo, the question, and what it got wrong — that's how the uneven parts get found.
+
+<img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/divider_gold.png" width="100%" alt="">
+
+### <u>Getting started</u>
+
+Benzi is completely free to use during beta. There are two ways to use it, and they share one login: the same `benzi-login` config works everywhere.
+
+1. **The Benzi agent** — Benzi's own agent, running on the compiled index, in VS Code or from the terminal. These features are part of the agent itself, so they come with VS Code and headless and are **not available over MCP**:
+
+   - **Runtime tracer** — runs your code and records what actually happened: which target each ambiguous call really hit, with the real argument values.
+   - **Static-analysis-gated edits** — every write is syntax-checked and checked against a fresh index before the next step; an edit that breaks the code is rolled back instead of built on.
+   - **Blast radius before and after every edit** — who calls the symbol, who holds it, and what feeds its parameters, before the change and again once it lands.
+   - **Self-aware upgrade to pro** — when a task outgrows the model it's running on, the agent upgrades itself to a larger model, then drops back when the task is done. Set `BENZI_ESCALATE_MODEL=deepseek-pro` (or another model alias) to turn it on.
+   - **Persistent memory and rollback** — per-repo facts that survive restarts, and one-step undo of any edit.
+
+   Run it either way:
+
+   - **VS Code extension** — [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=varianttech.benzi)
+
+     1. Install **Benzi** from the VS Code Marketplace.
+     2. Click the **Benzi** icon in the left activity bar (circled below) to open the **Benzi: Settings** panel.
+     3. Pick your model and paste your API key: an Anthropic key, or a non-Anthropic one (DeepSeek, Groq, Kimi and others).
+     4. Enter your email and press **Send**, then type in the one-time code it emails you.
+     5. Press **Save model & keys**, then **Run Benzi**.
+
+     <p align="center">
+       <img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/benzi_login_settings.png" width="380" alt="The Benzi: Settings panel in VS Code">
+     </p>
+
+   - **Headless CLI** — [PyPI](https://pypi.org/project/benzi/)
+
+     The same steps as the VS Code extension, from your terminal: install, log in, set your model and key, then run.
+
+     ```bash
+     pip install benzi
+     ```
+
+     Python 3.11–3.14 on Windows, macOS and Linux. Installs the `benzi-login`, `benzi-headless` and `benzi-mcp` commands.
+
+     **1. Log in** — emails you a one-time code to type in.
+
+     ```bash
+     benzi-login --login you@example.com
+     ```
+
+     **2. Set your model and key**
+
+     ```bash
+     benzi-login --model deepseek
+     benzi-login --nonanthropic-key YOUR_KEY      # or for Claude models: benzi-login --anthropic-key YOUR_KEY
+     ```
+
+     **3. Run it on a repo** — from the terminal, for scripts and CI.
+
+     ```bash
+     benzi-headless . "fix the failing test in parser.py"
+     ```
+
+2. **The Benzi compiler as an MCP server** — the compiled index, served as tools to the agent you already use: Claude Code, Cursor, or any MCP client. This is the map without Benzi's agent loop, so output quality depends on your agent, and the agent features above aren't included.
+
+   The steps are the same as headless: `pip install benzi`, then log in with `benzi-login`. You can skip the model and key, because your own agent does the model calls. Then register `benzi-mcp` with your agent instead of running `benzi-headless`. For example, in Claude Code, once for all your projects:
+
+   ```bash
+   claude mcp add --scope user benzi -- benzi-mcp
+   ```
+
+   `benzi-mcp` then serves whichever folder you start Claude Code in, so switching projects needs nothing extra. To pin it to one repo no matter where you start, pass that repo's path:
+
+   ```bash
+   claude mcp add --scope user benzi -- benzi-mcp /path/to/your/repo
+   ```
+
+VS Code's settings panel and `benzi-login` share one config: log in once, and VS Code, headless and MCP all use it.
 
 <img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/divider_gold.png" width="100%" alt="">
 
@@ -214,58 +303,6 @@ More detail, per-bug breakdowns, and full methodology: [varianttech.net/benchmar
 - **Persistent memory** — durable per-repo facts survive restarts; conventions learned once aren't re-derived every session.
 - **Dual-engine: code + markup** — a separate index for HTML/CSS/DOM-JS with cascade resolution and selector specificity, including frontend embedded inside Python strings.
 - **Model-agnostic** — Anthropic, OpenAI, or any compatible API; the agent can escalate itself to a larger model mid-task when a problem outgrows the one running it.
-
-<img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/divider_gold.png" width="100%" alt="">
-
-### <u>Language support</u>
-
-**Python · JavaScript · TypeScript · Java · C# · C++ · C · Go · Rust · Ruby**
-
-One compiler, ten languages — each is a tree-sitter grammar plugin, so the core of the map (symbols, call edges, references, inheritance, data flow) is built the same way everywhere.
-
-**Depth is uneven, and we'd rather say so than let you find out.** Python is deepest, and the only one with the runtime tracer. Every language reaches the core of the map, but each has its own constructs, not all modelled yet — a question specific to your language may come back thinner than the same question in Python.
-
-Incremental reindexing is also less optimized for C, C++, Rust, and Ruby — it works, just not as fast on a large edit loop.
-
-Wrong or thin answer in your language? [Open an issue](https://github.com/oooscoos/Benzi/issues) with the repo, the question, and what it got wrong — that's how the uneven parts get found.
-
-<img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/divider_gold.png" width="100%" alt="">
-
-### <u>Getting started</u>
-
-Benzi is completely free to use during beta. All surfaces use the same `benzi-login` config.
-
-- **In the browser** — paste any public GitHub repo at [varianttech.net/demo](https://varianttech.net/demo); no install, no signup. Read-only: ask it questions, explore the map, nothing writes to the repo. This is the demo — click here to see what it can do.
-- **In VS Code** — the same compiler, but with edit access: chat, graph, and Benzi actually writing code in your own project. [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=varianttech.benzi). This is the real tool — click here to use it.
-
-**pip MCP/CLI** — the compiled index over MCP for the agent you already run, or the full Benzi agent from your terminal. [PyPI](https://pypi.org/project/benzi/)
-
-```bash
-pip install benzi
-```
-
-Python 3.11–3.14 on Windows, macOS and Linux. Installs the `benzi-login`, `benzi-mcp` and `benzi-headless` commands.
-
-**1. Log in** — emails you a one-time code, then saves your key. The same login works in VS Code.
-
-```bash
-benzi-login --login you@example.com
-benzi-login --anthropic-key YOUR_KEY      # or: benzi-login --nonanthropic-key YOUR_KEY
-```
-
-**2. Give your agent Benzi's map** — serves the compiled index as tools to Claude Code, Cursor or any MCP client. This is the index without Benzi's agent loop, so output quality depends on your agent.
-
-```bash
-benzi-mcp
-```
-
-**3. Or run the full agent** — point it at a repo from the terminal, for scripts and CI.
-
-```bash
-benzi-headless . "fix the failing test in parser.py"
-```
-
-VS Code also has a Benzi settings panel in the left sidebar: use it to log in or update your email, model or key. All surfaces share the same config: log in once and VS Code, MCP and headless all use it.
 
 <img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/divider_gold.png" width="100%" alt="">
 
