@@ -321,7 +321,7 @@ In principle, yes: Benzi talks to models through standard APIs, so a local model
 Not the web demo (public GitHub API only). Everywhere else, yes — the compiler runs locally on whatever path you give it.
 
 **How large a repo can it handle?**
-VS Code handles real codebases — `microsoft/vscode`, 923k lines, indexes in ~2 minutes, then caches. The browser demo caps at 2,000 files, 2 MB each.
+The browser demo caps at 2,000 files, 2 MB each.
 
 **How is this different from Cursor, Copilot, or Claude Code?**
 They search — grep or embeddings. Benzi resolves first: a real index of symbols, calls, inheritance, data flow, queried instead of guessed. Same 24 bugs, 2.3× less source read than Claude Code. Details: [what the index actually changes](#what-the-index-actually-changes).
