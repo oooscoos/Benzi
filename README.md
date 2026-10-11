@@ -96,7 +96,7 @@ You can try pasting this repo's link to Benzi in the [live demo](https://variant
 
 One compiler, ten languages — each is a tree-sitter grammar plugin, so the core of the map (symbols, call edges, references, inheritance, data flow) is built the same way everywhere.
 
-**Depth is uneven, and we'd rather say so than let you find out.** Python is deepest, and the only one with the runtime tracer. Every language reaches the core of the map, but each has its own constructs, not all modelled yet — a question specific to your language may come back thinner than the same question in Python.
+**Depth is uneven.** Python is deepest, and the only one with the runtime tracer. Every language reaches the core of the map, but each has its own constructs, not all modelled yet. For most code, every other language's map comes close to Python's.
 
 Incremental reindexing is also less optimized for C, C++, Rust, and Ruby — it works, just not as fast on a large edit loop.
 
