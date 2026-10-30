@@ -95,8 +95,6 @@ One compiler, ten languages — each is a tree-sitter grammar plugin, so the cor
 
 **Depth is uneven.** Python is deepest, and the only one with the runtime tracer. Every language reaches the core of the map, but each has its own constructs, not all modelled yet. For most code, every other language's map comes close to Python's.
 
-> **Runtime tracer: temporarily broken (October 14, 2026).** Traced runs still execute, but they miss calls made inside comprehensions, lambdas and generator expressions, and most method calls on Python 3.9–3.10 projects. A fix is coming in the next release.
-
 Incremental reindexing is also less optimized for C, C++, Rust, and Ruby — it works, just not as fast on a large edit loop.
 
 Wrong or thin answer in your language? [Open an issue](https://github.com/oooscoos/Benzi/issues) with the repo, the question, and what it got wrong — that's how the uneven parts get found.
