@@ -1,6 +1,6 @@
 # Benzi on SWE-bench Verified: second October run
 
-**413 of 500 resolved (82.6%), pass@1, on DeepSeek V4.1-Flash, for $9.26 total: 2.2¢ per resolved instance.**
+**413 of 500 resolved (82.6%), pass@1, on DeepSeek V4.1-Flash, for $9.26 total: 1.85¢ per task.**
 
 The second full run of October (October 30–31, 2026), on a later build than the [first October run](../swebench-october/SWE_BENCH_REPORT.md) (412/500, $12.96). One configuration, one attempt per instance, no ensembling, no test-time selection, graded by the official SWE-bench harness. This report describes the system, the setup, the results, and how to reproduce them.
 
@@ -14,7 +14,7 @@ The second full run of October (October 30–31, 2026), on a later build than th
 | Attempts per instance | 1 (pass@1) |
 | Model | DeepSeek V4.1-Flash, thinking mode at its default effort |
 | Total generation cost, all 500 | $9.26 |
-| Cost per resolved instance | $0.022 |
+| Cost per task | $0.0185 |
 | Model turns: total / median per instance | 13,281 / 20.5 |
 | Input tokens served from prompt cache | 97.6% |
 | Output tokens, total (of which reasoning) | 8.6M (6.3M) |

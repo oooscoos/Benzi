@@ -176,7 +176,7 @@ VS Code's settings panel and `benzi-login` share one config: log in once, and VS
 
 ### <u>SWE-bench Verified</u>
 
-The full SWE-bench Verified set — 500 real GitHub issues from twelve Python repositories — run end to end on **DeepSeek V4.1-Flash**, one attempt per instance, graded by the official `swebench.harness.run_evaluation` inside its own per-instance Docker images, with network access to GitHub and PyPI blocked inside every container. **413 of 500 resolved (82.6%) for $9.26 in total**, about 2¢ per fix, with 97.6% of input tokens served from cache.
+The full SWE-bench Verified set — 500 real GitHub issues from twelve Python repositories — run end to end on **DeepSeek V4.1-Flash**, one attempt per instance, graded by the official `swebench.harness.run_evaluation` inside its own per-instance Docker images, with network access to GitHub and PyPI blocked inside every container. **413 of 500 resolved (82.6%) for $9.26 in total**, 1.85¢ per task, with 97.6% of input tokens served from cache.
 
 <div align="center">
 
@@ -186,7 +186,7 @@ The full SWE-bench Verified set — 500 real GitHub issues from twelve Python re
 | Attempts per instance | 1 (pass@1) |
 | Model | DeepSeek V4.1-Flash, thinking mode at its default effort |
 | Total generation cost, all 500 | $9.26 |
-| Cost per resolved instance | $0.022 |
+| Cost per task | $0.0185 |
 | Model turns: total / median per instance | 13,281 / 20.5 |
 | Input tokens served from prompt cache | 97.6% |
 | Output tokens, total (of which reasoning) | 8.7M (6.2M) |
