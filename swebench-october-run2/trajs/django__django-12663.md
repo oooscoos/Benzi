@@ -1,0 +1,59 @@
+# Trajectory: django__django-12663
+
+- model: deepseek-v4-flash
+- turns: 41
+- tool calls: 51
+
+## Tool-call sequence (recorded during inference)
+
+- turn 1: `search_symbols` ['get_prep_value', 'build_lookup', 'resolve_expression']
+- turn 1: `read_source` django/db/models/fields/__init__.py
+- turn 2: `read_source` django/db/models/sql/query.py::Query#Class.build_lookup#Func
+- turn 2: `read_source` django/db/models/lookups.py
+- turn 3: `shell` cd /workspace 2>/dev/null || cd "$(pwd)"; git log --oneline 
+- turn 3: `read_source` django/utils/functional.py
+- turn 4: `shell` cd "$(pwd)"; git show 35431298226165986ad07e91f9d3aca721ff38
+- turn 5: `read_source` django/db/models/sql/query.py::Query#Class.build_filter#Func
+- turn 5: `benzi_grep` django/db/models/query_utils.py
+- turn 6: `read_source` django/db/models/sql/query.py::Query#Class.solve_lookup_type
+- turn 6: `read_source` django/db/models/sql/query.py::Query#Class.resolve_lookup_va
+- turn 7: `read_source` django/db/models/fields/__init__.py::Field#Class.get_prep_va
+- turn 7: `read_source` django/db/models/fields/__init__.py::IntegerField#Class.get_
+- turn 7: `read_source` django/db/models/fields/related.py::ForeignKey#Class.get_pre
+- turn 8: `benzi_grep` tests
+- turn 8: `read_source` django/utils/functional.py
+- turn 9: `benzi_grep` def refs_expression
+- turn 9: `shell` cd "$(pwd)"; sed -n '1,60p' django/db/models/sql/query.py | 
+- turn 10: `read_source` django/db/models/query_utils.py::refs_expression#Function
+- turn 11: `benzi_grep` django/db/models/fields/related_lookups.py
+- turn 12: `read_source` django/db/models/fields/related_lookups.py
+- turn 13: `benzi_grep` django/db/models/fields/related.py
+- turn 13: `read_source` django/db/models/expressions.py::BaseExpression#Class.get_lo
+- turn 14: `read_source` django/db/models/fields/related.py
+- turn 15: `shell` cd "$(pwd)"; ls tests | head -30; echo ---; sed -n '1,40p' t
+- turn 16: `create_file` repro_lazy.py
+- turn 17: `shell` cd "$(pwd)"; python repro_lazy.py 2>&1 | tail -40
+- turn 18: `edit_lines` repro_lazy.py
+- turn 19: `read_source` repro_lazy.py
+- turn 20: `edit_lines` repro_lazy.py
+- turn 21: `shell` cd "$(pwd)"; python repro_lazy.py 2>&1 | tail -40
+- turn 22: `read_source` django/db/models/expressions.py::Subquery#Class
+- turn 23: `edit_lines` repro_lazy.py
+- turn 24: `shell` cd "$(pwd)"; python repro_lazy.py 2>&1 | tail -25
+- turn 25: `edit_lines` repro_lazy.py
+- turn 26: `read_source` repro_lazy.py
+- turn 27: `edit_lines` repro_lazy.py
+- turn 28: `shell` cd "$(pwd)"; python repro_lazy.py 2>&1 | tail -20
+- turn 29: `read_source` django/db/models/sql/query.py::Query#Class
+- turn 30: `get_callers` django/db/models/sql/query.py::Query#Class.output_field
+- turn 31: `edit_lines` django/db/models/sql/query.py
+- turn 32: `shell` cd "$(pwd)"; python repro_lazy.py 2>&1 | tail -20
+- turn 33: `read_source` django/db/models/sql/query.py
+- turn 34: `edit_lines` django/db/models/sql/query.py
+- turn 35: `read_source` django/db/models/sql/query.py
+- turn 36: `edit_lines` django/db/models/sql/query.py
+- turn 37: `shell` cd "$(pwd)"; python repro_lazy.py 2>&1 | tail -20
+- turn 38: `delete_file` repro_lazy.py
+- turn 38: `shell` cd "$(pwd)"; python tests/runtests.py queries expressions lo
+- turn 39: `shell` cd "$(pwd)"; git diff --stat; git diff
+- turn 40: `remember` 

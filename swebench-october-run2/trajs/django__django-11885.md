@@ -1,0 +1,67 @@
+# Trajectory: django__django-11885
+
+- model: deepseek-v4-flash
+- turns: 50
+- tool calls: 59
+
+## Tool-call sequence (recorded during inference)
+
+- turn 1: `search_symbols` 
+- turn 1: `list_files` django/db/models/deletion.py
+- turn 2: `search_symbols` ['Collector', 'fast_deletes', 'can_fast_delete', 'RelatedObj
+- turn 2: `list_files` django/db/models
+- turn 3: `read_source` django/db/models/deletion.py::Collector#Class
+- turn 4: `shell` cd /code && git log --oneline -3 && cat django/__init__.py |
+- turn 4: `benzi_grep` tests/delete/tests.py
+- turn 5: `shell` pwd && ls && git log --oneline -3 && python -c "import djang
+- turn 6: `read_source` tests/delete/tests.py
+- turn 6: `read_source` tests/delete/models.py
+- turn 7: `shell` find / -path /proc -prune -o -name "deletion.py" -path "*db/
+- turn 8: `search_symbols` ['_raw_delete', 'DeleteQuery', 'delete_batch']
+- turn 9: `read_source` django/db/models/query.py::QuerySet#Class._raw_delete#Functi
+- turn 9: `read_source` django/db/models/sql/subqueries.py::DeleteQuery#Class
+- turn 10: `read_source` tests/delete/models.py
+- turn 11: `shell` timeout 25 pip download django==3.1 --no-deps --no-binary :a
+- turn 12: `read_source` tests/delete/tests.py
+- turn 12: `read_source` tests/delete/tests.py
+- turn 13: `shell` git show --stat HEAD | head -40; echo ---; git branch -a; gi
+- turn 13: `shell` git fsck --lost-found 2>/dev/null | head -20; ls .git/lost-f
+- turn 14: `shell` git tag | sort -V | tail -20; echo ---; git rev-list --all -
+- turn 15: `shell` python -c "import sqlite3,sys; print(sys.version); print(sql
+- turn 16: `read_source` tests/delete/tests.py
+- turn 17: `search_symbols` ['Query.combine', 'Query.__or__', '_merge_sanity_check', 'Qu
+- turn 17: `read_source` django/db/models/sql/query.py
+- turn 18: `benzi_grep` django/db/models/sql/query.py
+- turn 19: `benzi_grep` tests
+- turn 19: `list_external_calls` django/db/models/deletion.py::Collector#Class
+- turn 20: `benzi_grep` django/db/models/query.py
+- turn 21: `benzi_grep` django
+- turn 22: `read_source` django/db/backends/sqlite3/operations.py
+- turn 22: `read_source` django/db/backends/base/operations.py
+- turn 23: `read_source` django/db/models/deletion.py::Collector#Class.collect#Functi
+- turn 24: `read_source` django/db/models/deletion.py::Collector#Class.collect#Functi
+- turn 25: `edit_lines` django/db/models/deletion.py
+- turn 26: `edit_lines` django/db/models/deletion.py
+- turn 27: `read_source` django/db/models/deletion.py::Collector#Class.collect#Functi
+- turn 28: `edit_lines` django/db/models/deletion.py
+- turn 29: `read_source` django/db/models/deletion.py::Collector#Class.collect#Functi
+- turn 30: `shell` cd /testbed/tests && python runtests.py delete --parallel 1 
+- turn 31: `create_file` tests/delete/scratch_combined.py
+- turn 32: `shell` cd /testbed/tests && python runtests.py delete.scratch_combi
+- turn 33: `edit_lines` tests/delete/scratch_combined.py
+- turn 34: `shell` cd /testbed/tests && python runtests.py delete.scratch_combi
+- turn 35: `delete_file` tests/delete/scratch_combined.py
+- turn 36: `shell` cd /testbed/tests && python runtests.py delete generic_relat
+- turn 37: `shell` cd /testbed/tests && python runtests.py --parallel 8 2>&1 | 
+- turn 38: `shell` cd /testbed/tests && python runtests.py --parallel 8 2>&1 | 
+- turn 39: `shell` cd /testbed && git stash push -- django/db/models/deletion.p
+- turn 40: `shell` cd /testbed && git diff && python -m flake8 django/db/models
+- turn 41: `create_file` tests/delete/scratch_batch.py
+- turn 42: `shell` cd /testbed/tests && python runtests.py delete.scratch_batch
+- turn 43: `edit_lines` tests/delete/scratch_batch.py
+- turn 44: `shell` cd /testbed/tests && python runtests.py delete.scratch_batch
+- turn 45: `edit_lines` tests/delete/scratch_batch.py
+- turn 46: `shell` cd /testbed/tests && python runtests.py delete.scratch_batch
+- turn 47: `delete_file` tests/delete/scratch_batch.py
+- turn 48: `shell` cd /testbed && git status --short && cd tests && python runt
+- turn 49: `remember` 

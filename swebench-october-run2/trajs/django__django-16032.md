@@ -1,0 +1,54 @@
+# Trajectory: django__django-16032
+
+- model: deepseek-v4-flash
+- turns: 37
+- tool calls: 46
+
+## Tool-call sequence (recorded during inference)
+
+- turn 1: `benzi_grep` django/db/models/sql/query.py
+- turn 1: `benzi_grep` django/db/models
+- turn 2: `benzi_grep` django/db/models
+- turn 3: `read_source` django/db/models/sql/query.py
+- turn 3: `read_source` django/db/models/lookups.py
+- turn 3: `read_source` django/db/models/sql/query.py
+- turn 4: `read_source` django/db/models/fields/related_lookups.py
+- turn 4: `read_source` django/db/models/lookups.py
+- turn 5: `benzi_grep` django/db/models/query.py
+- turn 5: `benzi_grep` django/db/models/sql/query.py
+- turn 6: `read_source` django/db/models/query.py
+- turn 7: `benzi_grep` django/db/models/sql/query.py
+- turn 7: `read_source` django/db/models/sql/query.py
+- turn 8: `read_source` django/db/models/sql/query.py
+- turn 9: `shell` grep -n "VERSION\|version" django/__init__.py | head; git lo
+- turn 9: `read_source` django/db/models/sql/query.py
+- turn 10: `benzi_grep` tests
+- turn 10: `benzi_grep` tests/annotations/tests.py
+- turn 11: `shell` git log --all --oneline | head -3; git branch -a; python -c 
+- turn 12: `shell` find / -path /proc -prune -o -name "query.py" -path "*models
+- turn 13: `read_source` django/db/models/sql/query.py
+- turn 13: `read_source` django/db/models/sql/query.py
+- turn 14: `read_source` django/db/models/sql/query.py
+- turn 15: `read_source` django/db/models/sql/query.py
+- turn 15: `get_callers` django/db/models/sql/query.py::Query#Class.has_select_fields
+- turn 16: `shell` ls -la /; ls -la /testbed | head -30; find / -maxdepth 3 -in
+- turn 17: `shell` cat /problem.txt; ls -la /out /rt 2>/dev/null
+- turn 18: `shell` grep -n "INSTALLED_APPS\|annotations\|testapp" tests/test_sq
+- turn 19: `shell` sed -n '1,80p' tests/test_sqlite.py; echo ---; grep -rn "ann
+- turn 20: `benzi_grep` django/db/models/sql/query.py
+- turn 21: `read_source` django/db/models/sql/query.py
+- turn 22: `read_source` django/db/models/sql/query.py
+- turn 23: `benzi_grep` tests
+- turn 24: `get_callers` django/db/models/sql/query.py::Query#Class.add_annotation#Fu
+- turn 25: `benzi_grep` tests/annotations/tests.py
+- turn 26: `read_source` tests/annotations/tests.py
+- turn 27: `create_file` tests/annotations/test_repro_alias.py
+- turn 28: `shell` cd tests && python runtests.py annotations.test_repro_alias 
+- turn 29: `edit_lines` django/db/models/sql/query.py
+- turn 30: `shell` cd tests && python runtests.py annotations.test_repro_alias 
+- turn 31: `delete_file` tests/annotations/test_repro_alias.py
+- turn 32: `shell` cd tests && python runtests.py annotations queries lookup ag
+- turn 33: `shell` cd tests && python runtests.py annotations queries lookup ag
+- turn 34: `shell` cd tests && time python runtests.py annotations 2>&1 | grep 
+- turn 35: `shell` cd /testbed && git status --short && git diff
+- turn 36: `remember` 

@@ -1,0 +1,65 @@
+# Trajectory: django__django-14007
+
+- model: deepseek-v4-flash
+- turns: 38
+- tool calls: 56
+
+## Tool-call sequence (recorded during inference)
+
+- turn 1: `search_symbols` ['from_db_value', 'returning_fields', '_insert', 'SQLInsertC
+- turn 1: `benzi_grep` returning_fields
+- turn 2: `read_source` django/db/models/base.py::Model#Class._save_table#Function
+- turn 2: `read_source` django/db/models/query.py::QuerySet#Class.bulk_create#Functi
+- turn 3: `search_symbols` ['get_db_converters', 'apply_converters', 'get_converters', 
+- turn 3: `read_source` django/db/models/options.py::Options#Class.db_returning_fiel
+- turn 3: `shell` cd . && cat django/__init__.py | head -20 && git log --oneli
+- turn 4: `read_source` django/db/models/fields/__init__.py::Field#Class.get_db_conv
+- turn 4: `read_source` django/db/models/sql/compiler.py::SQLCompiler#Class.get_conv
+- turn 4: `read_source` django/db/models/sql/compiler.py::SQLInsertCompiler#Class.ex
+- turn 4: `shell` cd /tmp && pip download django==4.0 --no-deps --no-binary :a
+- turn 5: `read_source` tests/custom_pk/fields.py
+- turn 5: `shell` cd . && ls tests/custom_pk/ && sed -n 1,60p tests/custom_pk/
+- turn 6: `shell` cd /tmp && python -c "import django,sys;print(django.__versi
+- turn 6: `shell` cd . && grep -rn "db_returning" django/db/models/fields/__in
+- turn 7: `read_source` django/db/models/sql/compiler.py::SQLInsertCompiler#Class
+- turn 7: `read_source` django/db/models/sql/compiler.py::SQLInsertCompiler#Class.as
+- turn 7: `read_source` django/db/backends/base/operations.py::BaseDatabaseOperation
+- turn 8: `benzi_grep` django/db/models/fields/__init__.py
+- turn 8: `benzi_grep` django/db/models/expressions.py
+- turn 9: `benzi_grep` django/db/models/fields/__init__.py
+- turn 9: `read_source` django/db/backends/sqlite3/operations.py::DatabaseOperations
+- turn 10: `shell` cd . && grep -rn "def output_field" django/ | head; grep -rn
+- turn 11: `read_source` django/db/models/expressions.py::Col#Class
+- turn 11: `read_source` django/db/models/sql/compiler.py::SQLCompiler#Class.apply_co
+- turn 12: `shell` cd . && grep -rn "def execute_sql" django/ | head -20; pytho
+- turn 12: `benzi_grep` django/db/models/sql/compiler.py
+- turn 13: `create_file` /tmp/repro.py
+- turn 14: `shell` mkdir -p /tmp/scratch && cat > /tmp/scratch/repro.py <<'EOF'
+- turn 15: `shell` cd . && grep -rn "can_return_columns_from_insert\|can_return
+- turn 16: `read_source` django/db/models/query.py::QuerySet#Class._batched_insert#Fu
+- turn 17: `shell` cd . && cat tests/from_db_value/models.py && echo ---- && ca
+- turn 18: `shell` cd . && grep -rn "db_returning" tests/ django/ | head -20; s
+- turn 19: `shell` cd . && sed -n 700,760p tests/queries/models.py
+- turn 20: `edit_lines` django/db/models/sql/compiler.py
+- turn 20: `edit_lines` django/db/models/sql/compiler.py
+- turn 21: `shell` cd /tmp/scratch && python repro.py
+- turn 22: `shell` cd /tmp/scratch && cat > returning_path.py <<'EOF'
+import sy
+- turn 23: `shell` cd /tmp/scratch && sed -i "s/('RETURNING x', \[\])/('', [])/
+- turn 24: `shell` cd /tmp/scratch && sed -i "s/mock.patch.object(connection.op
+- turn 25: `shell` cd /testbed/tests && python runtests.py model_regress from_d
+- turn 26: `shell` cd /testbed/tests && python runtests.py model_regress from_d
+- turn 26: `shell` cd /testbed/tests && python runtests.py backends inheritance
+- turn 27: `shell` cd /testbed/tests && ls -d inheritance model_inheritance 2>&
+- turn 27: `shell` cd /testbed/tests && python runtests.py backends model_inher
+- turn 28: `read_source` django/db/models/sql/compiler.py::SQLInsertCompiler#Class.ex
+- turn 28: `shell` cd /testbed/tests && python runtests.py queries model_fields
+- turn 29: `shell` cd /testbed/tests && python runtests.py queries model_fields
+- turn 30: `shell` cd /testbed/tests && python runtests.py lookup timezones db_
+- turn 31: `shell` cd /testbed/tests && python runtests.py lookup timezones db_
+- turn 32: `shell` cd /testbed/tests && timeout 1700 python runtests.py 2>&1 | 
+- turn 33: `shell` cd /testbed/tests && python runtests.py test_client asgi i18
+- turn 34: `shell` cd /testbed && git stash && cd tests && python runtests.py t
+- turn 35: `shell` cd /testbed/tests && python runtests.py 2>&1 | grep -E "^FAI
+- turn 36: `shell` cd /testbed && git stash && cd tests && python runtests.py i
+- turn 37: `remember` 

@@ -1,0 +1,61 @@
+# Trajectory: django__django-14855
+
+- model: deepseek-v4-flash
+- turns: 41
+- tool calls: 53
+
+## Tool-call sequence (recorded during inference)
+
+- turn 1: `search_symbols` 
+- turn 1: `read_reference` artifact
+- turn 2: `search_symbols` ['get_admin_url', 'reverse']
+- turn 3: `read_source` django/contrib/admin/helpers.py::AdminReadonlyField#Class.ge
+- turn 3: `skim_source` django/contrib/admin/helpers.py::AdminReadonlyField#Class
+- turn 4: `benzi_grep` current_app=self\.model_admin\.admin_site\.name
+- turn 4: `read_source` django/urls/base.py::reverse#Function
+- turn 4: `read_source` django/contrib/admin/helpers.py::AdminReadonlyField#Class.co
+- turn 5: `read_source` django/contrib/admin/views/main.py::ChangeList#Class.url_for
+- turn 5: `shell` python -c "import django; print(django.VERSION)" 2>/dev/null
+- turn 6: `benzi_grep` AdminReadonlyField\(
+- turn 6: `get_callers` django/contrib/admin/helpers.py::AdminReadonlyField#Class.ge
+- turn 7: `read_source` django/contrib/admin/helpers.py::AdminReadonlyField#Class.__
+- turn 8: `edit_lines` django/contrib/admin/helpers.py
+- turn 9: `edit_lines` django/contrib/admin/helpers.py
+- turn 10: `benzi_grep` tests/admin_views
+- turn 10: `shell` ls tests/admin_views/ | head -50
+- turn 11: `read_source` tests/admin_views/customadmin.py
+- turn 11: `read_source` tests/admin_views/urls.py
+- turn 12: `benzi_grep` tests/admin_views
+- turn 12: `backflow` django/contrib/admin/utils.py::lookup_field#Function
+- turn 13: `read_source` tests/admin_views/tests.py::ReadonlyTest#Class.test_readonly
+- turn 13: `read_source` tests/admin_views/admin.py::ReadOnlyRelatedFieldAdmin#Class
+- turn 14: `read_source` django/contrib/admin/utils.py::lookup_field#Function
+- turn 14: `benzi_grep` tests/admin_views
+- turn 15: `read_source` tests/admin_views/models.py::Plot#Class
+- turn 16: `create_file` tests/admin_views/test_scratch_customsite_readonly.py
+- turn 17: `shell` cd tests && python runtests.py admin_views.test_scratch_cust
+- turn 18: `read_source` tests/admin_views/models.py::Article#Class
+- turn 19: `create_file` tests/admin_views/test_scratch_customsite_readonly.py
+- turn 20: `edit_lines` tests/admin_views/test_scratch_customsite_readonly.py
+- turn 21: `read_source` tests/admin_views/test_scratch_customsite_readonly.py
+- turn 22: `delete_file` tests/admin_views/test_scratch_customsite_readonly.py
+- turn 23: `create_file` tests/admin_views/test_scratch_customsite_readonly.py
+- turn 24: `shell` cd tests && python runtests.py admin_views.test_scratch_cust
+- turn 25: `shell` cd tests && grep -rn "admin_views" runtests.py test_sqlite.p
+- turn 26: `benzi_grep` tests/admin_views
+- turn 27: `edit_lines` tests/admin_views/test_scratch_customsite_readonly.py
+- turn 27: `read_source` tests/admin_views/test_adminsite.py
+- turn 28: `edit_lines` tests/admin_views/test_scratch_customsite_readonly.py
+- turn 29: `shell` cd tests && python runtests.py admin_views.test_scratch_cust
+- turn 30: `edit_lines` tests/admin_views/test_scratch_customsite_readonly.py
+- turn 31: `shell` cd tests && python runtests.py admin_views.test_scratch_cust
+- turn 32: `edit_lines` tests/admin_views/test_scratch_customsite_readonly.py
+- turn 33: `edit_lines` tests/admin_views/test_scratch_customsite_readonly.py
+- turn 34: `edit_lines` tests/admin_views/test_scratch_customsite_readonly.py
+- turn 35: `shell` cd tests && python runtests.py admin_views.test_scratch_cust
+- turn 36: `shell` cd /testbed && git stash push -- django/contrib/admin/helper
+- turn 37: `delete_file` tests/admin_views/test_scratch_customsite_readonly.py
+- turn 38: `shell` cd tests && python runtests.py admin_views admin_utils admin
+- turn 39: `shell` cd tests && python runtests.py admin_views admin_utils admin
+- turn 40: `benzi_grep` django/contrib/admin/helpers.py
+- turn 40: `read_source` django/contrib/admin/helpers.py::AdminReadonlyField#Class.ge
