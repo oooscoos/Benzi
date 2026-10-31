@@ -176,24 +176,24 @@ VS Code's settings panel and `benzi-login` share one config: log in once, and VS
 
 ### <u>SWE-bench Verified</u>
 
-The full SWE-bench Verified set — 500 real GitHub issues from twelve Python repositories — run end to end on **DeepSeek V4.1-Flash**, one attempt per instance, graded by the official `swebench.harness.run_evaluation` inside its own per-instance Docker images, with network access to GitHub and PyPI blocked inside every container. **412 of 500 resolved (82.4%) for $12.96 in total**, about 3¢ per fix, with 97.6% of input tokens served from cache.
+The full SWE-bench Verified set — 500 real GitHub issues from twelve Python repositories — run end to end on **DeepSeek V4.1-Flash**, one attempt per instance, graded by the official `swebench.harness.run_evaluation` inside its own per-instance Docker images, with network access to GitHub and PyPI blocked inside every container. **413 of 500 resolved (82.6%) for $9.26 in total**, about 2¢ per fix, with 97.6% of input tokens served from cache.
 
 <div align="center">
 
 | | |
 |---|---|
-| **Resolved** | **412 / 500 (82.4%)** |
+| **Resolved** | **413 / 500 (82.6%)** |
 | Attempts per instance | 1 (pass@1) |
 | Model | DeepSeek V4.1-Flash, thinking mode at its default effort |
-| Total generation cost, all 500 | $12.96 |
-| Cost per resolved instance | $0.031 |
-| Model turns: total / median per instance | 14,167 / 21.5 |
+| Total generation cost, all 500 | $9.26 |
+| Cost per resolved instance | $0.022 |
+| Model turns: total / median per instance | 13,281 / 20.5 |
 | Input tokens served from prompt cache | 97.6% |
-| Output tokens, total (of which reasoning) | 13.5M (10.7M) |
+| Output tokens, total (of which reasoning) | 8.7M (6.2M) |
 
 </div>
 
-Full technical report: [swebench-october/SWE_BENCH_REPORT.md](swebench-october/SWE_BENCH_REPORT.md) ([web version](https://varianttech.net/report)). Every instance's cost, tokens and turns: [varianttech.net/benchmark_swebench](https://varianttech.net/benchmark_swebench). The cross-harness efficiency comparison below (and the full 24-bug chart): [varianttech.net/benchmark](https://varianttech.net/benchmark).
+Full technical report: [swebench-october-run2/SWE_BENCH_REPORT.md](swebench-october-run2/SWE_BENCH_REPORT.md) ([web version](https://varianttech.net/report)). Every instance's cost, tokens and turns: [varianttech.net/benchmark_swebench](https://varianttech.net/benchmark_swebench). The cross-harness efficiency comparison below (and the full 24-bug chart): [varianttech.net/benchmark](https://varianttech.net/benchmark).
 
 <img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/divider_gold.png" width="100%" alt="">
 
