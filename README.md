@@ -22,10 +22,6 @@
 https://github.com/user-attachments/assets/626ee911-1dbe-4970-bb25-ec2e3fc31d7b
 
 <p align="center">
-  <a href="https://www.youtube.com/watch?v=j_q6t4cd-U8">https://www.youtube.com/watch?v=j_q6t4cd-U8</a>
-</p>
-
-<p align="center">
   <a href="https://varianttech.net/demo"><img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/cta9_demo.png" width="112" alt="Instant Demo"></a>
   <br>
   <a href="#getting-started"><img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/cta10_download.png" width="102" alt="Download"></a>
