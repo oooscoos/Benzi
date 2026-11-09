@@ -20,7 +20,9 @@
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/benzi_banner_v3.png" width="1000" alt="Benzi -- Compiler-backed AI coding agent">
+  <a href="https://www.youtube.com/watch?v=j_q6t4cd-U8"><img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/intro_video_thumb.png" width="1000" alt="Watch: Introducing Benzi -- a compiler-backed coding agent"></a>
+  <br>
+  <a href="https://www.youtube.com/watch?v=j_q6t4cd-U8">https://www.youtube.com/watch?v=j_q6t4cd-U8</a>
 </p>
 
 <p align="center">
