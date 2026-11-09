@@ -19,9 +19,9 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-proprietary-97ca00?labelColor=000000" alt="License" height="17"></a>
 </p>
 
+https://github.com/user-attachments/assets/626ee911-1dbe-4970-bb25-ec2e3fc31d7b
+
 <p align="center">
-  <a href="https://www.youtube.com/watch?v=j_q6t4cd-U8"><img src="https://raw.githubusercontent.com/oooscoos/Benzi/main/assets/intro_video_thumb.png" width="1000" alt="Watch: Introducing Benzi -- a compiler-backed coding agent"></a>
-  <br>
   <a href="https://www.youtube.com/watch?v=j_q6t4cd-U8">https://www.youtube.com/watch?v=j_q6t4cd-U8</a>
 </p>
 
